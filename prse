@@ -1,0 +1,18 @@
+.TH PRSE 8 "" "V1.0" "PRSE man page"
+.SH NAME
+prse
+
+.SH DESCRIPTION
+The PRSE compiler translates provided .prse code to C++, then compiles that to a binary, unless the user provides arguments to the compiler to specify that it should do something else [see SYNOPSIS]
+
+.SH OPTIONS
+.IP -h
+display help text, which lists a few of the below arguments
+.IP -cpp
+compile to .cpp files instead of to a binary, unless -o is used to specify the output directory
+.IP -c
+compile to a .o file for use with a Makefile, ar for creating libraries, or some other need
+.IP -g
+retain source-level debugging/symbol information while compiling. If you are well-versed in C++, you can use this along with a separate 'prse -cpp [files]' command to debug your program
+.IP -lib [path]
+link an external library
