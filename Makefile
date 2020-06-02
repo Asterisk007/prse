@@ -11,8 +11,8 @@ prse.tab.o:
 	clang++ prse.tab.cpp -c -o prse.tab.o
 
 lex.yy.o:
-	flex++ prse.l
-	clang++ lex.yy.cc -c -o lex.yy.o
+	flex -o lex.yy.cpp prse.l
+	clang++ lex.yy.cpp -c -o lex.yy.o
 
 clean:
-	rm -f lex.yy.cc prse.tab.cpp prse.tab.hpp prse.tab.o prse_c
+	rm -f lex.yy.* prse.tab.* prse_c
