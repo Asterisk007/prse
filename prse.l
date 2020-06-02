@@ -1,13 +1,14 @@
 /* Definitions */
+%option noyywrap
+%option c++
 
 %{
 	#include <iostream>
-	#include "prse.tab.h"
+	#include <algorithm>
+	#include "prse.tab.hpp"
 
 	int line_count = 1;
 %}
-
-%option noyywrap
 
 %%
 
@@ -21,19 +22,18 @@ var 						{ return VAR; }
 class						{ return CLASS; }
 func	 					{ return FUNCTION; }
 main						{ return MAIN; }
-return 						{ return RETURN; }
+return 					{ return RETURN; }
 
  /* ======== Flow control ======= */
 
 if 							{ return IF; }
-else 						{ return ELSE; }
+else							{ return ELSE; }
 for							{ return FOR; }
 
  /* ======== Data types ======== */
 
 bool|boolean 				{ return BOOL; }
 int 						{ return INT; }
-float 						{ return FLOAT; }
 doub|double 				{ return DOUBLE; }
 char 						{ return CHAR; }
 string 						{ return STRING; }
@@ -41,7 +41,7 @@ void 						{ return VOID; }
 
  /* ======== Arithmetic ======== */
 
-\=							{ retturn ASSIGN; }
+\=							{ return ASSIGN; }
 
 \+ 							{ return PLUS; }
 \- 							{ return MINUS; }
@@ -65,7 +65,7 @@ false						{ yylval.union_bool = false; return LOGIC_FALSE; }
 "!"							{ return LOGIC_NOT; }
 "&&" 						{ return LOGIC_AND; }
 "||" 						{ return LOGIC_OR; }
-">"							{ return LOGIC_GEATER; }
+">"							{ return LOGIC_GREATER; }
 "<"							{ return LOGIC_LESS; }
 ">="						{ return LOGIC_GREATER_EQUAL; }
 "<="						{ return LOGIC_LESS_EQUAL; }
@@ -91,28 +91,21 @@ false						{ yylval.union_bool = false; return LOGIC_FALSE; }
 [0-9]+						{ yylval.union_int = std::stoi(yytext); return INT_CONST; } /* integer constant */
 [0-9]*\.[0-9]*				{ yylval.union_double = std::stod(yytext); return DOUBLE_CONST; } /* integer constant */
 ["][^\n\r"]*["] 			{	/* string constant */
-								std::string s = std::string(yytext);
-								s.erase(std::remove(s.begin(), s.end(), '\"'), s.end());
-								yylval.union_string = new string(s);
-								return STRING_CONST;
-							}
+									std::string s = std::string(yytext);
+									s.erase(std::remove(s.begin(), s.end(), '\"'), s.end());
+									yylval.union_string = new std::string(s);
+									return STRING_CONST;
+								}
 ['].[']						{ /* character constant */
-								std::string s = std::string(yytext);
-								s.erase(std::remove(s.begin(), s.end(), '\''), s.end());
-								yylval.union_char = char(s);
-								return CHAR_CONST;
-							}
-[A-Za-z_][a-zA-Z0-9_]* 		{ yylval.union_string=new std::string(yytext); return ID; } /* variable */
+									std::string s = std::string(yytext);
+									s.erase(std::remove(s.begin(), s.end(), '\''), s.end());
+									yylval.union_char = new char(s[0]);
+									return CHAR_CONST;
+								}
+[A-Za-z_][a-zA-Z0-9_]* 	{ yylval.union_string = new std::string(yytext); return ID; } /* variable */
 
-[\	]*						{ /* return TAB; */ } /* whitespace: tabs */
+[\	]*							{ /* return TAB; */ } /* whitespace: tabs */
 [\ ]* 						{ /* return SPACE; */ } /* whitespace: space */
 [\n]* 						{ line_count++; /* return NEWLINE; */ } /* whitespace: \n */
-.							{ return ERROR; }
+.								{ return ERROR; }
 %%
-
-/* C code */
-
-int main(void){
-	yylex();
-	return 0;
-}

@@ -1,5 +1,6 @@
 %{
-	extern int yylex();
+	extern int yylex(void);
+	extern int yyerror(const char*);
 	extern int line_count;
 
 	#include <iostream>
@@ -11,7 +12,7 @@
 %union {
 	bool			union_bool;
 	int 			union_int;
-	char			union_char;
+	char*			union_char;
 	double 			union_double;
 	//float 			union_float;
 	std::string* 	union_string;
@@ -42,9 +43,11 @@
 %token FUNCTION 			"func"
 %token MAIN					"main"
 %token RETURN 				"return"
+%token CLASS				"class"
 // Flow control
 %token IF 					"if"
 %token ELSE 				"else"
+%token FOR					"for"
 // Arithmetic
 %token ASSIGN 				"="
 %token PLUS 				"+"
@@ -54,7 +57,7 @@
 %token CARET 				"^"
 %token INCREMENT 			"++"
 %token DECREMENT 			"--"
-%token PLUS_ASSIGN 			"+="
+%token PLUS_ASSIGN 		"+="
 %token MINUS_ASSIGN 		"-="
 // Logic
 %token LOGIC_TRUE			"true"
@@ -81,6 +84,7 @@
 %token R_SQUARE_BRACKET 	"]"
 %token L_CURLY_BRACKET 		"{"
 %token R_CURLY_BRACKET 		"}"
+%token ERROR
 // Variable identification
 %token <union_string> ID 	"identifier"
 
@@ -128,7 +132,7 @@ variable_declaration:
 		cout << "Variable " << $2 << " with type " << $4 << " set to " << $6 << endl;
 	}
 	| ID ASSIGN constant {
-		cout << "Variable " << $1 << " set to " $3 << endl;
+		cout << "Variable " << $1 << " set to " << $3 << endl;
 	}
 	;
 
@@ -176,22 +180,26 @@ argument:
 	;
 
 constant:
-	BOOL_CONST 		{ $$ = (union_bool == true? "true":"false") }
-	| INT_CONST 	{ $$ = std::to_string(union_int); }
-	| CHAR_CONST 	{ $$ = std::to_string(union_char); }
-	| DOUBLE_CONST 	{ $$ = std::to_string(union_double); }
-	| STRING_CONST 	{ $$ = union_string; $1; }
+	BOOL_CONST 		{ $$ = ($1 == true) ? new std::string("true") : new std::string("false"); }
+	| INT_CONST 	{ $$ = new std::string(std::to_string($1)); }
+	| CHAR_CONST 	{ $$ = new std::string($1); }
+	| DOUBLE_CONST 	{ $$ = new std::string(std::to_string($1)); }
+	| STRING_CONST 	{ $$ = new std::string(*$1); delete $1; }
 	;
 
 variable_type:
-	BOOL { $$ = "bool"; }
-	| INT { $$ = "int"; }
-	| CHAR { $$ = "char"; }
-	| DOUBLE { $$ = "double"; }
-	| STRING { $$ = "string"; }
+	BOOL { $$ = new std::string("bool"); }
+	| INT { $$ = new std::string("int"); }
+	| CHAR { $$ = new std::string("char"); }
+	| DOUBLE { $$ = new std::string("double"); }
+	| STRING { $$ = new std::string("string"); }
 	;
 
 empty:
 	;
 
 %%
+
+int main(void){
+	return yyparse();
+}

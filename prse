@@ -3,7 +3,7 @@
 prse
 
 .SH DESCRIPTION
-The PRSE compiler translates provided .prse code to C++, then compiles that to a binary, unless the user provides arguments to the compiler to specify that it should do something else [see SYNOPSIS]
+The PRSE compiler translates provided .prse code to C++, then compiles that to a binary, unless the user provides arguments to the compiler to specify that it should do something else [see OPTIONS]
 
 .SH OPTIONS
 .IP -h
