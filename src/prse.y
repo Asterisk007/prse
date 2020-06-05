@@ -29,58 +29,58 @@
 %token <union_int> 		INT_CONST		"int constant"
 //%token <union_float> 	FLOAT 			"float"
 %token <union_double> 	DOUBLE_CONST	"double constant"
-%token <union_char> 	CHAR_CONST		"char constant"
+%token <union_char> 	   CHAR_CONST		"char constant"
 %token <union_string> 	STRING_CONST	"string constant"
 // Variable types
-%token BOOL					"boolean"
-%token INT					"int"
-%token DOUBLE				"double"
-%token CHAR					"char"
-%token STRING				"string"
-%token VOID					"void"
+%token BOOL				   	"boolean"
+%token INT				   	"int"
+%token DOUBLE			   	"double"
+%token CHAR				   	"char"
+%token STRING			   	"string"
+%token VOID				   	"void"
 // Key tokens
-%token USE 					"use"
-%token VAR 					"var"
-%token FUNCTION 			"func"
-%token MAIN					"main"
-%token RETURN 				"return"
-%token CLASS				"class"
+%token USE 				   	"use"
+%token VAR 				   	"var"
+%token FUNCTION 		   	"func"
+%token MAIN				   	"main"
+%token RETURN 			   	"return"
+%token CLASS			   	"class"
 // Flow control
-%token IF 					"if"
-%token ELSE 				"else"
-%token FOR					"for"
+%token IF 				   	"if"
+%token ELSE 			   	"else"
+%token FOR				   	"for"
 // Arithmetic
-%token ASSIGN 				"="
-%token PLUS 				"+"
-%token MINUS 				"-"
-%token STAR 				"*"
-%token SLASH 				"/"
-%token CARET 				"^"
-%token INCREMENT 			"++"
-%token DECREMENT 			"--"
-%token PLUS_ASSIGN 		"+="
-%token MINUS_ASSIGN 		"-="
+%token ASSIGN 			   	"="
+%token PLUS 			   	"+"
+%token MINUS 			   	"-"
+%token STAR 			   	"*"
+%token SLASH 			   	"/"
+%token CARET 			   	"^"
+%token INCREMENT 		   	"++"
+%token DECREMENT 		   	"--"
+%token PLUS_ASSIGN 	   	"+="
+%token MINUS_ASSIGN 	   	"-="
 // Logic
-%token LOGIC_TRUE			"true"
-%token LOGIC_FALSE			"false"
-%token LOGIC_EQ				"=="
-%token LOGIC_NE				"!="
-%token LOGIC_NOT			"!"
-%token LOGIC_AND			"&&"
-%token LOGIC_OR				"||"
-%token LOGIC_GREATER		">"
-%token LOGIC_LESS			"<"
+%token LOGIC_TRUE		   	"true"
+%token LOGIC_FALSE	   	"false"
+%token LOGIC_EQ		   	"=="
+%token LOGIC_NE		   	"!="
+%token LOGIC_NOT		   	"!"
+%token LOGIC_AND		   	"&&"
+%token LOGIC_OR		   	"||"
+%token LOGIC_GREATER	   	">"
+%token LOGIC_LESS		   	"<"
 %token LOGIC_GREATER_EQUAL	">="
 %token LOGIC_LESS_EQUAL		"<="
 // Miscellaneous
-%token PERIOD 				"."
-%token COMMA 				","
-%token COLON 				":"
-%token SEMICOLON 			";"
-%token DOUBLE_QUOTE 		"\""
-%token SINGLE_QUOTE 		"'"
-%token L_PAREN				"("
-%token R_PAREN				")"
+%token PERIOD 			   	"."
+%token COMMA 			   	","
+%token COLON 			   	":"
+%token SEMICOLON 		   	";"
+%token DOUBLE_QUOTE 	   	"\""
+%token SINGLE_QUOTE 	   	"'"
+%token L_PAREN			   	"("
+%token R_PAREN			   	")"
 %token L_SQUARE_BRACKET 	"["
 %token R_SQUARE_BRACKET 	"]"
 %token L_CURLY_BRACKET 		"{"
@@ -92,7 +92,9 @@
 // Production types
 %type <union_string> import_multiple
 %type <union_string> variable_type
+%type <union_string> basic_type
 %type <union_string> constant
+%type <union_bool> optional_array
 
 %%
 
@@ -107,7 +109,7 @@ import_list:
 
 import_statement:
 	USE import_multiple {
-		cout << "Using libraries: " << endl << *$2 << endl;
+		cout << "Using libraries: " << *$2 << endl;
       delete $2;
 	}
 	;
@@ -118,24 +120,35 @@ import_multiple:
       *$$ += *$1;
       *$$ += ", ";
       *$$ += *$3;
+      delete $1;
+      delete $3;
 	}
 	| STRING_CONST {
      *$$ = *$1;
+     delete $1;
 	}
 	;
 
 declaration_list:
-	declaration_list variable_declaration SEMICOLON 
+	declaration_list variable_declaration
 	| empty
 	;
 
 variable_declaration:
-	VAR ID COLON variable_type ASSIGN constant {
-		cout << "Variable " << $2 << " with type " << $4 << " set to " << *$6 << endl;
+	VAR ID COLON variable_type ASSIGN constant SEMICOLON {
+		cout << "Variable " << *$2 << " with type " << *$4 << " set to " << *$6 << endl;
+      delete $2;
+      delete $4;
+      delete $6;
 	}
-	| ID ASSIGN constant {
+   ;
+
+variable_assignment:
+	ID ASSIGN constant SEMICOLON {
       // TODO this needs to ensure that $1 exists before assigning it.
-		cout << "Variable " << $1 << " set to " << *$3 << endl;
+		cout << "Variable " << *$1 << " set to " << *$3 << endl;
+      delete $1;
+      delete $3;
 	}
 	;
 
@@ -151,14 +164,16 @@ function_definition:
 		cout << "Arguments:" << endl;
 	}
 	| FUNCTION ID L_PAREN argument_list R_PAREN COLON variable_type L_CURLY_BRACKET expression_list R_CURLY_BRACKET {
-		cout << "Function " << $2 << " returns " << $7 << ":" << endl;
+		cout << "Function " << $2 << " returns " << *$7 << ":" << endl;
+      delete $7;
 		cout << "Arguments:" << endl;
 	}
 	| FUNCTION ID L_PAREN R_PAREN L_CURLY_BRACKET expression_list R_CURLY_BRACKET {
 		cout << "Function " << $2 << " returns void " << endl;
 	}
 	| FUNCTION ID L_PAREN R_PAREN COLON variable_type L_CURLY_BRACKET expression_list R_CURLY_BRACKET {
-		cout << "Function " << $2 << " returns " << $6 << ":" << endl;
+		cout << "Function " << $2 << " returns " << *$6 << ":" << endl;
+      delete $6;
 	}
 	;
 
@@ -178,7 +193,8 @@ argument_list:
 
 argument:
 	ID COLON variable_type {
-		cout << $1 << ": " << *$3 << endl;
+		cout << "   " << $1 << ": " << *$3 << endl;
+      delete $3;
 	}
 	;
 
@@ -191,6 +207,17 @@ constant:
 	;
 
 variable_type:
+   basic_type optional_array {
+      $$ = new string("");
+      if ($2 == true){
+         *$1 += " array";
+      }
+      *$$ = *$1; 
+      delete $1;
+   }
+   ;
+
+basic_type:
 	BOOL { $$ = new std::string("bool"); }
 	| INT { $$ = new std::string("int"); }
 	| CHAR { $$ = new std::string("char"); }
@@ -198,12 +225,21 @@ variable_type:
 	| STRING { $$ = new std::string("string"); }
 	;
 
+optional_array:
+   L_SQUARE_BRACKET R_SQUARE_BRACKET {
+      $$ = true;
+   }
+   | empty {
+      $$ = false;
+   }
+   ;
+
 empty:
 	;
 
 %%
 void yyerror(const char* error){
-	fprintf (stderr, "%s on line %d\n", error, line_count);
+	fprintf(stderr, "%s on line %d\n", error, line_count);
 }
 
 void help_text(){
