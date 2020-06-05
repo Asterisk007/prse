@@ -1,0 +1,200 @@
+% Document setup
+\documentclass[letterpaper, 12pt]{article}
+\addtolength{\oddsidemargin}{-.875in}
+\addtolength{\evensidemargin}{-.875in}
+\addtolength{\textwidth}{1.75in}
+\addtolength{\topmargin}{-.875in}
+\addtolength{\textheight}{1.75in}
+% Adding a blank page command
+\def\blankpage{%
+      \clearpage%
+      \thispagestyle{empty}%
+      \addtocounter{page}{-1}%
+      \null%
+      \clearpage}
+% Packages to include
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage[document]{ragged2e}
+\usepackage{hyperref}
+\hypersetup{
+   colorlinks = true,
+   linkcolor = {blue}
+}
+\usepackage{mathtools}
+\usepackage{tabularx}
+\usepackage{makecell}
+\usepackage{listings}
+\usepackage{xcolor}
+% New commands
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\R}{\mathbb{R}}
+\definecolor{darkgreen}{RGB}{0, 145, 39}
+
+\renewcommand\theadfont{\bfseries}
+\lstset{
+   frame=tb,
+   language=C++,
+   aboveskip=3mm,
+   belowskip=3mm,
+   columns=flexible,
+   basicstyle={\small\ttfamily},
+   numbers=none,
+   numberstyle=\tiny\color{gray},
+   keywordstyle=\color{blue},
+   commentstyle=\color{darkgreen},
+   stringstyle=\color{mauve},
+   breaklines=true,
+   breakatwhitespace=true,
+   tabsize=3
+}
+% Document start
+\begin{document}
+\title{\underline{PRSE}\\ A Programming Language for Tired C++ Developers}
+\author{Written by Daniel Ellingson\\with advice and support from Dr. Todd Gibson}
+\date{Compiled from {\LaTeX} source on \today}
+\maketitle
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{Introduction}
+Having spent four years of my life learning C++ and various other programming languages, I feel that
+it is within my level of experience to say that most C-like languages fail to do everything the best
+way. C may have its syntax, and C++ may have its classes, and other languages may have their own
+features which make them useful for their given paradigm--but I wish for a language that has the
+syntax I {\em prefer}. Enter PRSE.\linebreak
+
+PRSE has features that most other C-like languages have, with a few extra goodies on the side for
+those who may tire of repeated code.
+
+\begin{itemize}
+\item C\#-/Java-style classes, for those who think header files are outdated
+\item Python-style dictionaries, for those who like JSON. Yes, we have both JSON and actual classes.
+   Both are handy, I assure you
+\item R-style vectorization: that is, items in an array or in an STL vector can be easily iterated
+   over. More in \hyperref[sec:flowcontrol-loops]{flow control - loops}
+\end{itemize}
+
+\newpage
+
+\section{Basic Program Structure}
+
+A PRSE program will usually consist of the following:
+
+\begin{itemize}
+\item Zero or more \texttt{use} statements which are followed by a string or list of strings, e.g. \texttt{"io", "math", "algorithm"}
+\begin{itemize}
+   \item These are used both for STL (standard template) libraries and third-party libraries, such as those created by other users and yourself
+\end{itemize}
+\item Zero or more variable declaration and/or class declaration statements
+\item Zero or more function definitions. 
+\end{itemize}
+
+$\left\{
+   \begin{tabularx}{\textwidth}{>{\centering\arraybackslash}X}
+   {\small From this definition, one may infer that an empty program is just as valid as a full program
+   complete with variables, functions, and class definitions. While this is certainly true,
+   such a program has no practical operation, and in fact will cause a warning to be printed to
+   the terminal.}
+   \end{tabularx}
+\right\}$\linebreak
+\linebreak
+
+\hrulefill
+
+A complete program written using PRSE needs a single \texttt{main} function to
+run. Like all functions, this \texttt{main} function can return any primitive data type (see
+\hyperref[sec:primitives]{primitives} for more information).
+
+\subsection{The Main Function}
+
+A basic standard main function might look like this:\linebreak
+
+\begin{lstlisting}
+function main(ac: int, av: string[]){
+   
+}
+\end{lstlisting}
+
+Main Function Arguments \linebreak
+
+\texttt{ac: int} declares a function argument named \texttt{ac} with primitive type \texttt{int}.
+Similarly, \texttt{av: string[]} declares an argument named \texttt{av} with array type \texttt{string}.
+\texttt{ac} can be used in the function to find the number of arguments passed to the program when it is run,
+and likewise \texttt{av} can be used to obtain the \texttt{string} values of each argument.
+
+\newpage
+
+\section{Basic Data Types}
+\subsection{Primitives}
+\label{sec:primitives}
+
+PRSE supports most of the same primitive data types that C++ does, save for floating point numbers.
+Doubles are supported in place of floating point numbers for the sake of simplicity in programming
+the compiler. Refer to \autoref{tab:availablePrimitives} for basic data types that can be used
+without additional libraries.\linebreak
+
+\begin{table}[h]
+\centering
+   \caption{Primitive data types}
+   \begin{tabularx}{400pt}{|X|X|X|}
+      \hline
+      \thead{Data type} & \thead{Supported formats} & \thead{Example(s)}     \\ \hline      
+      Integer           & $ x \in \Z $              & 10, 12, -9, 8          \\ \hline
+      Boolean           & $ x \in {true, false} $   & \it{true}, \it{false}  \\ \hline
+      Character         & All ASCII characters      & A, G, f, \%, *         \\ \hline
+      Double            & $ x \in \R $              & 12.45, 6.77777, 2.43   \\ \hline
+   \end{tabularx}
+   \label{tab:availablePrimitives}
+\end{table}
+
+\newpage
+
+\section{Flow Control}
+
+\subsection{Conditionals}
+
+If you're familiar with any C-like language, then you already know how to program an if-statement in
+PRSE. However, if this is your first rodeo, here's what to expect:
+
+\begin{lstlisting}
+if (/* Some condition, e.g. a >= b */){
+   // Execute code
+}
+\end{lstlisting}
+
+For a more concrete example, suppose we have the following code:
+
+\begin{lstlisting}
+let foo: int = 25;
+let bar: bool = false;
+
+if (foo > 4 && bar == true){
+   foo = 2;
+}
+\end{lstlisting}
+
+Then the above if-statement will {\em not} execute because \texttt{bar} is false.\linebreak
+
+In addition, we can also use \texttt{else if} and \texttt{else} clauses in a PRSE program to execute
+code depending on how the conditions change:
+
+\begin{lstlisting}
+if (/* Conditions */){
+
+} else if (/* Other conditions */) {
+
+} else {
+   // If all other conditions fail, execute this code.
+}
+\end{lstlisting}
+
+\subsection{Loops}
+\label{sec:flowcontrol-loops}
+
+\end{document}
+% Document end
