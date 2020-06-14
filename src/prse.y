@@ -2,6 +2,8 @@
 	#include <stdio.h>
 	#include <iostream>
 	#include <string>
+   #include <vector>
+   #include "parser.h"
 	//#include "Constant.h"
 	using namespace std;
 
@@ -11,12 +13,13 @@
 %}
 
 %union {
-	bool			union_bool;
-	int 			union_int;
-	char*			union_char;
-	double 			union_double;
-	//float 			union_float;
-	std::string* 	union_string;
+	bool                  union_bool;
+	int                   union_int;
+	char*                 union_char;
+	double                union_double;
+	//float               union_float;
+	std::string*          union_string;
+   Arg_list*             union_arglist; 
 }
 
 %destructor { delete $$; } <union_string>
@@ -45,6 +48,8 @@
 %token MAIN				   	"main"
 %token RETURN 			   	"return"
 %token CLASS			   	"class"
+%token PUBLIC			   	"public"
+%token PRIVATE			   	"private"
 // Flow control
 %token IF 				   	"if"
 %token ELSE 			   	"else"
@@ -85,16 +90,24 @@
 %token R_SQUARE_BRACKET 	"]"
 %token L_CURLY_BRACKET 		"{"
 %token R_CURLY_BRACKET 		"}"
+%token TAB                 "  "
+%token SPACE               " "
 %token ERROR
 // Variable identification
 %token <union_string> ID 	"identifier"
 
 // Production types
-%type <union_string> import_multiple
+%type <union_string> libraries_list
 %type <union_string> variable_type
 %type <union_string> basic_type
 %type <union_string> constant
 %type <union_bool> optional_array
+%type <union_arglist> parameter_list_or_empty 
+%type <union_arglist> parameter_list
+%type <union_string> parameter
+%type <union_arglist> argument_list_or_empty
+%type <union_arglist> argument_list
+%type <union_string> argument
 
 %%
 
@@ -108,14 +121,16 @@ import_list:
 	;
 
 import_statement:
-	USE import_multiple {
-		cout << "Using libraries: " << *$2 << endl;
-      delete $2;
+	USE libraries_list {
+      if ($2 != nullptr){
+		   cout << "Using libraries: " << *$2 << endl;
+         delete $2;
+      }
 	}
 	;
 
-import_multiple:
-	STRING_CONST COMMA import_multiple {
+libraries_list:
+	STRING_CONST COMMA libraries_list {
       $$ = new string("");
       *$$ += *$1;
       *$$ += ", ";
@@ -124,15 +139,22 @@ import_multiple:
       delete $3;
 	}
 	| STRING_CONST {
+     $$ = new string("");
      *$$ = *$1;
      delete $1;
 	}
 	;
 
 declaration_list:
-	declaration_list variable_declaration
+	declaration_list variable_declaration_list_or_empty
+   | declaration_list class_declaration_list_or_empty
 	| empty
 	;
+
+variable_declaration_list_or_empty:
+   variable_declaration variable_declaration_list_or_empty
+   | empty
+   ;
 
 variable_declaration:
 	VAR ID COLON variable_type ASSIGN constant SEMICOLON {
@@ -141,6 +163,29 @@ variable_declaration:
       delete $4;
       delete $6;
 	}
+   ;
+
+class_declaration_list_or_empty:
+   class_declaration class_declaration_list_or_empty
+   | empty
+   ;
+
+class_declaration:
+   CLASS ID L_CURLY_BRACKET public_or_private_block_list_or_empty class_function_list R_CURLY_BRACKET
+   ;
+
+public_or_private_block_list_or_empty:
+   public_or_private_block public_or_private_block_list_or_empty
+   | empty
+   ;
+
+public_or_private_block:
+   PUBLIC L_CURLY_BRACKET variable_declaration_list_or_empty {
+
+   }
+   PRIVATE L_CURLY_BRACKET variable_declaration_list_or_empty {
+
+   }
    ;
 
 variable_assignment:
@@ -159,23 +204,52 @@ function_list:
 
 // Function definitions can consist of none, one, or many arguments, and can have a declared return type (default void)
 function_definition:
-	FUNCTION ID L_PAREN argument_list R_PAREN L_CURLY_BRACKET expression_list R_CURLY_BRACKET {
-		cout << "Function " << $2 << " returns void:" << endl;
-		cout << "Arguments:" << endl;
+	FUNCTION ID L_PAREN parameter_list_or_empty R_PAREN L_CURLY_BRACKET expression_list R_CURLY_BRACKET {
+		cout << "Function " << *$2 << " returns void" << endl;
+      delete $2;
+      if ($4->args.size() > 0){
+         cout << "Parameter(s):" << endl;
+         for (auto arg : $4->args) {
+            cout << arg << endl;
+         }
+      }
+      delete $4;
+      cout << endl;
 	}
-	| FUNCTION ID L_PAREN argument_list R_PAREN COLON variable_type L_CURLY_BRACKET expression_list R_CURLY_BRACKET {
-		cout << "Function " << $2 << " returns " << *$7 << ":" << endl;
+	| FUNCTION ID L_PAREN parameter_list_or_empty R_PAREN COLON variable_type L_CURLY_BRACKET expression_list R_CURLY_BRACKET {
+		cout << "Function " << *$2 << " returns " << *$7 << ":" << endl;
+      delete $2;
       delete $7;
-		cout << "Arguments:" << endl;
-	}
-	| FUNCTION ID L_PAREN R_PAREN L_CURLY_BRACKET expression_list R_CURLY_BRACKET {
-		cout << "Function " << $2 << " returns void " << endl;
-	}
-	| FUNCTION ID L_PAREN R_PAREN COLON variable_type L_CURLY_BRACKET expression_list R_CURLY_BRACKET {
-		cout << "Function " << $2 << " returns " << *$6 << ":" << endl;
-      delete $6;
+		cout << "Parameter(s):" << endl;
+      if ($4->args.size() > 0){
+         for (auto arg : $4->args) {
+            cout << arg << endl;
+         }
+      }
+      delete $4;
+      cout << endl;
 	}
 	;
+
+class_function_list:
+   class_function function_definition
+   | empty
+   ;
+
+class_function:
+   optional_public_or_private FUNCTION ID L_PAREN parameter_list_or_empty R_PAREN L_CURLY_BRACKET expression_list R_CURLY_BRACKET {
+
+   }
+   optional_public_or_private FUNCTION ID L_PAREN parameter_list_or_empty R_PAREN COLON variable_type L_CURLY_BRACKET expression_list R_CURLY_BRACKET {
+
+   }
+   ;
+
+optional_public_or_private:
+   PUBLIC
+   | PRIVATE
+   | empty
+   ;
 
 expression_list:
 	expression_list expression
@@ -183,17 +257,84 @@ expression_list:
 	;
 
 expression:
-	empty
+   variable_declaration
+   | variable_assignment
+   | function_call
+	| empty
 	;
+
+function_call:
+   ID L_PAREN argument_list_or_empty R_PAREN SEMICOLON {
+      cout << "Function \"" << *$1 << "\" called";
+      delete $1;
+      if ($3->args.size() > 0){
+         cout << " with " << $3->args.size() << " argument(s):" << endl;
+         for (auto arg : $3->args){
+            cout << arg << endl;
+         }
+         delete $3;
+         cout << endl;
+      }
+      else cout << ".";
+   }
+   ;
+
+argument_list_or_empty:
+   argument_list
+   | empty {
+      $$ = new Arg_list();
+   }
+   ;
 
 argument_list:
-	argument COMMA argument_list
-	| argument
-	;
+   argument COMMA argument_list {
+      $$ = new Arg_list();
+      $$->args.push_back(*$1);
+      delete $1;
+      $$->args.insert($$->args.end(), $3->args.begin(), $3->args.end());
+      delete $3;
+   }
+   | argument {
+      $$ = new Arg_list();
+      $$->args.push_back(*$1);
+      delete $1;
+   }
+   ;
 
 argument:
+   constant {
+      $$ = $1;
+   }
+   ;
+
+parameter_list_or_empty:
+   parameter_list
+   | empty {
+      $$ = new Arg_list();
+   }
+   ;
+
+parameter_list:
+	parameter COMMA parameter_list {
+      $$ = new Arg_list();
+      $$->args.push_back(*$1);
+      delete $1;
+      $$->args.insert($$->args.end(), $3->args.begin(), $3->args.end());
+      delete $3;
+   }
+	| parameter {
+      $$ = new Arg_list();
+      $$->args.push_back(*$1);
+      delete $1;
+   }
+   ;
+
+parameter:
 	ID COLON variable_type {
-		cout << "   " << $1 << ": " << *$3 << endl;
+      $$ = new string("");
+      string str = " " + *$1 + ": " + *$3;
+      *$$ += str;
+      delete $1;
       delete $3;
 	}
 	;
@@ -204,6 +345,7 @@ constant:
 	| CHAR_CONST 	{ $$ = new std::string($1); }
 	| DOUBLE_CONST 	{ $$ = new std::string(std::to_string($1)); }
 	| STRING_CONST 	{ $$ = new std::string(*$1); delete $1; }
+   | ID           { $$ = new std::string(*$1); delete $1; }
 	;
 
 variable_type:
@@ -223,6 +365,7 @@ basic_type:
 	| CHAR { $$ = new std::string("char"); }
 	| DOUBLE { $$ = new std::string("double"); }
 	| STRING { $$ = new std::string("string"); }
+   | VOID { $$ = new std::string("void"); }
 	;
 
 optional_array:
@@ -247,7 +390,8 @@ void help_text(){
 	cout << "OPTIONS: " << endl;
 	string options_list[] = {
 		"	-cpp	Output directly to C++ instead of binary file",
-		"	-o		Name of output file"
+		"	-o		Name of output file",
+      "  -g    Include debugging symbols in binary, for use with gdb"
 	};
 	for (int i = 0; i < (sizeof(options_list)/sizeof(options_list[0])); i++){
 		cout << options_list[i] << endl;	
@@ -262,7 +406,7 @@ int main(int argc, char** argv){
 	}
 	FILE* in_file = fopen(argv[1], "r");
 	if (!in_file){
-		cerr << "Could not open file " << argv[1] << endl;
+		cerr << "Could not open file \"" << argv[1] << "\"" << endl;
 		return 1;
 	}
 	extern FILE* yyin;

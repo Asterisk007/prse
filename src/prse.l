@@ -5,7 +5,8 @@
 %{
 	#include <iostream>
 	#include <algorithm>
-	#include "prse.tab.h"
+   #include "parser.h"
+   #include "prse.tab.h"
 
 	using namespace std;
 
@@ -23,8 +24,9 @@ use 				   		{ return USE; }
 var 				   		{ return VAR; }
 class				   		{ return CLASS; }
 func	 			   		{ return FUNCTION; }
-main				   		{ return MAIN; }
 return 			   		{ return RETURN; }
+public                  { return PUBLIC; }
+private                 { return PRIVATE; }
 
  /* ======== Flow control ======= */
 
@@ -106,9 +108,9 @@ false							{ yylval.union_bool = false; return LOGIC_FALSE; }
 								}
 [A-Za-z_][a-zA-Z0-9_]* 	{ yylval.union_string = new std::string(yytext); return ID; } /* variable */
 
-[\	]*							{ /* return TAB; */ } /* whitespace: tabs */
-[\ ]* 						{ /* return SPACE; */ } /* whitespace: space */
-[\n]* 						{ line_count++; /* return NEWLINE; */ } /* whitespace: \n */
+[\	]*							{ /*return TAB;*/ } /* whitespace: tabs */
+[\ ]* 						{ /*return SPACE;*/ } /* whitespace: space */
+[\n\r]* 						{ line_count++; /* return NEWLINE; */ } /* whitespace: \n */
 .								{ return ERROR; }
 
 %%

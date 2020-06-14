@@ -1,0 +1,3 @@
+// Using several use statements
+use "io", "math"
+use "algorithm"
