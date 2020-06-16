@@ -378,10 +378,10 @@ apply quick iteration to.\linebreak
    \caption{Supported data types for quick iteration}
    \begin{tabular}{|c|}
       \hline
-      \thead{Data type} \\ \hline      
-      Integer           \\ \hline
-      Double            \\ \hline
-      String            \\ \hline
+      \thead{Data type}                 \\ \hline      
+      Integer Array (\texttt{int[]})    \\ \hline
+      Double Array (\texttt{double[]})  \\ \hline
+      String Array (\texttt{string[]})  \\ \hline
    \end{tabular}
    \label{tab:supportedDataTypes-quickIteration}
 \end{wraptable}
@@ -410,9 +410,28 @@ var n[]: int = range:int(0, 10);
 
 Because variable types are indicated with a colon followed by the type, ranges use a similar syntax
 to avoid ambiguity. % I mean, this isn't a _bad_ explanation, but it could be better worded.
+Ranges are exclusive by default, meaning that they count up to the upper bound - 1. In the above
+example, array \texttt{n} will contain integers 0 to 9. For an inclusive range, prepend
+\texttt{range} with \texttt{incl\_}, for inclusive.\linebreak
+
 
 
 \section{Standard Template Libraries}
+
+\subsection{IO}
+
+\texttt{use "io"}\linebreak
+
+The \texttt{io} STL is the default library for printing things to the terminal. The following
+functions are available in the library:
+
+\subsubsection{\texttt{print()}}
+
+\texttt{print(message: string, ...)}\linebreak
+
+\texttt{...} represents a list of 0 or more constants that can be written to \texttt{stdout}. Among
+these are all primitive datatypes, as well as classes with a defined \texttt{outstream} % TODO: change the name for this.
+function.
 
 \end{document}
 % Document end
