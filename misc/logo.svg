@@ -17,7 +17,7 @@
    id="svg8"
    inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
    sodipodi:docname="logo.svg"
-   inkscape:export-filename="D:\Users\spyki\Documents\_College\CSCI 490\PRSE\logo.png"
+   inkscape:export-filename="D:\Users\spyki\Documents\_College\CSCI 490\prse\misc\logo.png"
    inkscape:export-xdpi="96"
    inkscape:export-ydpi="96">
   <defs
@@ -39,16 +39,16 @@
      inkscape:pageopacity="1"
      inkscape:pageshadow="2"
      inkscape:zoom="2.8"
-     inkscape:cx="-8.5154893"
-     inkscape:cy="86.995271"
+     inkscape:cx="-22.980084"
+     inkscape:cy="101.48852"
      inkscape:document-units="mm"
      inkscape:current-layer="layer2"
      showgrid="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="1057"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
-     inkscape:window-maximized="1"
+     inkscape:window-width="1419"
+     inkscape:window-height="878"
+     inkscape:window-x="182"
+     inkscape:window-y="100"
+     inkscape:window-maximized="0"
      units="px"
      inkscape:pagecheckerboard="true"
      inkscape:showpageshadow="false"
@@ -65,7 +65,8 @@
      inkscape:snap-smooth-nodes="true"
      inkscape:snap-midpoints="true"
      inkscape:snap-object-midpoints="true"
-     inkscape:snap-center="true" />
+     inkscape:snap-center="true"
+     showguides="false" />
   <metadata
      id="metadata5">
     <rdf:RDF>
@@ -155,19 +156,19 @@
          sodipodi:role="line">}</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25.39999962px;line-height:0.75;font-family:'3270 Condensed';-inkscape-font-specification:'3270 Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-       x="13.418154"
-       y="24.946428"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25.39999962px;line-height:0.64999998;font-family:'3270 Condensed';-inkscape-font-specification:'3270 Condensed, ';letter-spacing:1.0530417px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="12.92344"
+       y="26.394821"
        id="text6033"><tspan
          sodipodi:role="line"
          id="tspan6031"
-         x="13.418154"
-         y="24.946428"
-         style="font-size:25.39999962px;line-height:0.75;fill:#ffffff;stroke-width:0.26458332">PR</tspan><tspan
+         x="12.92344"
+         y="26.394821"
+         style="font-size:25.39999962px;line-height:0.64999998;letter-spacing:1.0530417px;fill:#ffffff;stroke-width:0.26458332">PR</tspan><tspan
          sodipodi:role="line"
-         x="13.418154"
-         y="43.996426"
-         style="font-size:25.39999962px;line-height:0.75;fill:#ffffff;stroke-width:0.26458332"
+         x="12.92344"
+         y="42.904819"
+         style="font-size:25.39999962px;line-height:0.64999998;letter-spacing:1.0530417px;fill:#ffffff;stroke-width:0.26458332"
          id="tspan6035">SE</tspan></text>
   </g>
 </svg>
