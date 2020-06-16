@@ -3,8 +3,9 @@
 	#include <iostream>
 	#include <string>
    #include <vector>
+   #include <map>
    #include "parser.h"
-	//#include "Constant.h"
+
 	using namespace std;
 
 	int yylex(void);
@@ -146,14 +147,14 @@ libraries_list:
 	;
 
 declaration_list:
-	declaration_list variable_declaration_list_or_empty
-   | declaration_list class_declaration_list_or_empty
-	| empty
+	declaration_list variable_declaration_list
+   | declaration_list class_declaration_list
+   | empty
 	;
 
-variable_declaration_list_or_empty:
-   variable_declaration variable_declaration_list_or_empty
-   | empty
+variable_declaration_list:
+   variable_declaration variable_declaration_list
+   | variable_declaration
    ;
 
 variable_declaration:
@@ -165,13 +166,15 @@ variable_declaration:
 	}
    ;
 
-class_declaration_list_or_empty:
-   class_declaration class_declaration_list_or_empty
-   | empty
+class_declaration_list:
+   class_declaration class_declaration_list
+   | class_declaration
    ;
 
 class_declaration:
-   CLASS ID L_CURLY_BRACKET public_or_private_block_list_or_empty class_function_list R_CURLY_BRACKET
+   CLASS ID L_CURLY_BRACKET public_or_private_block_list_or_empty class_function_list_or_empty R_CURLY_BRACKET {
+      delete $2;
+   }
    ;
 
 public_or_private_block_list_or_empty:
@@ -181,11 +184,16 @@ public_or_private_block_list_or_empty:
 
 public_or_private_block:
    PUBLIC L_CURLY_BRACKET variable_declaration_list_or_empty {
+      
+   }
+   | PRIVATE L_CURLY_BRACKET variable_declaration_list_or_empty {
 
    }
-   PRIVATE L_CURLY_BRACKET variable_declaration_list_or_empty {
+   ;
 
-   }
+variable_declaration_list_or_empty:
+   variable_declaration_list
+   | empty
    ;
 
 variable_assignment:
@@ -231,17 +239,18 @@ function_definition:
 	}
 	;
 
-class_function_list:
-   class_function function_definition
+class_function_list_or_empty:
+   class_function_list_or_empty class_function
    | empty
    ;
 
 class_function:
    optional_public_or_private FUNCTION ID L_PAREN parameter_list_or_empty R_PAREN L_CURLY_BRACKET expression_list R_CURLY_BRACKET {
-
+      delete $3;
    }
-   optional_public_or_private FUNCTION ID L_PAREN parameter_list_or_empty R_PAREN COLON variable_type L_CURLY_BRACKET expression_list R_CURLY_BRACKET {
-
+   | optional_public_or_private FUNCTION ID L_PAREN parameter_list_or_empty R_PAREN COLON variable_type L_CURLY_BRACKET expression_list R_CURLY_BRACKET {
+      delete $3;
+      delete $8;
    }
    ;
 
@@ -260,7 +269,6 @@ expression:
    variable_declaration
    | variable_assignment
    | function_call
-	| empty
 	;
 
 function_call:
@@ -340,12 +348,12 @@ parameter:
 	;
 
 constant:
-	BOOL_CONST 		{ $$ = ($1 == true) ? new std::string("true") : new std::string("false"); }
-	| INT_CONST 	{ $$ = new std::string(std::to_string($1)); }
-	| CHAR_CONST 	{ $$ = new std::string($1); }
+	BOOL_CONST        { $$ = ($1 == true) ? new std::string("true") : new std::string("false"); }
+	| INT_CONST       { $$ = new std::string(std::to_string($1)); }
+	| CHAR_CONST      { $$ = new std::string($1); }
 	| DOUBLE_CONST 	{ $$ = new std::string(std::to_string($1)); }
 	| STRING_CONST 	{ $$ = new std::string(*$1); delete $1; }
-   | ID           { $$ = new std::string(*$1); delete $1; }
+   | ID              { $$ = new std::string(*$1); delete $1; }
 	;
 
 variable_type:
@@ -386,12 +394,14 @@ void yyerror(const char* error){
 }
 
 void help_text(){
-	cout << "Usage: prse_c [OPTIONS] [FILE]" << endl;
+	cout << "Usage: prse_c [OPTIONS] [FILE(S)]" << endl;
 	cout << "OPTIONS: " << endl;
 	string options_list[] = {
-		"	-cpp	Output directly to C++ instead of binary file",
-		"	-o		Name of output file",
-      "  -g    Include debugging symbols in binary, for use with gdb"
+		"  -cpp                    Output directly to C++ instead of binary file",
+      "  -g                      Include debugging symbols in binary, for use with gdb"
+      "\n  --help                  Display this help text",
+		"  -o, --output=[FILE]     Specify an output file name (default a.out)",
+      "  -v, --verbose           Verbose mode"
 	};
 	for (int i = 0; i < (sizeof(options_list)/sizeof(options_list[0])); i++){
 		cout << options_list[i] << endl;	
@@ -399,17 +409,70 @@ void help_text(){
 }
 
 int main(int argc, char** argv){
-	// Raise an error if the user only types 'prse_c'
-	if ( !(argc > 1) ){
-		help_text();
-		return 1;
-	}
-	FILE* in_file = fopen(argv[1], "r");
-	if (!in_file){
-		cerr << "Could not open file \"" << argv[1] << "\"" << endl;
-		return 1;
-	}
+   std::string output_filename = "";
+   // Create a library of available bash/command line arguments
+   std::map<std::string, bool> activated_args;
+   activated_args["-cpp"] = false;
+   activated_args["-g"] = false;
+   activated_args["--help"] = false;
+   activated_args["-o"] = false;
+   activated_args["-v"] = false;
+   activated_args["--verbose"] = false;
+   std::vector<std::string> input_files = std::vector<std::string>(); 
+   for (int i = 1; i < argc; i++){
+      std::string file_candidate = std::string(argv[i]);
+      std::string filetype = ".prse";
+      // If string is a file, check that we can open it.
+      // '!' is necessary to reverse the logical FALSE return value, which means it matches.
+      if (file_candidate.length() > filetype.length() && !file_candidate.compare(file_candidate.length() - filetype.length(), filetype.length(), filetype)){
+         FILE* file = fopen(file_candidate.c_str(), "r");
+         if (!file){
+            cerr << "Could not open file \"" << file_candidate << "\"" << endl;
+            return 1;
+         } else {
+         // Add this file to the list of files
+            fclose(file);
+            input_files.push_back(file_candidate);
+         }
+      } else {
+      // Otherwise, if this isn't a file, check that it exists in our library of aviailable arguments
+         std::string arg = std::string(argv[i]);
+         if (activated_args.find(arg) != activated_args.end()){
+            activated_args[arg] = true;
+            // Get output filename
+            if (arg == "-o" && i+1 < argc) {
+               output_filename = std::string(argv[i+1]);
+               i = i+2;
+            } else if (arg == "-o" && i+1 >= argc) {
+               cout << "Please specify a filename" << endl;
+               return 1;
+            }
+         } else {
+            cout << "Unrecognized argument '" << arg << "'" << endl;
+         }
+      }
+   }
+   if (activated_args["--help"]) {
+      help_text();
+      return 0;
+   }
 	extern FILE* yyin;
-	yyin = in_file;
-	yyparse();
+   // Check that a file has been input
+   if ((int)input_files.size() > 0){
+      // Go through each input file and parse it
+      for (int i = 0; i < (int)input_files.size(); i++){
+         cout << "Processing file " << input_files[i] << endl;
+         FILE* file = fopen(input_files[i].c_str(), "r");
+         yyin = file;
+         yyparse();
+         fclose(file);
+      }
+      if (output_filename != ""){
+         cout << "Final output binary name: " << output_filename << endl;
+      }
+   // Otherwise, return an error.
+   } else {
+      cout << "Please enter at least one input file." << endl;
+   }
+   return 0;
 }

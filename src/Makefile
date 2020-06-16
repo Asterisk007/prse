@@ -1,19 +1,25 @@
+# Compiler settings
 EXECUTABLE = prsec
+EXECUTABLE_VERBOSE = prsec_verbose
 C_COMPILER += clang
 C_FLAGS += -std=c18 -g
 CPP_COMPILER += clang++
 CPP_FLAGS += -std=c++17 -g
+# Source file vars
+LIB_DIR := ./lib
+OBJ_DIR := ./obj
+LIB_FILES := $(wildcard $(LIB_DIR)/*.cpp)
+OBJ_FILES := $(patsubst $(LIB_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(LIB_FILES))
 
+all: $(EXECUTABLE)
 
-all: prsec
+all_versbose: $(EXECUTABLE_VERBOSE)
 
-all_versbose: prsec_verbose
+$(EXECUTABLE): prse.tab.cpp lex.yy.cpp $(OBJ_FILES)
+	$(CPP_COMPILER) $(CPP_FLAGS) -o $@ $^
 
-prsec: prse.tab.cpp lex.yy.cpp Arglist.o
-	$(CPP_COMPILER) $(CPP_FLAGS) -o prsec prse.tab.cpp lex.yy.cpp Arglist.o
-
-prsec_verbose: prse.tab.cpp lex.yy.cpp
-	$(CPP_COMPILER) $(CPP_FLAGS) -v -o prsec prse.tab.cpp lex.yy.cpp 
+$(EXECUTABLE_VERBOSE): prse.tab.cpp lex.yy.cpp $(OBJ_FILES)
+	$(CPP_COMPILER) $(CPP_FLAGS) -v -o $(EXECUTABLE) $^
 
 prse.tab.cpp: prse.y
 	bison -d prse.y
@@ -23,8 +29,9 @@ lex.yy.cpp: prse.l
 	flex prse.l
 	mv lex.yy.c lex.yy.cpp
 
-Arg_list.o: Arg_list.cpp Arg_list.h
-	$(CPP_COMPILER) $(CPP_FLAGS) -c Arg_list.cpp
+$(OBJ_DIR)/%.o: $(LIB_DIR)/%.cpp $(LIB_DIR)/%.h
+	mkdir -p $(OBJ_DIR)
+	$(CPP_COMPILER) $(CPP_FLAGS) -c -o $@ $<
 
 clean:
-	rm -f lex.yy.* prse.tab.* prsec
+	rm -f lex.yy.* prse.tab.* obj/*.o prsec
