@@ -418,7 +418,11 @@ int main(int argc, char** argv){
    activated_args["-o"] = false;
    activated_args["-v"] = false;
    activated_args["--verbose"] = false;
+
+   // A vector of input files, which we will parse once we process
+   // each argument passed to the program
    std::vector<std::string> input_files = std::vector<std::string>(); 
+   // Process each argument passed
    for (int i = 1; i < argc; i++){
       std::string file_candidate = std::string(argv[i]);
       std::string filetype = ".prse";
@@ -448,10 +452,14 @@ int main(int argc, char** argv){
                return 1;
             }
          } else {
+         // Finally, if this is not a valid input file nor a recognized argument,
+         // output an error and continue.
             cout << "Unrecognized argument '" << arg << "'" << endl;
          }
       }
    }
+   // If --help was passed as an argument, print out the help text
+   // and exit.
    if (activated_args["--help"]) {
       help_text();
       return 0;

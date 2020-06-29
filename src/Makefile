@@ -15,6 +15,23 @@ all: $(EXECUTABLE)
 
 all_versbose: $(EXECUTABLE_VERBOSE)
 
+# A command to build and subsequently check
+# that the build prsec is operating optimally
+# (i.e. without memory leaks)
+build_check: $(EXECUTABLE)
+
+# Rebuild the executable from scratch:
+rebuild:
+	make clean
+	make all
+
+# Same as above, verbose
+rebuild_verbose:
+	make clean
+	make all_verbose
+
+objects: $(OBJ_FILES)
+
 $(EXECUTABLE): prse.tab.cpp lex.yy.cpp $(OBJ_FILES)
 	$(CPP_COMPILER) $(CPP_FLAGS) -o $@ $^
 
