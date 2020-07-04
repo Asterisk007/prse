@@ -21,7 +21,7 @@ use 				   		{ return USE; }
 
  /* ======== Basic keywords ====== */
 
-var 				   		{ return VAR; }
+let|var 				   	{ return VAR; }
 class				   		{ return CLASS; }
 func	 			   		{ return FUNCTION; }
 return 			   		{ return RETURN; }
