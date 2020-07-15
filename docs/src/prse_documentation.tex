@@ -128,12 +128,11 @@ of the .prse file), thus allowing for verbatim C++ programming.
 
 If you have already installed the PRSE compiler---named \texttt{prsec} for `PRSE Compiler'---and
 have it added to your PATH\footnote{see \hyperref[sec:prse-workspace-setup]{workspace setup} for
-details}, then all you need to do to run it is enter\linebreak
+details}, then all you need to do to run it is enter the command\linebreak
 
 \texttt{\$ prsec <filename>}\linebreak
 
-in your favorite terminal emulator (or PowerShell/Command Prompt, if you prefer to use those. I
-won't judge). As well, PRSE has a few command line arguments that you can pass to it. A few are
+in a terminal. As well, PRSE has a few command line arguments that you can pass to it. A few are
 listed below in \autoref{tab:command-args}
 
 \begin{table}[h]
@@ -165,25 +164,25 @@ Some notes about the above:
 
 \section{Basic Program Structure}
 
-A PRSE program will usually consist of the following:
+A typical PRSE program will usually contain:
 
 \begin{itemize}
 \item Zero or more \texttt{use} statements which are followed by a string or list of strings, e.g. \texttt{"io", "math", "algorithm"}
 \begin{itemize}
-   \item These are used both for STL (standard template) libraries and third-party libraries, such as those created by other users and yourself
+   \item These are used both for STL (standard template) libraries and third-party libraries, such as those created by other programmers and yourself
 \end{itemize}
-\item Zero or more variable declaration and/or class declaration statements
-\item Zero or more function definitions. 
+\item Variable declaration(s) and/or class declaration statement(s)
+\item Function definition(s)
 \end{itemize}
 
-$\left\{
-   \begin{tabularx}{\textwidth}{>{\centering\arraybackslash}X}
-   {\small From this definition, one may infer that an empty program is just as valid as a full program
-   complete with variables, functions, and class definitions. While this is certainly true,
-   such a program has no practical operation, and in fact will cause a warning to be printed to
-   the terminal.}
-   \end{tabularx}
-\right\}$\linebreak
+%$\left\{
+%   \begin{tabularx}{\textwidth}{>{\centering\arraybackslash}X}
+%   {\small From this definition, one may infer that an empty program is just as valid as a full program
+%   complete with variables, functions, and class definitions. While this is certainly true,
+%   such a program has no practical operation, and in fact will cause a warning to be printed to
+%   the terminal.}
+%   \end{tabularx}
+%\right\}$\linebreak
 
 \subsection{The Main Function}
 
