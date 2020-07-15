@@ -132,16 +132,14 @@ import_statement:
 
 libraries_list:
 	STRING_CONST COMMA libraries_list {
-      $$ = new string("");
-      *$$ += *$1;
+      $$ = new string(*$1);
       *$$ += ", ";
       *$$ += *$3;
       delete $1;
       delete $3;
 	}
 	| STRING_CONST {
-     $$ = new string("");
-     *$$ = *$1;
+     $$ = new string(*$1);
      delete $1;
 	}
 	;
@@ -160,9 +158,7 @@ variable_declaration_list:
 variable_declaration:
 	VAR ID COLON variable_type ASSIGN constant SEMICOLON {
 		cout << "Variable " << *$2 << " with type " << *$4 << " set to " << *$6 << endl;
-      delete $2;
-      delete $4;
-      delete $6;
+      delete $2; delete $4; delete $6;
 	}
    ;
 
@@ -358,12 +354,11 @@ constant:
 
 variable_type:
    basic_type optional_array {
-      $$ = new string("");
-      if ($2 == true){
-         *$1 += " array";
-      }
-      *$$ = *$1; 
+      $$ = new string(*$1);
       delete $1;
+      if ($2 == true){
+         *$$ += " array";
+      }
    }
    ;
 
@@ -470,10 +465,10 @@ int main(int argc, char** argv){
       // Go through each input file and parse it
       for (int i = 0; i < (int)input_files.size(); i++){
          cout << "Processing file " << input_files[i] << endl;
-         FILE* file = fopen(input_files[i].c_str(), "r");
-         yyin = file;
+         yyin = fopen(input_files[i].c_str(), "r");
+         // reset the Flex buffer for the next file.
+         //yyrestart(yyin);
          yyparse();
-         fclose(file);
       }
       if (output_filename != ""){
          cout << "Final output binary name: " << output_filename << endl;
