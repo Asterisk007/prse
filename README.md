@@ -1,8 +1,9 @@
 # Project Lemongrass, aka PRSE
 
-A programming language for C programmers, without all the hassle of C.
+A Python-esque programming language for C/C++ programmers.
 
 Design goals:
+* General function is inspired by Python, but uses syntax that mostly resembles other C-like languages.
 * Make a language that works a lot like C/C++, but with some additional built-in features
 * Use clean, straightforward grammar
 * Don't use syntactic whitespace. Who puts <i>that</i> in a programming language?
