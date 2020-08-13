@@ -22,9 +22,42 @@ Notes:
 |`clang++`|Compiling the above to a binary file|
 
 ## To build the PRSE compiler yourself:
+### Dependencies
 |Program|Used for|
 |-|-|
 |`flex`|Creating the lexer which tokenizes a given '.prse' file|
 |`bison`|Generating the `prse.tab.cpp` grammar file|
 |`clang++`|Compiling C++ source files, `lex.yy.cpp` and `prse.tab.cpp` files into the prsec binary|
 |`make`|Running the supplied Makefile in `/src/`|
+
+Installing dependencies:
+
+Ubuntu
+```
+apt install flex bison clang make
+```
+
+Arch
+```
+pacman -S flex bison clang make
+```
+
+### Building and Installing
+
+First, clone this repository:
+```
+git clone https://gitlab.com/Asterisk007/prse.git
+```
+or, if you prefer to use SSH:
+```
+git clone git@gitlab.com:Asterisk007/prse.git
+```
+
+Then, run the following commands:
+```
+cd prse/src/
+make
+sudo make install
+```
+
+This will install the PRSE compiler to /usr/bin.
