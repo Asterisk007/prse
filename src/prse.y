@@ -2,9 +2,9 @@
 	#include <stdio.h>
 	#include <iostream>
 	#include <string>
-   #include <vector>
-   #include <map>
-   #include "parser.h"
+    #include <vector>
+    #include <map>
+    #include "parser.h"
 
 	using namespace std;
 
@@ -403,6 +403,14 @@ void help_text(){
 	}
 }
 
+void version(){
+    cout << "PRSE Compiler, written by Daniel Ellingson" << endl;
+    if (BETA) {
+        cout << "Beta compiler, intended to test new features" << endl;
+    }
+    cout << "Version " << VERSION << "r" << REVISION << endl;
+}
+
 int main(int argc, char** argv){
    std::string output_filename = "";
    // Create a library of available bash/command line arguments
@@ -413,6 +421,10 @@ int main(int argc, char** argv){
    activated_args["-o"] = false;
    activated_args["-v"] = false;
    activated_args["--verbose"] = false;
+   activated_args["--sacrifice"] = false;
+   activated_args["--sacrifice=anyways"] = false;
+   activated_args["--version"] = false;
+   bool verbose = false;
 
    // A vector of input files, which we will parse once we process
    // each argument passed to the program
@@ -447,8 +459,8 @@ int main(int argc, char** argv){
                return 1;
             }
          } else {
-         // Finally, if this is not a valid input file nor a recognized argument,
-         // output an error and continue.
+            // Finally, if this is not a valid input file nor a recognized argument,
+            // output an error and continue.
             cout << "Unrecognized argument '" << arg << "'" << endl;
          }
       }
@@ -458,20 +470,39 @@ int main(int argc, char** argv){
    if (activated_args["--help"]) {
       help_text();
       return 0;
+   } else if (activated_args["--version"]) {
+       version();
+       return 0;
    }
+   if (activated_args["--verbose"] || activated_args["-v"])
 	extern FILE* yyin;
    // Check that a file has been input
    if ((int)input_files.size() > 0){
       // Go through each input file and parse it
       for (int i = 0; i < (int)input_files.size(); i++){
-         cout << "Processing file " << input_files[i] << endl;
-         yyin = fopen(input_files[i].c_str(), "r");
-         // reset the Flex buffer for the next file.
-         //yyrestart(yyin);
-         yyparse();
+        if (activated_args["--sacrifice"] == true){
+            cout << "The PRSE compiler accepts your humble sacrifice" << endl;
+            cout << "If your code compiles, your file shall be spared" << endl;
+            cout << "If not, it will be deleted forever, and you will have to start from scratch!" << endl;
+            cout << "We accept take-backsies, however! Confirm that you wish to sacrifice file: " << input_files[i] << "? [Y/n]";
+        } else if (activated_args["--sacrifice=anyways"]) {
+            cout << "The PRSE compiler accepts your humble sacrifice" << endl;
+            cout << "Your source file, " << input_files[i] << " will be deleted" << endl;
+            cout << "If any errors are found, no binary will be produced." << endl;
+            cout << "If no errors are found, you will be left with only your binary." << endl;
+            cout << "Since you set --sacrifice to 'anyways', we will not ask for confirmation." << endl;
+            cout << "Hold your breath!" << endl;
+            // TODO: Delay by X seconds.
+        } else {
+            cout << "Processing file " << input_files[i] << endl;
+        }
+        yyin = fopen(input_files[i].c_str(), "r");
+        // reset the Flex buffer for the next file.
+        //yyrestart(yyin);
+        yyparse();
       }
-      if (output_filename != ""){
-         cout << "Final output binary name: " << output_filename << endl;
+      if ( output_filename != ""){
+        cout << "Final output binary name: " << output_filename << endl;
       }
    // Otherwise, return an error.
    } else {
