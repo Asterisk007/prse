@@ -3,15 +3,22 @@
 A Python-esque programming language for C/C++ programmers.
 
 Design goals:
-* General function is inspired by Python, but uses syntax that mostly resembles other C-like languages.
-* Make a language that works a lot like C/C++, but with some additional built-in features
+* Functionality inspired by:
+   - Python: for loops, dictionaries, `range()`, easy conversion between data types
+   - C/C++: general look
+   - R: vectorization
+   - More to explore...
 * Use clean, straightforward grammar
-* Don't use syntactic whitespace. Who puts <i>that</i> in a programming language?
-* Take up little of the programmer's time on trivial matters. If R can do vectorization, we can too.
+* Don't use syntactic whitespace.
 
 Notes:
 * Recommendation from Todd: All values must be initialized on declaration. If the user fails to do so, throw out an error (possibly a `derby` error?). Apparently, this is called RAII.
 * I want to do pass-by-reference by default. If you want to pass by value (meaning a copy of the value rather than the variable it's associated with), use `.copy()` 
+* CLA option: --sacrifice
+    - Sacrifice a file to the PRSE compiler
+    - If the code compiles, file is spared
+    - If any errors are found, the file is destroyed
+    - Hardcore mode: --sacrifice=anyways sacrifices a file regardless of errors, so that you are left with only a binary or nothing at all.
 
 # Dependencies:
 

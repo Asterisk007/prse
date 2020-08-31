@@ -5,7 +5,7 @@ documentation: pdf_files
 	cp *.pdf ../build/
   
 pdf_files: $(source_files)
-	pdflatex $<
+	texliveonfly $<
 
 clean:
 	rm -f *.aux *.log *.out *.pdf *.toc

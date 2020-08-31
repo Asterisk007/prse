@@ -25,7 +25,7 @@
 
 %destructor { delete $$; } <union_string>
 
-%error-verbose
+%define parse.error verbose
 
 // Tokens
 // Data constants
@@ -344,41 +344,41 @@ parameter:
 	;
 
 constant:
-	BOOL_CONST        { $$ = ($1 == true) ? new std::string("true") : new std::string("false"); }
-	| INT_CONST       { $$ = new std::string(std::to_string($1)); }
-	| CHAR_CONST      { $$ = new std::string($1); }
-	| DOUBLE_CONST 	{ $$ = new std::string(std::to_string($1)); }
-	| STRING_CONST 	{ $$ = new std::string(*$1); delete $1; }
-   | ID              { $$ = new std::string(*$1); delete $1; }
-	;
+    BOOL_CONST        { $$ = ($1 == true) ? new std::string("true") : new std::string("false"); }
+    | INT_CONST       { $$ = new std::string(std::to_string($1)); }
+    | CHAR_CONST      { $$ = new std::string($1); }
+    | DOUBLE_CONST 	  { $$ = new std::string(std::to_string($1)); }
+    | STRING_CONST 	  { $$ = new std::string(*$1); delete $1; }
+    | ID              { $$ = new std::string(*$1); delete $1; }
+    ;
 
 variable_type:
-   basic_type optional_array {
-      $$ = new string(*$1);
-      delete $1;
-      if ($2 == true){
-         *$$ += " array";
-      }
-   }
-   ;
+    basic_type optional_array {
+        $$ = new string(*$1);
+        delete $1;
+        if ($2 == true){
+            *$$ += " array";
+        }
+    }
+    ;
 
 basic_type:
-	BOOL { $$ = new std::string("bool"); }
-	| INT { $$ = new std::string("int"); }
-	| CHAR { $$ = new std::string("char"); }
-	| DOUBLE { $$ = new std::string("double"); }
-	| STRING { $$ = new std::string("string"); }
-   | VOID { $$ = new std::string("void"); }
-	;
+    BOOL { $$ = new std::string("bool"); }
+    | INT { $$ = new std::string("int"); }
+    | CHAR { $$ = new std::string("char"); }
+    | DOUBLE { $$ = new std::string("double"); }
+    | STRING { $$ = new std::string("string"); }
+    | VOID { $$ = new std::string("void"); }
+    ;
 
 optional_array:
-   L_SQUARE_BRACKET R_SQUARE_BRACKET {
-      $$ = true;
-   }
-   | empty {
-      $$ = false;
-   }
-   ;
+    L_SQUARE_BRACKET R_SQUARE_BRACKET {
+        $$ = true;
+    }
+    | empty {
+        $$ = false;
+    }
+    ;
 
 empty:
 	;
@@ -412,101 +412,102 @@ void version(){
 }
 
 int main(int argc, char** argv){
-   std::string output_filename = "";
-   // Create a library of available bash/command line arguments
-   std::map<std::string, bool> activated_args;
-   activated_args["-cpp"] = false;
-   activated_args["-g"] = false;
-   activated_args["--help"] = false;
-   activated_args["-o"] = false;
-   activated_args["-v"] = false;
-   activated_args["--verbose"] = false;
-   activated_args["--sacrifice"] = false;
-   activated_args["--sacrifice=anyways"] = false;
-   activated_args["--version"] = false;
-   bool verbose = false;
+    std::string output_filename = "";
+    // Create a library of available bash/command line arguments
+    std::map<std::string, bool> activated_args;
+    activated_args["-cpp"] = false;
+    activated_args["-g"] = false;
+    activated_args["--help"] = false;
+    activated_args["-o"] = false;
+    activated_args["-v"] = false;
+    activated_args["--verbose"] = false;
+    activated_args["--sacrifice"] = false;
+    activated_args["--sacrifice=anyways"] = false;
+    activated_args["--version"] = false;
+    bool verbose = false;
 
-   // A vector of input files, which we will parse once we process
-   // each argument passed to the program
-   std::vector<std::string> input_files = std::vector<std::string>(); 
-   // Process each argument passed
-   for (int i = 1; i < argc; i++){
-      std::string file_candidate = std::string(argv[i]);
-      std::string filetype = ".prse";
-      // If string is a file, check that we can open it.
-      // '!' is necessary to reverse the logical FALSE return value, which means it matches.
-      if (file_candidate.length() > filetype.length() && !file_candidate.compare(file_candidate.length() - filetype.length(), filetype.length(), filetype)){
-         FILE* file = fopen(file_candidate.c_str(), "r");
-         if (!file){
-            cerr << "Could not open file \"" << file_candidate << "\"" << endl;
-            return 1;
-         } else {
-         // Add this file to the list of files
-            fclose(file);
-            input_files.push_back(file_candidate);
-         }
-      } else {
-      // Otherwise, if this isn't a file, check that it exists in our library of aviailable arguments
-         std::string arg = std::string(argv[i]);
-         if (activated_args.find(arg) != activated_args.end()){
-            activated_args[arg] = true;
-            // Get output filename
-            if (arg == "-o" && i+1 < argc) {
-               output_filename = std::string(argv[i+1]);
-               i = i+2;
-            } else if (arg == "-o" && i+1 >= argc) {
-               cout << "Please specify a filename" << endl;
-               return 1;
+    // A vector of input files, which we will parse once we process
+    // each argument passed to the program
+    std::vector<std::string> input_files = std::vector<std::string>(); 
+    // Process each argument passed
+    for (int i = 1; i < argc; i++){
+        std::string file_candidate = std::string(argv[i]);
+        std::string filetype = ".prse";
+        // If string is a file, check that we can open it.
+        // '!' is necessary to reverse the logical FALSE return value, which means it matches.
+        if (file_candidate.length() > filetype.length() && !file_candidate.compare(file_candidate.length() - filetype.length(), filetype.length(), filetype)){
+            FILE* file = fopen(file_candidate.c_str(), "r");
+            if (!file){
+                cerr << "Could not open file \"" << file_candidate << "\"" << endl;
+                return 1;
+            } else {
+            // Add this file to the list of files
+                fclose(file);
+                input_files.push_back(file_candidate);
             }
-         } else {
-            // Finally, if this is not a valid input file nor a recognized argument,
-            // output an error and continue.
-            cout << "Unrecognized argument '" << arg << "'" << endl;
-         }
-      }
-   }
-   // If --help was passed as an argument, print out the help text
-   // and exit.
-   if (activated_args["--help"]) {
-      help_text();
-      return 0;
-   } else if (activated_args["--version"]) {
-       version();
-       return 0;
-   }
-   if (activated_args["--verbose"] || activated_args["-v"])
-	extern FILE* yyin;
-   // Check that a file has been input
-   if ((int)input_files.size() > 0){
-      // Go through each input file and parse it
-      for (int i = 0; i < (int)input_files.size(); i++){
-        if (activated_args["--sacrifice"] == true){
-            cout << "The PRSE compiler accepts your humble sacrifice" << endl;
-            cout << "If your code compiles, your file shall be spared" << endl;
+        } else {
+        // Otherwise, if this isn't a file, check that it exists in our library of aviailable arguments
+            std::string arg = std::string(argv[i]);
+            if (activated_args.find(arg) != activated_args.end()){
+                activated_args[arg] = true;
+                // Get output filename
+                if (arg == "-o" && i+1 < argc) {
+                output_filename = std::string(argv[i+1]);
+                i = i+2;
+                } else if (arg == "-o" && i+1 >= argc) {
+                cout << "Please specify a filename" << endl;
+                return 1;
+                }
+            } else {
+                // Finally, if this is not a valid input file nor a recognized argument,
+                // output an error and continue.
+                cout << "Unrecognized argument '" << arg << "'" << endl;
+            }
+        }
+    }
+    // If --help was passed as an argument, print out the help text
+    // and exit.
+    if (activated_args["--help"]) {
+        help_text();
+        return 0;
+    } else if (activated_args["--version"]) {
+        version();
+        return 0;
+    }
+    if (activated_args["--verbose"] || activated_args["-v"]) {
+        verbose = true;
+    }
+    extern FILE* yyin;
+    // Check that a file has been input
+    if ((int)input_files.size() > 0){
+        /* if (activated_args["--sacrifice"] == true){
+            cout << "The PRSE compiler accepts your humble sacrifice." << endl;
+            cout << "If your code compiles, your file shall be spared." << endl;
             cout << "If not, it will be deleted forever, and you will have to start from scratch!" << endl;
-            cout << "We accept take-backsies, however! Confirm that you wish to sacrifice file: " << input_files[i] << "? [Y/n]";
+            cout << "We accept take-backsies, however! Confirm that you wish to sacrifice file: " << input_files[i] << "? [Y/n]" << endl;
         } else if (activated_args["--sacrifice=anyways"]) {
-            cout << "The PRSE compiler accepts your humble sacrifice" << endl;
-            cout << "Your source file, " << input_files[i] << " will be deleted" << endl;
+            cout << "The PRSE compiler accepts your humble sacrifice." << endl;
+            cout << "Your source file, " << input_files[i] << " will be deleted." << endl;
             cout << "If any errors are found, no binary will be produced." << endl;
             cout << "If no errors are found, you will be left with only your binary." << endl;
             cout << "Since you set --sacrifice to 'anyways', we will not ask for confirmation." << endl;
             cout << "Hold your breath!" << endl;
             // TODO: Delay by X seconds.
-        } else {
-            cout << "Processing file " << input_files[i] << endl;
-        }
+        }  */
+    // Go through each input file and parse it
+    for (int i = 0; i < (int)input_files.size(); i++){
+        cout << "Processing file " << input_files[i] << endl;
         yyin = fopen(input_files[i].c_str(), "r");
         // reset the Flex buffer for the next file.
         //yyrestart(yyin);
         yyparse();
-      }
-      if ( output_filename != ""){
+    }
+    if ( output_filename != ""){
         cout << "Final output binary name: " << output_filename << endl;
-      }
-   // Otherwise, return an error.
-   } else {
-      cout << "Please enter at least one input file." << endl;
-   }
+    }
+    // Otherwise, return an error.
+    } else {
+        cout << "Please enter at least one input file." << endl;
+    }
    return 0;
 }
