@@ -1,6 +1,6 @@
-# Project Lemongrass, aka PRSE
-
-A Python-esque programming language for C/C++ programmers.
+# PRSE
+## A Python-esque programming language for C/C++ programmers.
+### Documentation: [click here](https://asterisk007.gitlab.io/prse/)
 
 Design goals:
 * Functionality inspired by:
@@ -12,8 +12,11 @@ Design goals:
 * Don't use syntactic whitespace.
 
 Notes:
-* Recommendation from Todd: All values must be initialized on declaration. If the user fails to do so, throw out an error (possibly a `derby` error?). Apparently, this is called RAII.
+* Recommendation from Todd: All values must be initialized on declaration. If the user fails to do so, throw out an error (`error core derby: variable declared with no value set.`)
+    - Apparently, this is called RAII.
 * I want to do pass-by-reference by default. If you want to pass by value (meaning a copy of the value rather than the variable it's associated with), use `.copy()` 
+
+Extras to be implemented later:
 * CLA option: --sacrifice
     - Sacrifice a file to the PRSE compiler
     - If the code compiles, file is spared
