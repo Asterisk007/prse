@@ -5,8 +5,8 @@
 %{
 	#include <iostream>
 	#include <algorithm>
-   #include "parser.h"
-   #include "prse.tab.h"
+    #include "parser.h"
+    #include "prse.tab.h"
 
 	using namespace std;
 
@@ -21,7 +21,7 @@ use 				   		{ return USE; }
 
  /* ======== Basic keywords ====== */
 
-let|var 				   	{ return VAR; }
+let    				   	{ return LET; }
 class				   		{ return CLASS; }
 func	 			   		{ return FUNCTION; }
 return 			   		{ return RETURN; }
@@ -105,12 +105,11 @@ false							{ yylval.union_bool = false; return LOGIC_FALSE; }
 									s.erase(std::remove(s.begin(), s.end(), '\''), s.end());
 									yylval.union_char = new char(s[0]);
 									return CHAR_CONST;
-								}
-[A-Za-z_][a-zA-Z0-9_]* 	{ yylval.union_string = new std::string(yytext); return ID; } /* variable */
+							}
+[A-Za-z_][a-zA-Z0-9_]* 	    { yylval.union_string = new std::string(yytext); return ID; } /* variable */
 
-[\	]*							{ /*return TAB;*/ } /* whitespace: tabs */
-[\ ]* 						{ /*return SPACE;*/ } /* whitespace: space */
-[\n\r]* 						{ line_count++; /* return NEWLINE; */ } /* whitespace: \n */
-.								{ return ERROR; }
+[\n\r]* 					{ line_count++; } /* whitespace: \n */
+[    ]                      {} /* whitespace: tabs and spaces */
+.							{ return ERROR; }
 
 %%

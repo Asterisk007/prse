@@ -1,16 +1,20 @@
 %{
 	#include <stdio.h>
+    #include <fstream>
 	#include <iostream>
 	#include <string>
     #include <vector>
     #include <map>
+    //#include <format> //TODO: format is coming in C++2020. Wait for clang to support it. https://wg21.link/P0645R10
     #include "parser.h"
 
 	using namespace std;
 
-	int yylex(void);
-	void yyerror(const char*);
+	extern int yylex(void);
+	extern void yyerror(const char*);
 	extern int line_count;
+    
+    extern bool verbose;
 %}
 
 %union {
@@ -18,23 +22,23 @@
 	int                   union_int;
 	char*                 union_char;
 	double                union_double;
-	//float               union_float;
 	std::string*          union_string;
-   Arg_list*             union_arglist; 
+    List*                 union_list;
+    //Symbol*               union_symbol;
 }
 
 %destructor { delete $$; } <union_string>
+%destructor { delete $$; } <union_char>
 
 %define parse.error verbose
 
 // Tokens
 // Data constants
-%token <union_bool>		BOOL_CONST		"boolean constant"
-%token <union_int> 		INT_CONST		"int constant"
-//%token <union_float> 	FLOAT 			"float"
-%token <union_double> 	DOUBLE_CONST	"double constant"
-%token <union_char> 	   CHAR_CONST		"char constant"
-%token <union_string> 	STRING_CONST	"string constant"
+%token <union_bool>		    BOOL_CONST		"boolean constant"
+%token <union_int> 		    INT_CONST		"int constant"
+%token <union_double> 	    DOUBLE_CONST	"double constant"
+%token <union_char> 	    CHAR_CONST		"char constant"
+%token <union_string>   	STRING_CONST	"string constant"
 // Variable types
 %token BOOL				   	"boolean"
 %token INT				   	"int"
@@ -44,7 +48,7 @@
 %token VOID				   	"void"
 // Key tokens
 %token USE 				   	"use"
-%token VAR 				   	"var"
+%token LET 				   	"let"
 %token FUNCTION 		   	"func"
 %token MAIN				   	"main"
 %token RETURN 			   	"return"
@@ -64,16 +68,16 @@
 %token CARET 			   	"^"
 %token INCREMENT 		   	"++"
 %token DECREMENT 		   	"--"
-%token PLUS_ASSIGN 	   	"+="
+%token PLUS_ASSIGN 	     	"+="
 %token MINUS_ASSIGN 	   	"-="
 // Logic
 %token LOGIC_TRUE		   	"true"
-%token LOGIC_FALSE	   	"false"
-%token LOGIC_EQ		   	"=="
-%token LOGIC_NE		   	"!="
+%token LOGIC_FALSE	    	"false"
+%token LOGIC_EQ		    	"=="
+%token LOGIC_NE		    	"!="
 %token LOGIC_NOT		   	"!"
 %token LOGIC_AND		   	"&&"
-%token LOGIC_OR		   	"||"
+%token LOGIC_OR		   	    "||"
 %token LOGIC_GREATER	   	">"
 %token LOGIC_LESS		   	"<"
 %token LOGIC_GREATER_EQUAL	">="
@@ -91,29 +95,38 @@
 %token R_SQUARE_BRACKET 	"]"
 %token L_CURLY_BRACKET 		"{"
 %token R_CURLY_BRACKET 		"}"
-%token TAB                 "  "
-%token SPACE               " "
 %token ERROR
 // Variable identification
 %token <union_string> ID 	"identifier"
 
 // Production types
-%type <union_string> libraries_list
+%type <union_list> libraries_list
+%type <union_list> variable_declaration_list
+%type <union_list> class_declaration_list
+%type <union_string> variable_declaration
+%type <union_string> variable_assignment
 %type <union_string> variable_type
 %type <union_string> basic_type
 %type <union_string> constant
 %type <union_bool> optional_array
-%type <union_arglist> parameter_list_or_empty 
-%type <union_arglist> parameter_list
+%type <union_list> expression_list
+%type <union_string> expression
+%type <union_list> function_list
+%type <union_list> function_definition
+%type <union_string> function_header
+%type <union_list> parameter_list_or_empty
+%type <union_list> parameter_list
 %type <union_string> parameter
-%type <union_arglist> argument_list_or_empty
-%type <union_arglist> argument_list
+%type <union_list> argument_list_or_empty
+%type <union_list> argument_list
 %type <union_string> argument
+%type <union_string> function_call
 
+%left LET FUNCTION CLASS
 %%
 
 program:
-	import_list declaration_list function_list
+	import_list declaration_list function_list_or_empty
 	;
 	
 import_list:
@@ -123,49 +136,142 @@ import_list:
 
 import_statement:
 	USE libraries_list {
-      if ($2 != nullptr){
-		   cout << "Using libraries: " << *$2 << endl;
-         delete $2;
-      }
+        OutputBuffer& output = OutputBuffer::instance();
+        Library& lib = Library::instance();
+        // Iterate over a given list of libraries
+        List ll = *$2;
+        for (auto s : ll.list) {
+            cout << s << endl;
+            // Check if provided library is available
+            if (lib.lib_exists(s)) {
+                // If so, add it to the output buffer
+
+                // I have to do this nonsense because format() isn't a thing in clang yet,
+                // and I don't much feel like implementing it myself.
+                string t = "#include <"; t += lib.get_lib(s); t += ">";
+                output.add_line(t);
+            } else {
+                // Otherwise, ignore it
+                // IMPLEMENT! error for unknown library
+                cerr << "Line " << line_count << ": unknown library \"" << s << "\"" << endl;
+            }
+        }
+        delete $2;
 	}
 	;
 
 libraries_list:
 	STRING_CONST COMMA libraries_list {
-      $$ = new string(*$1);
-      *$$ += ", ";
-      *$$ += *$3;
-      delete $1;
-      delete $3;
+        List* ll = new List;
+        ll->push_back(string(*$1));
+        delete $1;
+        List* ll2 = $3;
+        ll->append_list(ll2);
+        delete $3;
+        $$ = ll;
 	}
 	| STRING_CONST {
-     $$ = new string(*$1);
-     delete $1;
+        List* ll = new List;
+        ll->push_back(string(*$1));
+        delete $1;
+        $$ = ll;
 	}
+	;
+    
+expression_list:
+	expression expression_list {
+        List* l = new List;
+        l->push_back(*$1);
+        l->append_list($2);
+        delete $1; delete $2;
+        $$ = l;
+    }
+	| empty {
+        $$ = nullptr;
+    }
+	;
+
+expression:
+    variable_declaration {
+        $$ = $1;
+    }
+    | variable_assignment {
+        $$ = $1;
+    }
+    | function_call {
+        $$ = $1;
+    }
 	;
 
 declaration_list:
-	declaration_list variable_declaration_list
-   | declaration_list class_declaration_list
-   | empty
+    variable_declaration_list declaration_list {
+        OutputBuffer& output = OutputBuffer::instance();
+        List* l = $1;
+        for (auto a : l->list){
+            output.add_line(a);
+        }
+        delete $1;
+    }
+    | class_declaration_list declaration_list {
+        OutputBuffer& output = OutputBuffer::instance();
+        List* l = $1;
+        for (auto a : l->list){
+            output.add_line(a);
+        }
+        delete $1;
+    }
+    | empty
 	;
 
+variable_declaration_list_or_empty:
+    variable_declaration_list
+    | empty
+    ;
+
 variable_declaration_list:
-   variable_declaration variable_declaration_list
-   | variable_declaration
-   ;
+    variable_declaration variable_declaration_list {
+        List* l = new List;
+        if ($1 != nullptr)
+            l->push_back(*$1);
+        l->append_list($2);
+        delete $1; delete $2;
+        $$ = l;
+    }
+    | variable_declaration {
+        List* l = new List;
+        if ($1 != nullptr)
+            l->push_back(*$1);
+        delete $1;
+        $$ = l;
+    }
+    ;
 
 variable_declaration:
-	VAR ID COLON variable_type ASSIGN constant SEMICOLON {
-		cout << "Variable " << *$2 << " with type " << *$4 << " set to " << *$6 << endl;
-      delete $2; delete $4; delete $6;
-	}
-   ;
+	LET ID COLON variable_type ASSIGN constant SEMICOLON {        
+        //     t =          TYPE                       ID          =        CONSTANT
+        string *t = new string(*$4); *t += " "; *t += *$2; *t += " = "; *t += *$6; *t += ";\n";
+        $$ = t;
+        delete $2; delete $4; delete $6;
+    }
+    /*| LET ID ASSIGN constant SEMICOLON {
+        delete $2; delete $4;
+        $$ = nullptr;
+        //IMPLEMENT duck typing
+    }
+    | LET ID COLON variable_type SEMICOLON {
+        delete $2; delete $4;
+        $$ = nullptr;
+        cerr << "Derby error on line " << line_count << ". Variables must be initialized with some value." << endl;
+        //IMPLEMENT! 'derby' error
+    }*/
+    ;
 
 class_declaration_list:
-   class_declaration class_declaration_list
-   | class_declaration
-   ;
+    class_declaration_list class_declaration 
+    | class_declaration {
+        $$ = nullptr;
+    }
+    ;
 
 class_declaration:
    CLASS ID L_CURLY_BRACKET public_or_private_block_list_or_empty class_function_list_or_empty R_CURLY_BRACKET {
@@ -187,178 +293,183 @@ public_or_private_block:
    }
    ;
 
-variable_declaration_list_or_empty:
-   variable_declaration_list
-   | empty
-   ;
-
 variable_assignment:
 	ID ASSIGN constant SEMICOLON {
-      // TODO this needs to ensure that $1 exists before assigning it.
-		cout << "Variable " << *$1 << " set to " << *$3 << endl;
-      delete $1;
-      delete $3;
+        //     t =           ID              =        CONSTANT
+        string *t = new string(*$1); *t += " = "; *t += *$3; *t += ";\n";
+        $$ = t;
+        delete $1; delete $3;
 	}
 	;
 
+function_list_or_empty:
+    function_list {
+        OutputBuffer& output = OutputBuffer::instance();
+        for (auto a : $1->list) {
+            output.add_line(a);
+        }
+    }
+    | empty
+    ;
+
 function_list:
-	function_list function_definition
-	| empty
+	function_definition function_list {
+        $2->append_list($1);
+        $$ = $2;
+    }
+    | function_definition {
+        $$ = $1;
+    }
 	;
 
 // Function definitions can consist of none, one, or many arguments, and can have a declared return type (default void)
 function_definition:
-	FUNCTION ID L_PAREN parameter_list_or_empty R_PAREN L_CURLY_BRACKET expression_list R_CURLY_BRACKET {
-		cout << "Function " << *$2 << " returns void" << endl;
-      delete $2;
-      if ($4->args.size() > 0){
-         cout << "Parameter(s):" << endl;
-         for (auto arg : $4->args) {
-            cout << arg << endl;
-         }
-      }
-      delete $4;
-      cout << endl;
+    function_header expression_list R_CURLY_BRACKET {
+        List* l = new List;
+        l->push_back(*$1);
+        l->append_list($2);
+        l->push_back("}\n\n");
+        delete $1; delete $2;
+        $$ = l;
+    }
+
+function_header:
+	FUNCTION ID L_PAREN parameter_list_or_empty R_PAREN L_CURLY_BRACKET {
+        string* t = new string("");
+        if (*$2 == "main"){
+            *t += "int";
+        } else {
+            *t += "void";
+        }
+        *t += "main (";
+        if ($4 != nullptr) {
+            for (auto a : $4->list) {
+                *t += a;
+                *t += ", ";
+            }
+        }
+        *t += ") {\n";
+        delete $2; delete $4;
+        $$ = t;
 	}
-	| FUNCTION ID L_PAREN parameter_list_or_empty R_PAREN COLON variable_type L_CURLY_BRACKET expression_list R_CURLY_BRACKET {
-		cout << "Function " << *$2 << " returns " << *$7 << ":" << endl;
-      delete $2;
-      delete $7;
-		cout << "Parameter(s):" << endl;
-      if ($4->args.size() > 0){
-         for (auto arg : $4->args) {
-            cout << arg << endl;
-         }
-      }
-      delete $4;
-      cout << endl;
-	}
-	;
+	| FUNCTION ID L_PAREN parameter_list_or_empty R_PAREN COLON variable_type L_CURLY_BRACKET {
+        string* t = new string("");
+        if (*$2 == "main"){
+            *t += "int main (";
+        } else {
+            *t += *$7;
+            *t += *$2;
+        }
+        if ($4 != nullptr) {
+            for (auto a : $4->list) {
+                *t += a;
+                *t += ", ";
+            }
+        }
+        *t += ") {\n";
+        delete $2; delete $4; delete $7;
+        $$ = t;
+    }
+    ;
 
 class_function_list_or_empty:
-   class_function_list_or_empty class_function
-   | empty
-   ;
+    class_function_list_or_empty class_function
+    | empty
+    ;
 
 class_function:
-   optional_public_or_private FUNCTION ID L_PAREN parameter_list_or_empty R_PAREN L_CURLY_BRACKET expression_list R_CURLY_BRACKET {
-      delete $3;
-   }
-   | optional_public_or_private FUNCTION ID L_PAREN parameter_list_or_empty R_PAREN COLON variable_type L_CURLY_BRACKET expression_list R_CURLY_BRACKET {
-      delete $3;
-      delete $8;
-   }
-   ;
+    optional_public_or_private FUNCTION ID L_PAREN parameter_list_or_empty R_PAREN L_CURLY_BRACKET expression_list R_CURLY_BRACKET {
+        delete $3;
+    }
+    | optional_public_or_private FUNCTION ID L_PAREN parameter_list_or_empty R_PAREN COLON variable_type L_CURLY_BRACKET expression_list R_CURLY_BRACKET {
+        delete $3; delete $8;
+    }
+    ;
 
 optional_public_or_private:
-   PUBLIC
-   | PRIVATE
-   | empty
-   ;
+    PUBLIC
+    | PRIVATE
+    | empty
+    ;
 
-expression_list:
-	expression_list expression
-	| empty
-	;
-
-expression:
-   variable_declaration
-   | variable_assignment
-   | function_call
-	;
 
 function_call:
-   ID L_PAREN argument_list_or_empty R_PAREN SEMICOLON {
-      cout << "Function \"" << *$1 << "\" called";
-      delete $1;
-      if ($3->args.size() > 0){
-         cout << " with " << $3->args.size() << " argument(s):" << endl;
-         for (auto arg : $3->args){
-            cout << arg << endl;
-         }
-         delete $3;
-         cout << endl;
-      }
-      else cout << ".";
-   }
-   ;
+    ID L_PAREN argument_list_or_empty R_PAREN SEMICOLON {
+        delete $1;
+        if ($3 != nullptr) {
+            delete $3;
+        }
+        $$ = new string("// TODO: ADD FUNCTION CALL BEHAVIOR (function_call in prse.y)");
+    }
+    ;
 
 argument_list_or_empty:
-   argument_list
-   | empty {
-      $$ = new Arg_list();
-   }
-   ;
+    argument_list { $$ = nullptr; }
+    | empty { $$ = nullptr; }
+    ;
 
 argument_list:
-   argument COMMA argument_list {
-      $$ = new Arg_list();
-      $$->args.push_back(*$1);
-      delete $1;
-      $$->args.insert($$->args.end(), $3->args.begin(), $3->args.end());
-      delete $3;
-   }
-   | argument {
-      $$ = new Arg_list();
-      $$->args.push_back(*$1);
-      delete $1;
-   }
-   ;
+    argument COMMA argument_list {
+        delete $1;
+        $$ = nullptr;
+    }
+    | argument {
+        delete $1;
+        $$ = nullptr;
+    }
+    ;
 
 argument:
-   constant {
-      $$ = $1;
-   }
-   ;
+    constant {
+        $$ = $1;
+    }
+    ;
 
 parameter_list_or_empty:
    parameter_list
    | empty {
-      $$ = new Arg_list();
+
    }
    ;
 
 parameter_list:
 	parameter COMMA parameter_list {
-      $$ = new Arg_list();
-      $$->args.push_back(*$1);
-      delete $1;
-      $$->args.insert($$->args.end(), $3->args.begin(), $3->args.end());
-      delete $3;
-   }
+       List* l = new List;
+       l->push_back(*$1);
+       l->append_list($3);
+        $$ = l;
+    }
 	| parameter {
-      $$ = new Arg_list();
-      $$->args.push_back(*$1);
-      delete $1;
-   }
-   ;
+       List* list = new List;
+       list->push_back(*$1);
+       $$ = list;
+    }
+    ;
 
 parameter:
 	ID COLON variable_type {
-      $$ = new string("");
-      string str = " " + *$1 + ": " + *$3;
-      *$$ += str;
-      delete $1;
-      delete $3;
+        string* p = new string(*$3);
+        *p += *$1;
+        $$ = p;
 	}
 	;
 
 constant:
-    BOOL_CONST        { $$ = ($1 == true) ? new std::string("true") : new std::string("false"); }
-    | INT_CONST       { $$ = new std::string(std::to_string($1)); }
-    | CHAR_CONST      { $$ = new std::string($1); }
-    | DOUBLE_CONST 	  { $$ = new std::string(std::to_string($1)); }
-    | STRING_CONST 	  { $$ = new std::string(*$1); delete $1; }
-    | ID              { $$ = new std::string(*$1); delete $1; }
+    BOOL_CONST        { 
+        $$ = ($1 == true) ? new string("true") : new string("false");
+    }
+    | INT_CONST       {
+        $$ = new string(std::to_string($1));
+    }
+    | CHAR_CONST      { $$ = new string(to_string(*$1)); delete $1; }
+    | DOUBLE_CONST 	  { $$ = new string(to_string($1)); }
+    | STRING_CONST 	  { $$ = new string(*$1); delete $1; }
+    | ID              { $$ = new string(*$1); delete $1; }
     ;
 
 variable_type:
-    basic_type optional_array {
-        $$ = new string(*$1);
-        delete $1;
-        if ($2 == true){
-            *$$ += " array";
-        }
+    basic_type {
+        $$ = $1;
     }
     ;
 
@@ -384,130 +495,3 @@ empty:
 	;
 
 %%
-void yyerror(const char* error){
-	fprintf(stderr, "%s on line %d\n", error, line_count);
-}
-
-void help_text(){
-	cout << "Usage: prse_c [OPTIONS] [FILE(S)]" << endl;
-	cout << "OPTIONS: " << endl;
-	string options_list[] = {
-		"  -cpp                    Output directly to C++ instead of binary file",
-      "  -g                      Include debugging symbols in binary, for use with gdb"
-      "\n  --help                  Display this help text",
-		"  -o, --output=[FILE]     Specify an output file name (default a.out)",
-      "  -v, --verbose           Verbose mode"
-	};
-	for (int i = 0; i < (sizeof(options_list)/sizeof(options_list[0])); i++){
-		cout << options_list[i] << endl;	
-	}
-}
-
-void version(){
-    cout << "PRSE Compiler, written by Daniel Ellingson" << endl;
-    if (BETA) {
-        cout << "Beta compiler, intended to test new features" << endl;
-    }
-    cout << "Version " << VERSION << "r" << REVISION << endl;
-}
-
-int main(int argc, char** argv){
-    std::string output_filename = "";
-    // Create a library of available bash/command line arguments
-    std::map<std::string, bool> activated_args;
-    activated_args["-cpp"] = false;
-    activated_args["-g"] = false;
-    activated_args["--help"] = false;
-    activated_args["-o"] = false;
-    activated_args["-v"] = false;
-    activated_args["--verbose"] = false;
-    activated_args["--sacrifice"] = false;
-    activated_args["--sacrifice=anyways"] = false;
-    activated_args["--version"] = false;
-    bool verbose = false;
-
-    // A vector of input files, which we will parse once we process
-    // each argument passed to the program
-    std::vector<std::string> input_files = std::vector<std::string>(); 
-    // Process each argument passed
-    for (int i = 1; i < argc; i++){
-        std::string file_candidate = std::string(argv[i]);
-        std::string filetype = ".prse";
-        // If string is a file, check that we can open it.
-        // '!' is necessary to reverse the logical FALSE return value, which means it matches.
-        if (file_candidate.length() > filetype.length() && !file_candidate.compare(file_candidate.length() - filetype.length(), filetype.length(), filetype)){
-            FILE* file = fopen(file_candidate.c_str(), "r");
-            if (!file){
-                cerr << "Could not open file \"" << file_candidate << "\"" << endl;
-                return 1;
-            } else {
-            // Add this file to the list of files
-                fclose(file);
-                input_files.push_back(file_candidate);
-            }
-        } else {
-        // Otherwise, if this isn't a file, check that it exists in our library of aviailable arguments
-            std::string arg = std::string(argv[i]);
-            if (activated_args.find(arg) != activated_args.end()){
-                activated_args[arg] = true;
-                // Get output filename
-                if (arg == "-o" && i+1 < argc) {
-                output_filename = std::string(argv[i+1]);
-                i = i+2;
-                } else if (arg == "-o" && i+1 >= argc) {
-                cout << "Please specify a filename" << endl;
-                return 1;
-                }
-            } else {
-                // Finally, if this is not a valid input file nor a recognized argument,
-                // output an error and continue.
-                cout << "Unrecognized argument '" << arg << "'" << endl;
-            }
-        }
-    }
-    // If --help was passed as an argument, print out the help text
-    // and exit.
-    if (activated_args["--help"]) {
-        help_text();
-        return 0;
-    } else if (activated_args["--version"]) {
-        version();
-        return 0;
-    }
-    if (activated_args["--verbose"] || activated_args["-v"]) {
-        verbose = true;
-    }
-    extern FILE* yyin;
-    // Check that a file has been input
-    if ((int)input_files.size() > 0){
-        /* if (activated_args["--sacrifice"] == true){
-            cout << "The PRSE compiler accepts your humble sacrifice." << endl;
-            cout << "If your code compiles, your file shall be spared." << endl;
-            cout << "If not, it will be deleted forever, and you will have to start from scratch!" << endl;
-            cout << "We accept take-backsies, however! Confirm that you wish to sacrifice file: " << input_files[i] << "? [Y/n]" << endl;
-        } else if (activated_args["--sacrifice=anyways"]) {
-            cout << "The PRSE compiler accepts your humble sacrifice." << endl;
-            cout << "Your source file, " << input_files[i] << " will be deleted." << endl;
-            cout << "If any errors are found, no binary will be produced." << endl;
-            cout << "If no errors are found, you will be left with only your binary." << endl;
-            cout << "Since you set --sacrifice to 'anyways', we will not ask for confirmation." << endl;
-            cout << "Hold your breath!" << endl;
-            // TODO: Delay by X seconds.
-        }  */
-    // Go through each input file and parse it
-    for (int i = 0; i < (int)input_files.size(); i++){
-        cout << "Processing file " << input_files[i] << endl;
-        yyin = fopen(input_files[i].c_str(), "r");
-        // reset the Flex buffer for the next file.
-        //yyrestart(yyin);
-        yyparse();
-    }
-    if ( output_filename != ""){
-        cout << "Final output binary name: " << output_filename << endl;
-    }
-    // Otherwise, return an error.
-    } else {
-        cout << "Please enter at least one input file." << endl;
-    }
-   return 0;
-}
