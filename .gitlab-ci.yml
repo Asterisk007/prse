@@ -4,7 +4,6 @@ pages:
   stage: deploy
   script:
   - echo "Nothing to do..."
-  - mkdir html
   - mv public/* html
   artifacts:
     paths:
