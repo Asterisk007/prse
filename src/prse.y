@@ -102,7 +102,7 @@
 // Production types
 %type <union_list> libraries_list
 %type <union_list> variable_declaration_list
-%type <union_list> class_declaration_list
+//%type <union_list> class_declaration_list
 %type <union_string> variable_declaration
 %type <union_string> variable_assignment
 %type <union_string> variable_type
@@ -212,14 +212,14 @@ declaration_list:
         }
         delete $1;
     }
-    | class_declaration_list declaration_list {
+    /*| class_declaration_list declaration_list {
         OutputBuffer& output = OutputBuffer::instance();
         List* l = $1;
         for (auto a : l->list){
             output.add_line(a);
         }
         delete $1;
-    }
+    }*/
     | empty
 	;
 
@@ -266,7 +266,7 @@ variable_declaration:
     }*/
     ;
 
-class_declaration_list:
+/*class_declaration_list:
     class_declaration_list class_declaration 
     | class_declaration {
         $$ = nullptr;
@@ -274,33 +274,33 @@ class_declaration_list:
     ;
 
 class_declaration:
-   CLASS ID L_CURLY_BRACKET public_or_private_block_list_or_empty class_function_list_or_empty R_CURLY_BRACKET {
-      delete $2;
-   }
-   ;
+    CLASS ID L_CURLY_BRACKET public_or_private_block_list_or_empty class_function_list_or_empty R_CURLY_BRACKET {
+        delete $2;
+    }
+    ;
 
 public_or_private_block_list_or_empty:
-   public_or_private_block public_or_private_block_list_or_empty
-   | empty
-   ;
+    public_or_private_block public_or_private_block_list_or_empty
+    | empty
+    ;
 
 public_or_private_block:
-   PUBLIC L_CURLY_BRACKET variable_declaration_list_or_empty {
-      
-   }
-   | PRIVATE L_CURLY_BRACKET variable_declaration_list_or_empty {
+    PUBLIC L_CURLY_BRACKET variable_declaration_list_or_empty {
+        
+    }
+    | PRIVATE L_CURLY_BRACKET variable_declaration_list_or_empty {
 
-   }
-   ;
+    }
+    ;*/
 
 variable_assignment:
-	ID ASSIGN constant SEMICOLON {
+    ID ASSIGN constant SEMICOLON {
         //     t =           ID              =        CONSTANT
         string *t = new string(*$1); *t += " = "; *t += *$3; *t += ";\n";
         $$ = t;
         delete $1; delete $3;
-	}
-	;
+    }
+    ;
 
 function_list_or_empty:
     function_list {
@@ -372,7 +372,7 @@ function_header:
     }
     ;
 
-class_function_list_or_empty:
+/*class_function_list_or_empty:
     class_function_list_or_empty class_function
     | empty
     ;
@@ -390,7 +390,7 @@ optional_public_or_private:
     PUBLIC
     | PRIVATE
     | empty
-    ;
+    ;*/
 
 
 function_call:
