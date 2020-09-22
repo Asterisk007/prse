@@ -1,2 +1,0 @@
-// Using several libraries on one line
-use "io", "math", "algorithm"

@@ -1,4 +1,0 @@
-// Use statement and variable declaration
-use "io"
-
-var a: int = 2;

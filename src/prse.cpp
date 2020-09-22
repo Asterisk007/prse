@@ -14,10 +14,10 @@ void yyerror(const char* error){
 }
 
 void help_text(){
-	cout << "Usage: prse_c [OPTIONS] [FILE(S)]" << endl;
+	cout << "Usage: prsec [OPTIONS] [FILE(S)]" << endl;
 	cout << "OPTIONS: " << endl;
 	string options_list[] = {
-		"  -cpp                    Output directly to C++ instead of binary file",
+		"  --cpp                   Output directly to C++ instead of binary file",
         "  -g                      Include debugging symbols in binary, for use with gdb"
         "\n  --help                  Display this help text",
 		"  -o,                     Specify an output file name (default a.out)",
@@ -34,7 +34,7 @@ void version(){
     if (BETA) {
         cout << "Beta compiler, intended to test new features" << endl;
     }
-    cout << "Version " << VERSION << "." << SUBVERSION << "." << SUBSUBVERSION << "r" << REVISION << endl;
+    cout << "Version " << VERSION << "." << SUBVERSION << "." << SUBSUBVERSION << endl;
     cout << "For help, enter prsedoc into your terminal to open PDF documentation, or use prsec -h" << endl;
 }
 
@@ -111,10 +111,10 @@ int main(int argc, char** argv){
 
     // Initialize the standard PRSE library, which contains
     // aliases for each C++ standard library.
-    cout << "Initializing libraries" << endl;
+    /* cout << "Initializing libraries" << endl;
     // sanity check that libraries are initialized
     Library& library = Library::instance();
-    library.list_libs();
+    library.list_libs(); */
 
     // Check that at least one file has been provided as input on the command line.
     if ((int)input_files.size() > 0){
@@ -148,10 +148,12 @@ int main(int argc, char** argv){
                 }
                 OutputBuffer& output = OutputBuffer::instance();
                 string t = input_files[i].substr(0, input_files[i].size()-5); t += ".cpp";
-                ofstream outfile; outfile.open(t);
+                ofstream outfile;
+                outfile.open(t);
                 if (outfile.is_open()){
                     cout << "Outputting to " << t << endl;
                     output.output_to_file(&outfile);
+                    //output.output_to_file(nullptr);
                     // TODO: Add compilation functionality (CPP to bin)
                     outfile.close();
                 } else {

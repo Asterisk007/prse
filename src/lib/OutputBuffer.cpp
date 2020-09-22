@@ -27,9 +27,9 @@ void OutputBuffer::output_to_file(ofstream* file){
     for (auto s : buffer) {
         cout << s << endl;
     }
-    /*
-    for (auto s : buffer) {
-        *file << s << "\n";
+    if (file != nullptr){
+        for (auto s : buffer) {
+            *file << s << "\n";
+        }
     }
-    */
 }

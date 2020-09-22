@@ -7,6 +7,8 @@
 
 using namespace std;
 
+extern int line_count;
+
 // TODO: work out new error code names
 /* Error codes:
     DERBY: variable declared but not set
@@ -22,10 +24,11 @@ using namespace std;
     SNAPBACK: 
 */
 
+
 int Error::error_count = 0;
 
-void Error::error(Error_type error_type, int line_number){
-    cout << "Error on line " << line_number << ": " << endl;
+void Error::error(Error_type error_type){
+    cout << "Error on line " << line_count << ": " << endl;
     switch (error_type){
         case VARIABLE_DECLARED_BUT_NOT_SET:
             cout << "Error code DERBY: a variable was declared, but not set." << endl;

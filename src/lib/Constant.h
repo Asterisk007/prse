@@ -1,26 +1,23 @@
 #pragma once
 
 #include "PRSE_type.h"
+#include "Symbol.h"
+#include <vector>
+#include <string>
+
+using namespace std;
 
 class Constant {
 private:
     PRSE_type type;
-    union Value {
-        bool *bool_pointer;
-        int *int_pointer;
-        char *char_pointer;
-        double *double_pointer;
-        std::string *string_pointer;
-        // TODO: Add support for complex types (i.e. classes)
-
-        Value(bool *val) : bool_pointer(val) {}
-        Value(int *val) : int_pointer(val) {}
-        Value(char *val) : char_pointer(val) {}
-        Value(double *val) : double_pointer(val) {}
-        Value(std::string *val) : string_pointer(val) {}
-        // TODO: Add void* type here
-    };
+    string value;
+    vector<string> value_list;
 public:
+    Constant();
+    ~Constant();
+    Constant(PRSE_type type, string value);
+    Constant(PRSE_type type, vector<string> value_list);
     PRSE_type get_type();
-    Value get_value();
+    string get_value();
+    vector<string> get_value_list();
 };

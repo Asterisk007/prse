@@ -1,7 +1,0 @@
-use "io"
-
-var a: int = 2;
-
-func main(ac: int, av: string[]) {
-	print("hello world");
-}

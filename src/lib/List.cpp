@@ -1,27 +1,7 @@
 #include "List.h"
 
-List::List() {
-   list = vector<string>();
-}
-
-void List::push_back(string s) {
-    list.push_back(s);
-}
-
-void List::append_list(List* l){
-    if (l == nullptr) { return; }
-    if (l->size() > 0)
-        list.insert(list.end(), l->list.begin(), l->list.end());
-}
-
-string List::get_item(int i) {
-    if ((int)list.size() <= i) {
-        return "";
-    } else {
-        return list[i];
-    }
-}
-
-int List::size() {
-    return (int)list.size();
-}
+/* template <typename T> void append_list (vector<T>*& list_one, vector<T>*& list_two){
+    if (list_one == nullptr || list_two == nullptr) { return; }
+    if (list_two->size() > 0)
+        list_one->insert(list_one->end(), list_two->begin(), list_two->end());
+} */
