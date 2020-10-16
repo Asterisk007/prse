@@ -1,10 +1,14 @@
 #include "Table_handler.h"
+#include <iostream>
+
+using std::cout; using std::endl;
 
 Table_handler& Table_handler::instance(){
     static Table_handler inst;
     if (inst.tables.size() == 0){
         inst.push_table();
     }
+    cout << "table handler has " << inst.tables.size() << " tables" << endl;
     return inst;
 }
 

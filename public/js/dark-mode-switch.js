@@ -21,9 +21,9 @@ window.addEventListener('load', () => {
  * @return {void}
  */
 function initTheme() {
-  const darkThemeSelected =
-    localStorage.getItem('darkSwitch') !== null &&
-    localStorage.getItem('darkSwitch') === 'dark';
+    const darkThemeSelected =
+        localStorage.getItem('darkSwitch') !== null &&
+        localStorage.getItem('darkSwitch') === 'dark';
     darkSwitch.checked = darkThemeSelected;
     darkThemeSelected ? document.getElementById("body").classList = "bootstrap-dark" :
         document.getElementById("body").classList = "bootstrap";
@@ -40,8 +40,12 @@ function resetTheme() {
   if (darkSwitch.checked) {
     document.getElementById("body").classList = "bootstrap-dark"
     localStorage.setItem('darkSwitch', 'dark');
+    document.getElementById("navbar-main").classList.add("navbar-dark");
+    document.getElementById("navbar-main").classList.remove("navbar-light");
   } else {
     document.getElementById("body").classList = "bootstrap"
     localStorage.removeItem('darkSwitch');
+    document.getElementById("navbar-main").classList.remove("navbar-dark");
+    document.getElementById("navbar-main").classList.add("navbar-light");
   }
 }

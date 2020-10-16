@@ -6,7 +6,6 @@
     #include <iostream>
     #include <algorithm>
     #include "parser.h"
-    #include "prse.tab.h"
 
     using namespace std;
 
@@ -27,7 +26,17 @@ func|function           { return FUNCTION; }
 return                  { return RETURN; }
 public                  { return PUBLIC; }
 private                 { return PRIVATE; }
-\[CXXMODE\]             { return CXXMODE; } /* Allows the programmer to use C++ syntax instead of PRSE syntax. */
+\[CXXMODE\][\s]*[{][\S\s]*[}] { cout << "CXXMODE token" << endl;
+                                   /* Convert this from its current format to raw C++ */
+                                   string s = string(yytext);
+                                   s.erase(0, string("[CXXMODE]").length());
+                                   while (s.at(0) != '{') { s.erase(0, 1); }
+                                   /* Remove start and ending curlies */
+                                   s.erase(0, 1);
+                                   s.erase(s.size()-1, 1);
+                                   yylval.union_string = new string(s);
+                                   return CXXMODE;
+                            } /* Allows the programmer to use C++ syntax instead of PRSE syntax. */
 
  /* ======== Flow control ======= */
 
@@ -38,105 +47,105 @@ for                     { return FOR; }
  /* ======== Data types ======== */
 
 bool|boolean            { return BOOL; }
-int                        { return INT; }
-doub|double                { return DOUBLE; }
-char                        { return CHAR; }
-string                        { return STRING; }
-void                        { return VOID; }
+int                     { return INT; }
+doub|double             { return DOUBLE; }
+char                    { return CHAR; }
+string                  { return STRING; }
+void                    { return VOID; }
 null                    { return MYNULL; }
 
  /* ======== Arithmetic ======== */
 
 \=                               { return ASSIGN; }
 
-\+                            { return PLUS; }
-\-                            { return MINUS; }
-\*                            { return STAR; }
-\/                            { return SLASH; }
-\^                            { return CARET; }
+\+                           { return PLUS; }
+\-                           { return MINUS; }
+\*                           { return STAR; }
+\/                           { return SLASH; }
+\^                           { return CARET; }
 
-"++"                           { return INCREMENT; }
-"--"                           { return DECREMENT; }
+"++"                         { return INCREMENT; }
+"--"                         { return DECREMENT; }
 
-"+="                           { return PLUS_ASSIGN; }
-"-="                           { return MINUS_ASSIGN; }
+"+="                         { return PLUS_ASSIGN; }
+"-="                         { return MINUS_ASSIGN; }
 
  /* ======= Logical operators ======= */
 
-true                            { yylval.union_bool = true; return LOGIC_TRUE; }
-false                            { yylval.union_bool = false; return LOGIC_FALSE; }
+true                         { yylval.union_bool = true; return LOGIC_TRUE; }
+false                        { yylval.union_bool = false; return LOGIC_FALSE; }
 
-"=="                             { return LOGIC_EQ; }
-"!="                             { return LOGIC_NE; }
-"!"                            { return LOGIC_NOT; }
-"&&"                            { return LOGIC_AND; }
-"||"                             { return LOGIC_OR; }
-">"                            { return LOGIC_GREATER; }
-"<"                            { return LOGIC_LESS; }
-">="                            { return LOGIC_GREATER_EQUAL; }
-"<="                            { return LOGIC_LESS_EQUAL; }
+"=="                         { return LOGIC_EQ; }
+"!="                         { return LOGIC_NE; }
+"!"                          { return LOGIC_NOT; }
+"&&"                         { return LOGIC_AND; }
+"||"                         { return LOGIC_OR; }
+">"                          { return LOGIC_GREATER; }
+"<"                          { return LOGIC_LESS; }
+">="                         { return LOGIC_GREATER_EQUAL; }
+"<="                         { return LOGIC_LESS_EQUAL; }
 
  /* Other tokens */
 
-\.                                { return PERIOD; }
-\,                                { return COMMA; }
-\:                             { return COLON; } /* for denoting variable types and function return types */
-\;                             { return SEMICOLON; } /* semicolon, denotes end of statement */
-["]                                { return DOUBLE_QUOTE; }
-\'                             { return SINGLE_QUOTE; }
-\(                                { return L_PAREN; }
-\)                                { return R_PAREN; }
-\[                             { return L_SQUARE_BRACKET; }
-\]                             { return R_SQUARE_BRACKET; }
-\{                             { return L_CURLY_BRACKET; }
-\}                             { return R_CURLY_BRACKET; }
-[$]                         { return DOLLAR; }
+\.                           { return PERIOD; }
+\,                           { return COMMA; }
+\:                           { return COLON; } /* for denoting variable types and function return types */
+\;                           { return SEMICOLON; } /* semicolon, denotes end of statement */
+["]                          { return DOUBLE_QUOTE; }
+\'                           { return SINGLE_QUOTE; }
+\(                           { return L_PAREN; }
+\)                           { return R_PAREN; }
+\[                           { return L_SQUARE_BRACKET; }
+\]                           { return R_SQUARE_BRACKET; }
+\{                           { return L_CURLY_BRACKET; }
+\}                           { return R_CURLY_BRACKET; }
+[$]                          { return DOLLAR; }
 
-\/\/.*                         {} /* single line comment */
-\/\*[\s\S]*?\*\/             {} /* multiline comment */
+\/\/.*                                  {} /* single line comment */
+[/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]     {} /* multiline comment. Thanks to this stackoverflow post: https://stackoverflow.com/a/22390133 */
                             
-[0-9]+                        { yylval.union_int = std::stoi(yytext); return INT_CONST; } /* integer constant */
-[0-9]*\.[0-9]*                { yylval.union_double = std::stod(yytext); return DOUBLE_CONST; } /* integer constant */
+[0-9]+                       { yylval.union_int = std::stoi(yytext); return INT_CONST; } /* integer constant */
+[0-9]*\.[0-9]*               { yylval.union_double = std::stod(yytext); return DOUBLE_CONST; } /* integer constant */
 
+["][^\n\r"{}]*["]            {    /* string constant */
+                                    string s = string(yytext);
+                                    s.erase(remove(s.begin(), s.end(), '\"'), s.end());
+                                    yylval.union_string = new string(s);
+                                    return STRING_CONST;
+                             }
+['].[']                      { /* character constant */
+                                    string s = string(yytext);
+                                    s.erase(remove(s.begin(), s.end(), '\''), s.end());
+                                    yylval.union_string = new string(s);
+                                    return CHAR_CONST;
+                             }
+                             
 ["][^\n\r"}]*[{]             {    /* interpolated string begin */
                                     string s = string(yytext);
                                     s.erase(0, 1); /* remove '"' character */
                                     s.erase(s.size()-1, 1); /* remove '{' character //}*/
                                     yylval.union_string = new string(s);
                                     return I_STRING_BEGIN;
-                            }
+                             }
 [}][^\n\r"{]*["]             {    /* interpolated string end */
                                     string s = string(yytext);
                                     s.erase(0, 1); /*{// remove start '}' character */
                                     s.erase(s.size()-1, 1); /* remove end '"' character */
                                     yylval.union_string = new string(s);
                                     return I_STRING_END;
-                            }
-[}][^\n\r"{}]*[{]             {    /* interpolated string part */
+                             }
+[}][^\n\r"{}]*[{]            {    /* interpolated string part */
                                     string s = string(yytext);
                                     s.erase(0, 1);
                                     s.erase(s.size()-1, 1);
                                     yylval.union_string = new string(s);
                                     return I_STRING_PART;
-                            }
+                             }
 
-["][^\n\r"{}]*["]             {    /* string constant */
-                                    string s = string(yytext);
-                                    s.erase(remove(s.begin(), s.end(), '\"'), s.end());
-                                    yylval.union_string = new string(s);
-                                    return STRING_CONST;
-                            }
+[A-Za-z_][a-zA-Z0-9_]*       { yylval.union_string = new string(yytext); return ID; } /* variable */
 
-['].[']                        { /* character constant */
-                                    string s = string(yytext);
-                                    s.erase(remove(s.begin(), s.end(), '\''), s.end());
-                                    yylval.union_string = new string(s);
-                                    return CHAR_CONST;
-                            }
-[A-Za-z_][a-zA-Z0-9_]*         { yylval.union_string = new string(yytext); return ID; } /* variable */
-
-[\n\r]*                     { line_count++; } /* whitespace: \n */
-[\t\ ]                      {} /* whitespace: tabs and spaces */
+[\n\r]*                      { line_count++; } /* whitespace: \n */
+[\t\ ]                       {} /* whitespace: tabs and spaces */
 .                            { return ERROR; }
 
 %%

@@ -427,7 +427,7 @@ pre {
   color: #212529; }
   pre code {
     font-size: inherit;
-    color: inherit;
+    color: #d3d3d3;
     word-break: normal; }
 
 .pre-scrollable {

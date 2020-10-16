@@ -22,7 +22,7 @@ void help_text(){
         "\n  --help                  Display this help text",
 		"  -o,                     Specify an output file name (default a.out)",
         "  -v, --verbose           Verbose mode",
-        "To view PRSE documentation, run prsedoc instead."
+        "  --nocodes               Do not display error codes for each error found"
 	};
 	for (int i = 0; i < (sizeof(options_list)/sizeof(options_list[0])); i++){
 		cout << options_list[i] << endl;	
@@ -30,7 +30,7 @@ void help_text(){
 }
 
 void version(){
-    cout << "prsec (PRSE Compiler), written by Daniel Ellingson" << endl;
+    cout << "prsec (PRSE compiler), written by Asterisk" << endl;
     if (BETA) {
         cout << "Beta compiler, intended to test new features" << endl;
     }
@@ -42,7 +42,7 @@ int main(int argc, char** argv){
     string output_filename = "";
     // Create a library of available bash/command line arguments
     map<string, bool> activated_args;
-    activated_args["-cpp"] = false;
+    activated_args["--cpp"] = false;
     activated_args["-g"] = false;
     activated_args["--help"] = false;
     activated_args["-o"] = false;
@@ -51,6 +51,8 @@ int main(int argc, char** argv){
     activated_args["--sacrifice"] = false;
     activated_args["--sacrifice=anyways"] = false;
     activated_args["--version"] = false;
+    activated_args["--nocodes"] = false;
+    activated_args["-w"] = false;
 
     // A vector of input files, which we will parse once we process
     // each argument passed to the program
@@ -107,6 +109,12 @@ int main(int argc, char** argv){
     if (activated_args["--verbose"] || activated_args["-v"]) {
         verbose = true;
     }
+    if (activated_args["--nocodes"]){
+        Error::print_error_codes = false;
+    }
+    if (activated_args["-w"]){
+        Warning::show_warnings = false;
+    }
     extern FILE* yyin;
 
     // Initialize the standard PRSE library, which contains
@@ -141,10 +149,18 @@ int main(int argc, char** argv){
             if (!yyin) {
                 cerr << "Could not open " << input_files[i] << endl;
             } else {
-                yyparse();
+                if (yyparse() == 1){
+                    Function_definition::cleanup();
+                    return 1;
+                }
                 fclose(yyin);
                 if (Error::num_errors() > 0) {
                     // return 1;
+                    cout << Error::num_errors() << " error";
+                    if (Error::num_errors() > 1) cout << "s";
+                    cout << " found in program. No output will be produced." << endl;
+                    Function_definition::cleanup();
+                    return 1;
                 }
                 OutputBuffer& output = OutputBuffer::instance();
                 string t = input_files[i].substr(0, input_files[i].size()-5); t += ".cpp";
@@ -157,7 +173,8 @@ int main(int argc, char** argv){
                     // TODO: Add compilation functionality (CPP to bin)
                     outfile.close();
                 } else {
-                    cerr << "File " << t << " could not be opened." << endl;
+                    cout << "File " << t << " could not be opened." << endl;
+                    Function_definition::cleanup();
                     return 1;
                 }
             }   
@@ -171,5 +188,6 @@ int main(int argc, char** argv){
     if ( output_filename != ""){
         cout << "Final output binary name: " << output_filename << endl;
     }
+    Function_definition::cleanup();
     return 0;
 }

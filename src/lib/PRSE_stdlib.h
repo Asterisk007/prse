@@ -1,6 +1,6 @@
 #pragma once
 
-#include <map>
+#include <unordered_map>
 #include <string>
 
 using namespace std;
@@ -16,11 +16,16 @@ using namespace std;
 
 class Library {
 private:
-    map<string, string> library;
+    unordered_map<string, string> library;
 public:
     Library();
     static Library& instance();
-    bool lib_exists(string s);
+    unordered_map<string, bool> lib_used;
+    unordered_map<string, bool> lib_required; // C++ standard libraries that need to be included.
+                                              // included on a need-to-know basis, so as to avoid bloating
+                                              // the file.
+    bool using_library(const string& lib);
+    bool lib_exists(const string& s);
     string get_lib(string s);
     void list_libs();
 };

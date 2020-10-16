@@ -1,23 +1,19 @@
 #pragma once
 
 #include "PRSE_type.h"
-#include "Symbol.h"
-#include <vector>
-#include <string>
+#include "Expression.h"
 
 using namespace std;
 
-class Constant {
-private:
-    PRSE_type type;
-    string value;
-    vector<string> value_list;
+class Constant : public Expression {
 public:
-    Constant();
-    ~Constant();
-    Constant(PRSE_type type, string value);
-    Constant(PRSE_type type, vector<string> value_list);
-    PRSE_type get_type();
-    string get_value();
-    vector<string> get_value_list();
+    Constant(PRSE_type type, const string& value);
+    virtual ~Constant();
+    virtual Constant* as_const() { return this; }
+    //virtual vector<Constant*> as_list();
+    virtual string value() const { return const_value; }
+    virtual PRSE_type type() const final;
+private:
+    const PRSE_type const_type;
+    string const_value;
 };

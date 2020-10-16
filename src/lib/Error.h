@@ -1,15 +1,34 @@
 #pragma once
+#include <string>
+
+extern int line_count;
+
+using namespace std;
 
 // This class handles various errors that PRSE encounters in a file
 class Error {
 public:
     enum Error_type {
         VARIABLE_DECLARED_BUT_NOT_SET,
-        VARIABLE_NOT_DEFINED,
-        UNDEFINED_FUNCTION
+        VARIABLE_NOT_DEFINED_IN_SCOPE,
+        IMPLICIT_TYPE_CANNOT_BE_ASSIGNED_NULL,
+        INVALID_TYPE_FOR_VARIABLE,
+        INVALID_EXPRESSION_TYPE_FOR_ARRAY_SIZE,
+        MISMATCHED_TYPE_FOR_ASSIGNMENT,
+        UNDEFINED_FUNCTION,
+        NULL_CANNOT_BE_USED_IN_OPERATION,
+        INCORRECT_NUMBER_OF_PARAMETERS_FOR_MAIN,
+        INVALID_RETURN_TYPE_FOR_MAIN
     };
-    static void error(Error_type error_type);
+    static void error(
+        Error_type error_type,
+        const string& s1 = "",
+        const string& s2 = "",
+        const string& s3 = "",
+        const int line_override = line_count
+    );
     static int num_errors();
+    static bool print_error_codes;
 protected:
     static int error_count;
 };
@@ -21,8 +40,14 @@ public:
         VARIABLE_TYPE_IMPLICIT,
         VARIABLE_DECLARED_BUT_NOT_USED
     };
-    static void warning(Warning_type warning_type);
+    static void warning(
+        Warning_type warning_type,
+        const string& s1 = "",
+        const string& s2 = "",
+        const string& s3 = ""
+    );
     static int num_warnings();
+    static bool show_warnings;
 protected:
     static int warning_count;
 };

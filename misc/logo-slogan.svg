@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="200"
+   height="200"
+   viewBox="0 0 52.916665 52.916668"
+   version="1.1"
+   id="svg8"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   sodipodi:docname="logo-slogan.svg"
+   inkscape:export-filename="D:\Users\spyki\Documents\_College\CSCI 490\prse\misc\logo-slogan.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
+  <defs
+     id="defs2">
+    <linearGradient
+       id="linearGradient4540"
+       osb:paint="solid">
+      <stop
+         style="stop-color:#b3b3b3;stop-opacity:1;"
+         offset="0"
+         id="stop4538" />
+    </linearGradient>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#606060"
+     bordercolor="#000000"
+     borderopacity="1"
+     inkscape:pageopacity="1"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.979899"
+     inkscape:cx="204.56601"
+     inkscape:cy="160.90281"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer2"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1057"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     units="px"
+     inkscape:pagecheckerboard="true"
+     inkscape:showpageshadow="false"
+     borderlayer="true"
+     inkscape:snap-page="true"
+     inkscape:snap-bbox="true"
+     inkscape:bbox-paths="true"
+     inkscape:snap-text-baseline="true"
+     inkscape:bbox-nodes="true"
+     inkscape:snap-bbox-edge-midpoints="true"
+     inkscape:snap-bbox-midpoints="true"
+     inkscape:object-paths="true"
+     inkscape:snap-intersection-paths="true"
+     inkscape:snap-smooth-nodes="true"
+     inkscape:snap-midpoints="true"
+     inkscape:snap-object-midpoints="true"
+     inkscape:snap-center="true"
+     showguides="false"
+     inkscape:document-rotation="0" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Background"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-244.08332)"
+     style="opacity:1"
+     sodipodi:insensitive="true">
+    <rect
+       style="fill:#000000;fill-opacity:0;stroke-width:0.264583"
+       id="rect10"
+       width="23.056549"
+       height="25.040924"
+       x="-1.984375"
+       y="243.70534" />
+    <rect
+       style="fill:#000000;fill-opacity:1;stroke-width:0.367949"
+       id="rect12"
+       width="102.33939"
+       height="52.916664"
+       x="0"
+       y="244.08331" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="6.614583"
+       y="255.89508"
+       id="text6004" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="text">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:22.5778px;line-height:1.25;font-family:'3270 Condensed';-inkscape-font-specification:'3270 Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="1.4427108"
+       y="0"
+       id="text6009"><tspan
+         sodipodi:role="line"
+         x="0"
+         y="0"
+         style="font-size:22.5778px;line-height:26.6356px;text-align:start;letter-spacing:0px;text-anchor:start;fill:#ffffff;stroke-width:0.264583"
+         dx="0"
+         id="tspan6015"><tspan
+           id="tspan6017"
+           style="font-size:22.5778px;line-height:26.6356px;text-align:start;letter-spacing:0px;text-anchor:start;fill:#ffffff;stroke-width:0.264583" /></tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:61.473px;line-height:1.25;font-family:'3270 Condensed';-inkscape-font-specification:'3270 Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.320172"
+       x="38.868004"
+       y="42.402847"
+       id="text6025"
+       transform="scale(0.82637888,1.2100987)"><tspan
+         sodipodi:role="line"
+         id="tspan6023"
+         x="38.868004"
+         y="42.402847"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:61.473px;font-family:'3270Medium Nerd Font';-inkscape-font-specification:'3270Medium Nerd Font';fill:#ffffff;stroke-width:0.320172">}</tspan></text>
+    <text
+       transform="scale(-0.82637887,1.2100987)"
+       id="text6029"
+       y="42.402847"
+       x="-25.089403"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:61.473px;line-height:1.25;font-family:'3270Medium Nerd Font';-inkscape-font-specification:'3270Medium Nerd Font';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.320172;"
+       xml:space="preserve"><tspan
+         style="font-size:61.473px;fill:#ffffff;stroke-width:0.320172;-inkscape-font-specification:'3270Medium Nerd Font';font-family:'3270Medium Nerd Font';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;"
+         y="42.402847"
+         x="-25.089403"
+         id="tspan6027"
+         sodipodi:role="line">}</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25.4px;line-height:0.6;font-family:'3270 Condensed';-inkscape-font-specification:'3270 Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="13.162847"
+       y="26.340458"
+       id="text6033"><tspan
+         sodipodi:role="line"
+         id="tspan6031"
+         x="13.162847"
+         y="26.340458"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25.4px;font-family:'3270Medium Nerd Font';-inkscape-font-specification:'3270Medium Nerd Font';fill:#ffffff;stroke-width:0.264583">PR</tspan><tspan
+         sodipodi:role="line"
+         x="13.162847"
+         y="42.602413"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25.4px;font-family:'3270Medium Nerd Font';-inkscape-font-specification:'3270Medium Nerd Font';fill:#ffffff;stroke-width:0.264583"
+         id="tspan6035">SE</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:6.01655px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.150414"
+       x="76.42981"
+       y="13.522705"
+       id="text26"><tspan
+         sodipodi:role="line"
+         x="76.42981"
+         y="13.522705"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.02209px;font-family:'3270Medium Nerd Font';-inkscape-font-specification:'3270Medium Nerd Font';text-align:center;letter-spacing:0px;text-anchor:middle;fill:#ffffff;stroke-width:0.150414"
+         id="tspan36">A C-like</tspan><tspan
+         sodipodi:role="line"
+         x="76.42981"
+         y="23.550318"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.02209px;font-family:'3270Medium Nerd Font';-inkscape-font-specification:'3270Medium Nerd Font';text-align:center;letter-spacing:0px;text-anchor:middle;fill:#ffffff;stroke-width:0.150414"
+         id="tspan42">language</tspan><tspan
+         sodipodi:role="line"
+         x="76.42981"
+         y="33.57793"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.02209px;font-family:'3270Medium Nerd Font';-inkscape-font-specification:'3270Medium Nerd Font';text-align:center;letter-spacing:0px;text-anchor:middle;fill:#ffffff;stroke-width:0.150414"
+         id="tspan44">for tired</tspan><tspan
+         sodipodi:role="line"
+         x="76.42981"
+         y="43.605541"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.02209px;font-family:'3270Medium Nerd Font';-inkscape-font-specification:'3270Medium Nerd Font';text-align:center;letter-spacing:0px;text-anchor:middle;fill:#ffffff;stroke-width:0.150414"
+         id="tspan46">programmers</tspan></text>
+  </g>
+</svg>

@@ -443,7 +443,7 @@ body.bootstrap-dark {
   color: #212529; }
   .bootstrap-dark pre code {
     font-size: inherit;
-    color: inherit;
+    color: #d3d3d3;
     word-break: normal; }
 
 .bootstrap-dark .pre-scrollable {

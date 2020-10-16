@@ -13,7 +13,6 @@ LIB_FILES := $(wildcard $(LIB_DIR)/*.cpp)
 OBJ_FILES := $(patsubst $(LIB_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(LIB_FILES))
 
 all: $(EXECUTABLE)
-	
 
 all_versbose: $(EXECUTABLE_VERBOSE)
 
@@ -27,6 +26,9 @@ check: $(TEST_FILES)
 	for f in $(TEST_FILES); do \
 		valgrind ./prsec $f; \
 	done
+
+objects:
+	make $(OBJ_FILES)
 
 # Rebuild the executable from scratch:
 rebuild:
@@ -60,7 +62,7 @@ lex.yy.cpp: prse.l
 	flex -o lex.yy.cpp prse.l
 
 $(OBJ_DIR)/%.o: $(LIB_DIR)/%.cpp $(LIB_DIR)/%.h
-	$(CPP_COMPILER) $(CPP_FLAGS) -c -o $@ $<
+	-$(CPP_COMPILER) $(CPP_FLAGS) -c -o $@ $<
 
 clean:
 	rm -f lex.yy.* prse.tab.* obj/*.o prsec

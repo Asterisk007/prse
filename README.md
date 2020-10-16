@@ -1,5 +1,5 @@
-# PRSE
-## A Python-esque programming language for C/C++ programmers.
+![PRSE](misc/logo-slogan.png)
+### or: A Python-esque programming language for C/C++ programmers.
 ### Documentation: [click here](https://asterisk007.gitlab.io/prse/)
 
 Design goals:
