@@ -1,4 +1,4 @@
-![PRSE](misc/logo-slogan.png)
+![PRSE](misc/logo-slogan-text-as-paths.svg)
 ### or: A Python-esque programming language for C/C++ programmers.
 ### Documentation: [click here](https://asterisk007.gitlab.io/prse/)
 
@@ -11,11 +11,6 @@ Design goals:
 * Use clean, straightforward grammar
 * Don't use syntactic whitespace.
 
-Notes:
-* Recommendation from Todd: All values must be initialized on declaration. If the user fails to do so, throw out an error (`error core derby: variable declared with no value set.`)
-    - Apparently, this is called RAII.
-* I want to do pass-by-reference by default. If you want to pass by value (meaning a copy of the value rather than the variable it's associated with), use `.copy()` 
-
 Extras to be implemented later:
 * CLA option: --sacrifice
     - Sacrifice a file to the PRSE compiler
@@ -23,51 +18,22 @@ Extras to be implemented later:
     - If any errors are found, the file is destroyed
     - Hardcore mode: --sacrifice=anyways sacrifices a file regardless of errors, so that you are left with only a binary or nothing at all.
 
-# Dependencies:
+# About this project:
+Designed and programmed by Daniel Ellingson
 
-## To run the PRSE compiler:
-|Program|Used for|
-|-|-|
-|`prsec`|Compiling supplied PRSE source code (in files that end in '.prse') to C++ code|
-|`clang++`|Compiling the above to a binary file|
+Tools/languages used:
+- Bison: for grammar
+- Flex: for lexing
+- C++: for functionality
 
-## To build the PRSE compiler yourself:
-### Dependencies
-|Program|Used for|
-|-|-|
-|`flex`|Creating the lexer which tokenizes a given '.prse' file|
-|`bison`|Generating the `prse.tab.cpp` grammar file|
-|`clang++`|Compiling C++ source files, `lex.yy.cpp` and `prse.tab.cpp` files into the prsec binary|
-|`make`|Running the supplied Makefile in `/src/`|
+The PRSE compiler (prsec) is software that is used to compile programs written in the PRSE language into runnable binaries, or into equivalent C++ programs.
 
-Installing dependencies:
+The PRSE language is a C-like programming language focused on ease-of-use with syntax similar to C/C++, but with functionality that more closely resembles Python.
 
-Ubuntu
-```
-apt install flex bison clang make
-```
+The PRSE language is:
+* Statically- and strongly-typed. Variables that are initialized as a given datatype remain that datatype until they go out of scope.
 
-Arch
-```
-pacman -S flex bison clang make
-```
-
-### Building and Installing
-
-First, clone this repository:
-```
-git clone https://gitlab.com/Asterisk007/prse.git
-```
-or, if you prefer to use SSH:
-```
-git clone git@gitlab.com:Asterisk007/prse.git
-```
-
-Then, run the following commands:
-```
-cd prse/src/
-make
-sudo make install
-```
-
-This will install the PRSE compiler to /usr/bin.
+Note to new users:
+* Basic knowledge of Linux is necessary to use this program.
+- I recommend checking out a few tutorials for how to use a Linux shell. If you are running Windows 10, Microsoft has been developing the Windows Subsystem for Linux for quite some time now, and this virtual environment is what I have been using to develop PRSE. It gives you access to a complete Linux terminal emulator, which will allow you to build and run the PRSE compiler.
+- The PRSE compiler has thus far only been tested on Ubuntu Linux. Windows support may or may not come sometime in the future.
