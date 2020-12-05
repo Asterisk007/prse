@@ -18,6 +18,11 @@ Extras to be implemented later:
     - If any errors are found, the file is destroyed
     - Hardcore mode: --sacrifice=anyways sacrifices a file regardless of errors, so that you are left with only a binary or nothing at all.
 
+# Dependencies:
+- Bison 3.7.1 or newer
+- Flex 2.6.4 or newer
+- Clang++ 10.0.0 or newer
+
 # About this project:
 Designed and programmed by Daniel Ellingson
 
