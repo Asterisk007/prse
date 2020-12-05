@@ -1,7 +1,7 @@
 // Recursive functions and string interpolation
 //use "io"
 
-let x: double = 2;
+//let x: double = 2;
 
 function main(){
     let t: int[] = { cum_sum(3), 2 };
@@ -9,7 +9,7 @@ function main(){
 }
 
 function cum_sum(x: int): int {
-    let g: double = 2.0;
+    //let g: double = 2.0;
     if (x <= 0) {
         g += 2.4;
         return x;
