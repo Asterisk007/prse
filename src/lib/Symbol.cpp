@@ -1,10 +1,14 @@
 #include "Symbol.h"
+#include "Constant.h"
 
-Symbol::Symbol(std::string& name, PRSE_type& type, bool is_null)
-:name(name), type(type), size(0), is_null(is_null){}
+Symbol::Symbol(const Symbol& s)
+:name(s.get_name()), type(s.get_type()), size(s.get_size()){}
 
-Symbol::Symbol(std::string& name, PRSE_type& type, bool is_null, int& size)
-:name(name), type(type), size(size), is_null(is_null){}
+Symbol::Symbol(std::string& name, PRSE_type& type)
+:name(name), type(type), size(0){}
+
+Symbol::Symbol(std::string& name, PRSE_type& type, int size)
+:name(name), type(type), size(size){}
 
 string Symbol::get_name() const{
     return name;
@@ -18,6 +22,6 @@ int Symbol::get_size() const{
     return size;
 }
 
-Constant* Symbol::as_const() {
+const Constant* Symbol::as_const() const {
    return new Constant(type, name);
 }

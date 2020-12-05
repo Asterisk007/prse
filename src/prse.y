@@ -7,6 +7,7 @@
     #include <vector>
     #include <map>
     #include <regex>
+    #include <stdexcept>
     //#include <format> //TODO: format is coming in C++2020. Wait for clang to support it. https://wg21.link/P0645R10
     #include "parser.h"
 
@@ -15,24 +16,24 @@
     extern int yylex(void);
     extern void yyerror(const char*);
     extern int line_count;
-
-    extern bool verbose;
 %}
 
 %union {
-	bool                  union_bool;
-	int                   union_int;
-	double                union_double;
-	std::string*          union_string;
-    vector<string>*       union_list;
+	bool                         union_bool;
+	int                          union_int;
+	double                       union_double;
+	std::string*                 union_string;
+    vector<string>*              union_string_list;
+    PRSE_type                    union_prse_type;
     //vector<Constant>*     union_constant_list;
-    //Symbol*               union_symbol;
-    Expression*            union_expression;
-    vector<Expression*>*   union_expression_list;
+    const Symbol*                union_symbol;
+    const Expression*            union_expression;
+    vector<const Expression*>*   union_expression_list;
+    vector<const Symbol*>*       union_symbol_list;
 };
 
 %destructor { delete $$; } <union_string>
-%destructor { delete $$; } <union_list>
+%destructor { delete $$; } <union_string_list>
 //%destructor { delete $$; } <union_constant_list>
 //%destructor { delete $$; } <union_symbol>
 %destructor { delete $$; } <union_expression>
@@ -42,7 +43,6 @@
 
 // Tokens
 // Data constants
-%token <union_bool>	   	    BOOL_CONST		"boolean constant"
 %token <union_int> 	        INT_CONST		"int constant"
 %token <union_double>       DOUBLE_CONST	"double constant"
 %token <union_string> 	    CHAR_CONST		"char constant"
@@ -62,16 +62,15 @@
 %token USE 				   	"use"
 %token LET 				   	"let"
 %token FUNCTION 		   	"function"
-%token MAIN				   	"main"
 %token RETURN 			   	"return"
 %token CLASS			   	"class"
 %token PUBLIC			   	"public"
 %token PRIVATE			   	"private"
-%token <union_string> CXXMODE      "CXXMODE section"
 // Flow control
 %token IF 				   	"if"
 %token ELSE 			   	"else"
 %token FOR				   	"for"
+%token WHILE                "while"
 // Arithmetic
 %token ASSIGN 			   	"="
 %token PLUS 			   	"+"
@@ -83,9 +82,11 @@
 %token DECREMENT 		   	"--"
 %token PLUS_ASSIGN 	     	"+="
 %token MINUS_ASSIGN 	   	"-="
+%token STAR_ASSIGN 	     	"*="
+%token SLASH_ASSIGN 	   	"/="
 // Logic
-%token LOGIC_TRUE		   	"true"
-%token LOGIC_FALSE	    	"false"
+%token <union_bool> LOGIC_TRUE		    "true"
+%token <union_bool> LOGIC_FALSE	    	"false"
 %token LOGIC_EQ		    	"=="
 %token LOGIC_NE		    	"!="
 %token LOGIC_NOT		   	"!"
@@ -109,44 +110,53 @@
 %token L_CURLY_BRACKET 		"{"
 %token R_CURLY_BRACKET 		"}"
 %token DOLLAR               "$"
+%token IN                   "in"
 // Variable identification
 %token <union_string> ID 	"identifier"
 
 // Production types
-%type <union_list> import_list
-%type <union_list> definition_list
+%type <union_string_list>       import_list
+%type <union_string_list>       final_definition_list
+%type <union_expression_list>   definition_list
 
-%type <union_string> import_statement
-%type <union_list> libraries_list
-%type <union_string> definition
-%type <union_string> variable_definition
-%type <union_string> variable_assignment
-%type <union_string> variable_type
-%type <union_string> basic_type
-%type <union_expression> constant
-%type <union_expression> variable
-//%type <union_list> class_definition
+%type <union_string>            import_statement
+%type <union_string_list>       libraries_list
+%type <union_expression>        definition
+%type <union_expression>        variable_definition
+%type <union_expression>        variable_assignment
+%type <union_prse_type>         variable_type
+%type <union_prse_type>         basic_type
+%type <union_expression>        constant
+
+%type <union_expression>        variable
+%type <union_expression>        array
+//%type <union_string_list> class_definition
 //%type <union_symbol> variable
-%type <union_list> code_block
-%type <union_string> code_line
-%type <union_list> scope_block
-%type <union_expression> expression
-%type <union_list> function_definition
-%type <union_string> function_header
-%type <union_expression_list> parameter_list_or_empty
-%type <union_expression_list> parameter_list
-%type <union_expression> parameter
-%type <union_expression_list> argument_list
+%type <union_expression_list>   code_block
+%type <union_expression>        code_line
+%type <union_expression>        scope_block
+%type <union_expression>        expression
+%type <union_expression>        function_definition
+%type <union_expression>        function_header
+%type <union_prse_type>         function_return_type_or_empty
+%type <union_symbol_list>       parameter_list_or_empty
+%type <union_symbol_list>       parameter_list
+%type <union_symbol>            parameter
+%type <union_expression_list>   argument_list
 //%type <union_expression> argument
-%type <union_expression> function_call
-%type <union_string> return_statement
-%type <union_expression> primary_expression
-%type <union_list> if_block
-%type <union_list> if_chain
-%type <union_string> if_header
-%type <union_string> else_if_header
-%type <union_list> optional_else_or_else_if
-%type <union_string> cxxblock
+%type <union_expression>        function_call
+%type <union_expression>        return_statement
+%type <union_expression>        primary_expression
+%type <union_expression>        flow_control_block
+%type <union_expression>        for_loop
+%type <union_expression>        while_loop
+%type <union_expression>        for_header
+%type <union_expression>        while_header
+%type <union_expression>        if_block
+%type <union_expression>        if_chain
+%type <union_expression>        if_header
+%type <union_expression>        else_if_header
+%type <union_expression>        optional_else_or_else_if
 //%type <union_expression_list> interpolated_string
 //%type <union_expression_list> i_string_segment_list
 //%type <union_expression_list> i_string_middle
@@ -155,16 +165,18 @@
 
 %left LOGIC_OR
 %left LOGIC_AND
-%left LOGIC_EQ LOGIC_NE
+%left LOGIC_EQ LOGIC_NE DOLLAR
 %left LOGIC_GREATER LOGIC_GREATER_EQUAL LOGIC_LESS LOGIC_LESS_EQUAL
-%left I_STRING_PART PLUS MINUS
+%left I_STRING_PART PLUS MINUS STAR SLASH STAR_ASSIGN SLASH_ASSIGN
 %%
 
 program:
-	import_list definition_list {
+	import_list final_definition_list {
         OutputBuffer& output = OutputBuffer::instance();
         // Output import list
+        bool need_space = false;
         if ($1 != nullptr){
+            need_space = true;
             for (auto a : *$1){
                 output.add_line(a);
             }
@@ -173,12 +185,15 @@ program:
         Library& li = Library::instance();
         for (auto it = li.lib_required.begin(); it != li.lib_required.end(); it++){
             if (it->second == true){
-                string t = "#include <"; t += it->first; t += ">";
+                string t = "#include <"; t += it->first; t += ">\n";
                 output.add_line(t);
+                need_space = true;
             }
         }
 
-
+        // Add some whitespace for nice formatting, assuming libraries were used
+        if (need_space)
+            output.add_line("\n");
 
         // Loop through all defined function headers and
         // output their C++ equivalent
@@ -189,18 +204,21 @@ program:
         // <type> <id> (param, param)
         for (auto it = def.begin(); it != def.end(); it++){
             Function_definition* fd = *it;
-            string t = prse_type_to_string(fd->get_type());
-            t += " ";
-            t += fd->get_id();
-            auto p = fd->get_parameters();
-            t += "(";
-            for (int i = 0; i < (int)p.size(); i++){
-                t += prse_type_to_string(p[i]);
-                if (i < (int)p.size()-1)
-                    t += ", ";
+            // Only make function prototypes for non-main functions
+            if (fd->get_id() != "main"){
+                string t = prse_type_to_string(fd->get_type());
+                t += " ";
+                t += fd->get_id();
+                auto p = fd->get_parameters();
+                t += "(";
+                for (int i = 0; i < (int)p.size(); i++){
+                    t += prse_type_to_string(p[i]);
+                    if (i < (int)p.size()-1)
+                        t += ", ";
+                }
+                t += ");\n";
+                def_strings.push_back(t);
             }
-            t += ");";
-            def_strings.push_back(t);
         }
         for (int i = 0; i < (int)def_strings.size(); i++)
             output.add_line(def_strings[i]);
@@ -212,26 +230,11 @@ program:
             }
         }
 
-        // Find if any declared functions/classes were not defined
-        /* auto func_decs = Function_declaration::declarations;
-        for (auto a : func_decs){
-            Function_declaration* fdec_p = a;
-            if (Function_definition::get_function_definition(fdec_p) == nullptr){
-                string t = "";
-                for (int i = 0; i < (int)a->arguments.size(); i++) {
-                    t += prse_type_to_string(a->arguments[i]);
-                    if (i < (int)a->arguments.size()-1)
-                        t += ", ";
-                }
-                Error::error(Error::UNDEFINED_FUNCTION, a->id, t, "", a->line_num);
-            }
-        } */
-
         delete $1; delete $2;
     }
     /*| error { yyerrorok; }*/
 	;
-	
+
 import_list:
 	import_list import_statement {
         vector<string>* l = new vector<string>(0);
@@ -290,34 +293,56 @@ libraries_list:
     /*| error { yyerrorok; }*/
 	;
 
+final_definition_list:
+    definition_list {
+        // Now that we have a list of defined functions/classes,
+        // we want to process them accordingly. All functions and classes
+        // are now defined and have been added to memory, so if any
+        // functions are called, and a definition cannot be found, we know
+        // for a *fact* that such a function does not exist in this scope
+        // (unless we find it in another file, but that's on the programmer
+        // to include the file)
+        if ($1 != nullptr){
+            vector<string>* output = new vector<string>;
+            vector<const Expression*> el = *$1;
+            for (int i = 0; i < (int)el.size(); i++){
+                if (el[i] != nullptr){
+                    const Constant* el_i_as_const = el[i]->as_const();
+                    output->push_back(el_i_as_const->value());
+                    delete el[i];
+                }
+            }
+            delete $1;
+            $$ = output;
+        } else {
+            $$ = nullptr;
+        }
+    }
+    ;
+
 definition_list:
     definition_list definition {
-        vector<string>* l = new vector<string>;
+        vector<const Expression*>* l = new vector<const Expression*>;
         append_list(l, $1);
         if ($2 != nullptr)
-            l->push_back(*$2);
-        delete $1; delete $2;
+            l->push_back($2);
+        delete $1;
         $$ = l;
     }
     | definition_list function_definition {
-        vector<string>* l = new vector<string>;
+        vector<const Expression*>* l = new vector<const Expression*>;
         append_list(l, $1);
-        append_list(l, $2);
-        delete $1; delete $2;
+        if ($2 != nullptr)
+            l->push_back($2);
+        delete $1;
         $$ = l;
     }
-    | definition_list cxxblock {
-        vector<string>* l = new vector<string>;
+    | definition_list flow_control_block {
+        vector<const Expression*>* l = new vector<const Expression*>;
         append_list(l, $1);
-        l->push_back(*$2);
-        delete $1; delete $2;
-        $$ = l;
-    }
-    | definition_list if_block {
-        vector<string>* l = new vector<string>;
-        append_list(l, $1);
-        append_list(l, $2);
-        delete $1; delete $2;
+        if ($2 != nullptr)
+            l->push_back($2);
+        delete $1;
         $$ = l;
     }
     /* | definition_list class_definition {
@@ -332,143 +357,58 @@ definition_list:
 	;
 
 definition:
-    variable_definition SEMICOLON { *$1 += ";\n"; $$ = $1; }
-    | function_header SEMICOLON { *$1 += ";\n"; $$ = $1; }
-    /*| error { yyerrorok; }*/
+    variable_definition SEMICOLON {
+        $$ = $1;
+    }
+    | variable_assignment SEMICOLON {
+        $$ = new Singleton($1);
+    };
     /*| object_definition { $$ = $1; } */
+    /*| error { yyerrorok; }*/
     ;
 
 variable_definition:
 	LET ID COLON variable_type ASSIGN expression {
-        if (*$4 != "void"){
-            PRSE_type pt = prse_type_from_string(*$4);
-            if ($6 == nullptr){
-                Error::error(Error::VARIABLE_DECLARED_BUT_NOT_SET, *$2);
-                $$ = new string("");
-            } else {
-                PRSE_type expt = $6->type();
-                if (expt == pt || expt == PRSE_type::NO_TYPE || expt == PRSE_type::T_VOID) {
-                    string t = string(*$4); // type
-                    t += " ";
-                    t += *$2; // var identifier
-                    t += " = ";
-                    t += $6->as_const()->value();
-                    $$ = new string(t);
-                    Table_handler& th = Table_handler::instance();
-                    if (expt == PRSE_type::NO_TYPE){
-                        th.insert(shared_ptr<Symbol>(new Symbol(*$2, pt, true)));
-                    } else {
-                        th.insert(shared_ptr<Symbol>(new Symbol(*$2, pt, false)));
-                    }
-                } else {
-                    Error::error(Error::MISMATCHED_TYPE_FOR_ASSIGNMENT, prse_type_to_string(expt), *$4);
-                    $$ = new string("");
-                }
-            }
+        // First check that this variable has not already been defined elsewhere in the program
+        if ($4 != PRSE_type::T_VOID){
+            $$ = new Variable_definition(line_count, *$2, $4, $6, 0);
         } else {
-            Error::error(Error::INVALID_TYPE_FOR_VARIABLE, *$4);
-            $$ = new string("");
+            Error::error(Error::INVALID_TYPE_FOR_VARIABLE, prse_type_to_string($4));
+            $$ = nullptr;
         }
-        delete $2; delete $4; delete $6;
+        delete $2;
     }
     | LET ID COLON variable_type L_SQUARE_BRACKET R_SQUARE_BRACKET ASSIGN L_CURLY_BRACKET argument_list R_CURLY_BRACKET {
-        // Array with specified type
-        if (*$4 != "void"){
+        // Array with specified type        
+        if ($4 != PRSE_type::T_VOID){
             Library& li = Library::instance();
             li.lib_required["vector"] = true;
-
-            PRSE_type pt = prse_type_from_string(*$4);
-            string t = string("std::vector<"); //"
-            t += string(*$4); // type
-            t += "> ";
-            t += *$2; // var identifier
-            t += "{ ";
-            for (int i = 0; i < (int)$9->size(); i++){
-                Expression* a = (*$9)[i];
-                if (a->as_const()->type() != pt){
-                    Error::error(Error::MISMATCHED_TYPE_FOR_ASSIGNMENT, prse_type_to_string(a->as_const()->type()), *$4);
-                }
-                t += a->as_const()->value();
-                if (i < (int)$9->size()-1)
-                    t += ", ";
-            }
-            t += " }";
-            $$ = new string(t);
-            Table_handler& th = Table_handler::instance();
-            if ((int)$9->size() == 0){
-                th.insert(shared_ptr<Symbol>(new Symbol(*$2, pt, true)));
-            } else {
-                th.insert(shared_ptr<Symbol>(new Symbol(*$2, pt, false)));
-            }
+            int size = 1;
+            $$ = new Variable_definition(line_count, *$2, $4, *$9, size);
         } else {
-            Error::error(Error::INVALID_TYPE_FOR_VARIABLE, *$4);
-            $$ = new string("");
+            Error::error(Error::INVALID_TYPE_FOR_VARIABLE, prse_type_to_string($4));
+            $$ = nullptr;
         }
-        delete $2; delete $4; delete $9;
-    }
-    | LET ID ASSIGN expression {
-        // Duck typing is expressely prohibited if the value is not known at compile time.
-        Constant* ex = $4->as_const();
-        auto pt = ex->type();
-        if (pt == PRSE_type::NO_TYPE){
-            Error::error(Error::IMPLICIT_TYPE_CANNOT_BE_ASSIGNED_NULL);
-            $$ = new string("");
-            cerr << "Line " << line_count << ": cannot initialize variable as 'null' without specifying a type." << endl;
-        } else {
-            Warning::warning(Warning::VARIABLE_TYPE_IMPLICIT, *$2);
-            string t = "auto"; // type
-            t += " ";
-            t += *$2; // var identifier
-            t += " = ";
-            t += ex->value();
-            $$ = new string(t);
-            Table_handler& th = Table_handler::instance();
-            th.insert(shared_ptr<Symbol>(new Symbol(*$2, pt, false)));
-        }
-        delete $2; delete $4;
-    }
-    | LET ID L_SQUARE_BRACKET R_SQUARE_BRACKET ASSIGN L_CURLY_BRACKET argument_list R_CURLY_BRACKET {
-        // Array with unspecified type
-        if ((int)$7->size() > 0){
-            Library& li = Library::instance();
-            li.lib_required["vector"] = true;
-
-            string t = string("std::vector<"); //"
-            PRSE_type pt;
-            t += prse_type_to_string((*$7)[0]->as_const()->type()); // type
-            t += "> ";
-            t += *$2; // var identifier
-            t += "{ ";
-            // The type of the first expression in this list determines the type that this array takes on.
-            pt = (*$7)[0]->as_const()->type();
-            for (int i = 0; i < (int)$7->size(); i++){
-                Expression* a = (*$7)[i];
-                if (a->as_const()->type() != pt){
-                    Error::error(Error::MISMATCHED_TYPE_FOR_ASSIGNMENT, prse_type_to_string(a->as_const()->type()), prse_type_to_string(pt));
-                }
-                t += a->as_const()->value();
-                if (i < (int)$7->size()-1)
-                    t += ", ";
-            }
-            t += " }";
-            $$ = new string(t);
-            Table_handler& th = Table_handler::instance();
-            th.insert(shared_ptr<Symbol>(new Symbol(*$2, pt, false)));
-            delete $2; delete $7;
-            break;
-        } else {
-            Error::error(Error::IMPLICIT_TYPE_CANNOT_BE_ASSIGNED_NULL);
-            $$ = new string("");
-            delete $2; delete $7;
-            break;
-        }
+        delete $2; delete $9;
     }
     | LET ID COLON variable_type {
-        $$ = new string("");
+        $$ = nullptr;
         Error::error(Error::VARIABLE_DECLARED_BUT_NOT_SET, *$2);
-        delete $2; delete $4;
+        delete $2;
     }
     /*| error { yyerrorok; }*/
+    ;
+
+flow_control_block:
+    if_block {
+        $$ = $1;
+    }
+    | for_loop {
+        $$ = $1;
+    }
+    | while_loop {
+        $$ = $1;
+    }
     ;
 
 if_block:
@@ -477,61 +417,42 @@ if_block:
     ;
 
 if_chain:
-    if_header scope_block optional_else_or_else_if {
-        vector<string>* l = new vector<string>;
-        *$1 += "{";
-        l->push_back(*$1);
-        append_list(l, $2);
-        l->push_back("}");
-        append_list(l, $3);
-        $$ = l;
-        delete $1; delete $2; delete $3;
+    if_header L_CURLY_BRACKET code_block R_CURLY_BRACKET optional_else_or_else_if {
+        $$ = new If_block(line_count, $1, *$3, $5);
+        delete $3;
     }
     | if_header code_line optional_else_or_else_if {
-        vector<string>* l = new vector<string>;
-        *$1 += " ";
-        l->push_back(*$1);
-        l->push_back(*$2);
-        append_list(l, $3);
-        $$ = l;
-        delete $1; delete $2; delete $3;
+        vector<const Expression*> line = vector<const Expression*>();
+        line.push_back($2);
+        $$ = new If_block(line_count, $1, line, $3);
     }
+    /*| else_if_header scope_block optional_else_or_else_if {
+        // Doing this to explicitly tell the programmer that
+        // they must first use an if block/statement
+        // before starting an else or else if.
+        Error::error(Error::UNEXPECTED_ELSE_ELSE_IF);
+        $$ = nullptr;
+    }*/
     /*| error { yyerrorok; }*/
     ;
 
 optional_else_or_else_if:
-    else_if_header scope_block optional_else_or_else_if {
-        vector<string>* l = new vector<string>;
-        *$1 += "{";
-        l->push_back(*$1);
-        append_list(l, $2);
-        l->push_back("}");
-        append_list(l, $3);
-        delete $1; delete $2; delete $3;
-        $$ = l;
+    else_if_header L_CURLY_BRACKET code_block R_CURLY_BRACKET optional_else_or_else_if {
+        $$ = new Else_if_block(line_count, $1, *$3, $5);
+        delete $3;
     }
     | else_if_header code_line optional_else_or_else_if {
-        vector<string>* l = new vector<string>;
-        l->push_back(*$1);
-        l->push_back(*$2);
-        append_list(l, $3);
-        delete $1; delete $2; delete $3;
-        $$ = l;
+        vector<const Expression*> line = vector<const Expression*>();
+        line.push_back($2);
+        $$ = new Else_if_block(line_count, $1, line, $3);
     }
-    | ELSE scope_block {
-        vector<string>* l = new vector<string>;
-        l->push_back("else {");
-        append_list(l, $2);
-        l->push_back("}");
-        delete $2;
-        $$ = l;
+    | ELSE L_CURLY_BRACKET code_block R_CURLY_BRACKET {
+        $$ = new Else_block(line_count, *$3);
     }
     | ELSE code_line {
-        vector<string>* l = new vector<string>;
-        l->push_back("else {");
-        l->push_back(*$2);
-        delete $2;
-        $$ = l;
+        vector<const Expression*> line = vector<const Expression*>();
+        line.push_back($2);
+        $$ = new Else_block(line_count, line);
     }
     | empty { $$ = nullptr; }
     /*| error { yyerrorok; }*/
@@ -539,38 +460,61 @@ optional_else_or_else_if:
 
 if_header:
     IF L_PAREN expression R_PAREN {
-        if ($3 == nullptr){
-            cerr << "Line " << line_count << ": if statement condition cannot be empty" << endl;
-            $$ = new string("");
-            break;
-        }
-        if ($3->as_const()->type() != PRSE_type::T_BOOL){
-            cerr << "Line " << line_count << ": if statement condition must be a boolean expression" << endl;
-            $$ = new string("");
-            break;
-        }
-        string *t = new string("if (");
-        *t += $3->as_const()->value();
-        *t += ")";
-        $$ = t;
-        delete $3;
+        $$ = $3;
     }
     /*| error { yyerrorok; }*/
     ;
 
 else_if_header:
     ELSE IF L_PAREN expression R_PAREN {
-        if ($4->as_const()->type() != T_BOOL){
-            cerr << "Line " << line_count << ": else if statement condition must be a boolean expression" << endl;
-            $$ = new string("");
-            break;
-        }
-        string* t = new string("else if (");
-        *t += $4->as_const()->value();
-        *t += ")";
-        $$ = t;
+        $$ = $4;
     }
     /*| error { yyerrorok; }*/
+    ;
+
+for_loop:
+    for_header L_CURLY_BRACKET code_block R_CURLY_BRACKET {
+        $$ = new For_loop(line_count, $1, *$3);
+        delete $3;
+    }
+    ;
+
+for_header:
+    FOR L_PAREN ID COLON basic_type ASSIGN expression SEMICOLON expression SEMICOLON variable_assignment R_PAREN {
+        if ($7 == nullptr || $9 == nullptr || $11 == nullptr){
+            $$ = nullptr;
+            delete $3;
+            delete $7;
+            delete $9;
+            delete $11;
+            break;
+        }
+
+        $$ = new For_header(line_count, make_shared<Symbol>(*$3, $5), $7, $9, $11);
+        delete $3;
+    }
+    | FOR L_PAREN ID IN array R_PAREN {
+        if ($5 == nullptr){
+            // Array was not declared. Error will be thrown. Return nothing.
+            $$ = nullptr;
+            delete $3;
+            break;
+        }
+        $$ = new For_header(line_count, *$3, $5);
+        delete $3;
+    }
+    ;
+
+while_loop:
+    while_header L_CURLY_BRACKET code_block R_CURLY_BRACKET {
+        $$ = new While_loop(line_count, $1, *$3);
+    }
+    ;
+
+while_header:
+    WHILE L_PAREN expression R_PAREN {
+        $$ = $3;
+    }
     ;
 
 /*class_definition:
@@ -586,7 +530,7 @@ public_private_block_list:
 
 public_private_block:
     PUBLIC L_CURLY_BRACKET variable_definition_list_or_empty {
-        
+
     }
     | PRIVATE L_CURLY_BRACKET variable_definition_list_or_empty {
 
@@ -595,217 +539,184 @@ public_private_block:
 
 scope_block:
     L_CURLY_BRACKET code_block R_CURLY_BRACKET {
-        $$ = $2;
+        $$ = new Scope_block(line_count, *$2);
+        delete $2;
     }
     /*| error { yyerrorok; }*/
     ;
 
 variable_assignment:
-    ID ASSIGN expression {
-        if (Table_handler::instance().defined_in_current_scope(*$1) == false){
-            Error::error(Error::VARIABLE_NOT_DEFINED_IN_SCOPE, *$1);
-            delete $1;
-            $$ = new string("");
+    variable ASSIGN expression {
+        if ($1 == nullptr){
+            delete $3;
+            $$ = nullptr;
+            break;
         }
-        Constant* c = $3->as_const();
-        //     t =           ID              =             CONSTANT
-        string *t = new string(*$1); *t += " = "; *t += c->value();
-        $$ = t;
-        delete $1; delete $3;
+        $$ = new Variable_assignment(line_count, $1, $3);
+    }
+    | variable INCREMENT {
+        if ($1 == nullptr){
+            $$ = nullptr;
+            break;
+        }
+        $$ = new Increment(line_count, $1);
+    }
+    | variable DECREMENT {
+        if ($1 == nullptr){
+            $$ = nullptr;
+            break;
+        }
+        $$ = new Decrement(line_count, $1);
+    }
+    | variable PLUS_ASSIGN expression {
+        if ($1 == nullptr){
+            $$ = nullptr;
+            break;
+        }
+        $$ = new Plus_assign(line_count, $1, $3);
+    }
+    | variable MINUS_ASSIGN expression {
+        if ($1 == nullptr){
+            $$ = nullptr;
+            break;
+        }
+        $$ = new Minus_assign(line_count, $1, $3);
+    }
+    | variable STAR_ASSIGN expression {
+        if ($1 == nullptr){
+            $$ = nullptr;
+            break;
+        }
+        $$ = new Multiply_assign(line_count, $1, $3);
+    }
+    | variable SLASH_ASSIGN expression {
+        if ($1 == nullptr){
+            $$ = nullptr;
+            break;
+        }
+        $$ = new Divide_assign(line_count, $1, $3);
     }
     /*| error { yyerrorok; }*/
     ;
 
 // Function definitions can consist of zero or many parameters, and can have a declared return type (default void)
 function_definition:
-    function_header scope_block {
-        vector<string>* l = new vector<string>;
-        string t = *$1;
-        delete $1;
-        t += "{";
-        l->push_back(t);
-        append_list(l, $2);
-        delete $2;
-        l->push_back("}\n");
-        /* try {
-            Table_handler::instance().pop_table();
-        } catch (exception& e){
-            cerr << e.what() << endl;
-        } */
-        $$ = l;
+    function_header L_CURLY_BRACKET code_block R_CURLY_BRACKET {
+        $$ = new Function_definition_expr($1, *$3);
+        delete $3;
     }
     /*| error { yyerrorok; }*/
     ;
 
 function_header:
-	FUNCTION ID L_PAREN parameter_list_or_empty R_PAREN {
-        cout << "Function header for " << *$2 << endl;
-        Table_handler& th = Table_handler::instance();
-        //th.push_table();
-
+	FUNCTION ID L_PAREN parameter_list_or_empty R_PAREN function_return_type_or_empty {
         if (Function_definition::defined_functions.find(*$2) == Function_definition::defined_functions.end())
             Function_definition::defined_functions.insert(*$2);
 
-        string* t = new string("");
+        // Valid return types for main function are explicitly T_VOID and T_INT
         if (*$2 == "main"){
-            *t += "int ";
-        } else {
-            *t += "void ";
+            if ( !($6 & (PRSE_type::T_INT | PRSE_type::T_VOID)) ){
+                Error::error(Error::INVALID_RETURN_TYPE_FOR_MAIN);
+            }
         }
-        *t += *$2; *t += "(";
         vector<PRSE_type> params;
+        vector<shared_ptr<Symbol>> syms;
         if ($4 != nullptr) {
-            // Main function can have 2 parameters: argc - an int, and argv - a string array
+            // Main function is the only function that MUST have 0 parameters defined.
+            // The plan is to get command args in a similar fashion to how Golang does it,
+            // ergo: programmer has to call a function of some kind which puts all command
+            // args into an array (PRSE array, C++ std::vector) for the user to then
+            // iterate through.
             if (*$2 == "main"){
-                // Even though we can make t anything we want, I still insist that the program
-                // be grammatically correct.
-                if ((int)$4->size() > 2){
-                    Error::error(Error::INCORRECT_NUMBER_OF_PARAMETERS_FOR_MAIN);
-                } else if ((int)$4->size() == 1){
-                    Error::error(Error::INCORRECT_NUMBER_OF_PARAMETERS_FOR_MAIN);
+                if ((int)$4->size() > 0){
+                    Error::error(Error::INCORRECT_NUMBER_OF_PARAMETERS_FOR_MAIN, to_string((int)$4->size()));
                 }
-                *t += "int argc, char* argv[]";
             } else {
                 for (int i = 0; i < (int)$4->size(); i++) {
-                    Expression* a = (*$4)[i];
-                    Constant* c = a->as_const();
-                    params.push_back(c->type());
-                    *t += prse_type_to_string(c->type());
-                    *t += " "; *t += c->value();
-
-                    auto d = c->value();
-                    auto e = c->type();
-                    th.insert(shared_ptr<Symbol>(new Symbol(d, e, false)));
-
-                    if (i != (int)(*$4).size()-1)
-                        *t += ", ";
-                    delete (*$4)[i];
+                    auto a = (*$4)[i];
+                    syms.push_back(make_shared<Symbol>(*a));
+                    params.push_back(a->get_type());
+                    delete a;
                 }
             }
         }
-        Function_definition::definitions.push_back(new Function_definition(line_count, *$2, PRSE_type::T_VOID, params));
-        *t += ")";
+
+        Function_declaration fdec = Function_declaration(line_count, *$2, params);
+        // If this function has already been defined, check that this definition's signature (its parameters + id)
+        // do not match that of any known function.
+
+        // A function with the same identifier and return type but a different number of parameters
+        // than a previously defined function is valid C++. Thus, it is also valid PRSE code.
+        if (Function_definition::get_function_definition(fdec) != nullptr){
+            string h = "";
+            for (int i = 0; i < (int)params.size(); i++){
+                h += prse_type_to_string(params[i]);
+                if (i < (int)params.size()-1)
+                    h += ", ";
+            }
+            Error::error(Error::FUNCTION_WITH_RETURN_TYPE_ALREADY_DEFINED, *$2, h);
+        } else {
+            //cerr << "Function " << *$2 << " has return type " << prse_type_to_string($6) << endl;
+            Function_definition::definitions.push_back(new Function_definition(line_count, *$2, $6, params));
+            $$ = new Function_header(line_count, *$2, $6, syms);
+        }
         delete $2; delete $4;
-        $$ = t;
-	}
-	| FUNCTION ID L_PAREN parameter_list_or_empty R_PAREN COLON variable_type {
-        Table_handler& th = Table_handler::instance();
-        //th.push_table();
-
-        if (Function_definition::defined_functions.find(*$2) == Function_definition::defined_functions.end())
-            Function_definition::defined_functions.insert(*$2);
-
-        string* t = new string("");
-        if (*$2 == "main"){
-            if (*$7 == "int" || *$7 == "void"){
-                *t += "int main(";
-            } else {
-                cerr << "Line " << line_count << ": function main() can only be of type int or void" << endl;
-            }
-        } else {
-            *t += *$7;
-            *t += " ";
-            *t += *$2;
-            *t += "(";
-        }
-        vector<PRSE_type> params;
-        if ($4 != nullptr) {
-            // Main function can have 2 parameters - argc, an in, and argv, a string array
-            if (*$2 == "main"){
-                // Even though we can make t anything we want, I still insist that the program
-                // be grammatically correct.
-                if ((int)$4->size() > 2){
-                    Error::error(Error::INCORRECT_NUMBER_OF_PARAMETERS_FOR_MAIN);
-                } else if ((int)$4->size() == 1){
-                    Error::error(Error::INCORRECT_NUMBER_OF_PARAMETERS_FOR_MAIN);
-                }
-                *t += "int argc, char* argv[]";
-            } else {
-                for (int i = 0; i < (int)$4->size(); i++) {
-                    Expression* a = (*$4)[i];
-                    Constant* c = a->as_const();
-                    params.push_back(c->type());
-                    *t += prse_type_to_string(c->type());
-                    *t += " "; *t += c->value();
-
-                    auto d = c->value();
-                    auto e = c->type();
-                    th.insert(shared_ptr<Symbol>(new Symbol(d, e, false)));
-
-                    if (i != (int)(*$4).size()-1)
-                        *t += ", ";
-                    delete (*$4)[i];
-                }
-            }
-        }
-        Function_definition::definitions[line_count] = new Function_definition(line_count, *$2, prse_type_from_string(*$7), params);
-        *t += ")";
-        delete $2; delete $4; delete $7;
-        $$ = t;
     }
     /*| error { yyerrorok; }*/
     ;
 
+function_return_type_or_empty:
+    COLON basic_type { $$ = $2; }
+    | empty { $$ = PRSE_type::T_VOID; }
+
 code_block:
     code_block variable_definition SEMICOLON {
-        vector<string>* l = new vector<string>;
-        *$2 += ";";
+        vector<const Expression*>* l = new vector<const Expression*>;
         append_list(l, $1);
-        l->push_back(*$2);
-        delete $1; delete $2;
+        l->push_back($2);
+        delete $1;
         $$ = l;
     }
     | code_block variable_assignment SEMICOLON {
-        vector<string>* l = new vector<string>;
-        *$2 += ";";
+        vector<const Expression*>* l = new vector<const Expression*>;
         append_list(l, $1);
-        l->push_back(*$2);
-        delete $1; delete $2;
+        l->push_back($2);
+        delete $1;
         $$ = l;
     }
-    | code_block cxxblock {
-        vector<string>* l = new vector<string>;
+    | code_block expression SEMICOLON {
+        vector<const Expression*>* l = new vector<const Expression*>;
         append_list(l, $1);
-        l->push_back(*$2);
-        delete $1; delete $2;
+        l->push_back(new Singleton($2));
+        delete $1;
         $$ = l;
     }
-    | code_block if_block {
-        vector<string>* l = new vector<string>;
+    | code_block flow_control_block {
+        vector<const Expression*>* l = new vector<const Expression*>;
         append_list(l, $1);
-        append_list(l, $2);
-        delete $1; delete $2;
+        l->push_back($2);
+        delete $1;
         $$ = l;
     }
-    | code_block function_call SEMICOLON {
-        vector<string>* l = new vector<string>;
-        string t = $2->as_const()->value();
-        cout << "Function call: " << t << endl;
-        t += ";";
+    /*| code_block function_call SEMICOLON {
+        vector<const Expression*>* l = new vector<const Expression*>;
         append_list(l, $1);
-        l->push_back(t);
-        delete $1; delete $2;
+        l->push_back(new Singleton($2));
+        delete $1;
         $$ = l;
-    }
+    }*/
     | code_block return_statement SEMICOLON {
-        vector<string>* l = new vector<string>;
+        vector<const Expression*>* l = new vector<const Expression*>;
         append_list(l, $1);
-        *$2 += ";";
-        l->push_back(*$2);
-        delete $1; delete $2;
+        l->push_back($2);
+        delete $1;
         $$ = l;
     }
     | code_block scope_block {
-        vector<string>* l = new vector<string>;
+        vector<const Expression*>* l = new vector<const Expression*>;
         append_list(l, $1);
-        //Table_handler::instance().push_table();
-        append_list(l, $2);
-        /* try {
-            Table_handler::instance().pop_table();
-        } catch (exception& e){
-            cerr << e.what() << endl;
-        } */
-        delete $1; delete $2;
+        l->push_back($2);
+        delete $1;
         $$ = l;
     }
 	| empty {
@@ -816,20 +727,20 @@ code_block:
 
 code_line:
     variable_definition SEMICOLON {
-        *$1 += ";";
+        // Because code lines are single-line statements
+        // found just after the header of an if-statement, we must warn the user
+        // that this variable will immediately go out-of-scope as soon as they
+        // declare it
+        Warning::warning(Warning::VARIABLE_DECLARATION_USELESS);
         $$ = $1;
     }
     | variable_assignment SEMICOLON {
-        *$1 += ";";
         $$ = $1;
     }
     | function_call SEMICOLON {
-        string* t = new string($1->as_const()->value());
-        *t += ";";
-        $$ = t;
+        $$ = new Singleton($1);
     }
     | return_statement SEMICOLON {
-        *$1 += ";";
         $$ = $1;
     }
     /*| error { yyerrorok; }*/
@@ -838,11 +749,20 @@ code_line:
 expression:
     primary_expression { $$ = $1; }
     | function_call { $$ = $1; }
+    | expression DOLLAR basic_type {
+        $$ = new Cast(line_count, $1, $3);
+    }
     | expression PLUS expression {
         $$ = new Plus($1, $3);
     }
     | expression MINUS expression {
         $$ = new Minus($1, $3);
+    }
+    | expression STAR expression {
+        $$ = new Multiply($1, $3);
+    }
+    | expression SLASH expression {
+        $$ = new Divide($1, $3);
     }
     | expression LOGIC_EQ expression {
         // Check that PRSE types can be compared
@@ -896,85 +816,9 @@ optional_public_or_private:
 
 function_call:
     ID L_PAREN argument_list R_PAREN {
-        string t = string("");
-        // Print functions:
-        /*
-            valid syntax:
-            print(<string constant>); --> cout << <string constant>;
-            print($"string with {vars}"); --> cout << "string with " << vars;
-
-            println works same as above, but appends an endl to the end.
-
-            $<string constant> is an interpolated string
-        */
-        vector<PRSE_type> args;
-        if (*$1 == "print" || *$1 == "println") {
-            //if ($3 != nullptr) {
-                if ($3->size() == 1){
-                    if ((*$3)[0]->type() == PRSE_type::T_STRING){
-                        t += "std::cout << ";
-                        string arg = (*$3)[0]->as_const()->value();
-                        t += "\""; t += arg; t += "\"";
-                        if (*$1 == "println") {
-                            t += " << std::endl;";
-                        }
-                    }
-                    /*else if ((*$3)[0]->get_expr_type() == PRSE_type::T_I_STRING){
-                        // Interpolated string
-                        t += "std::cout << ";
-                        vector<string> l = (*$3)[0]->get_list();
-                        for (int i = 0; i < (int)l.size(); i++){
-                            t += l[i];
-                            if (i != (int)l.size()-1)
-                                t += " << ";
-                        }
-                        if (*$1 == "println") {
-                            t += " << std::endl;";
-                        } else {
-                            t += ";";
-                        }
-                    }*/
-                    else {
-                        cerr << "Line " << line_count << ": incorrect use of function 'print()'.\n";
-                        cerr << "For correct usage, see: \nhttps://asterisk007.gitlab.io/prse/docs/print.html\n"; //"
-                    }
-                } else {
-                    cerr << "Line " << line_count << ": incorrect use of function 'print()'.\n";
-                    cerr << "For correct usage, see: \nhttps://asterisk007.gitlab.io/prse/docs/print.html\n";
-                }
-            //}
-        }
-        else {
-            // First, add this function to the list of declared functions.
-            // when finished with parsing, we will throw out errors if some function is not defined.
-            if (Function_definition::declared_functions.find(*$1) == Function_definition::declared_functions.end())
-                Function_definition::declared_functions.insert(*$1);
-            //Function_declaration()
-            // Append function ID
-            t += *$1;
-            t += "(";
-            // Go through each argument, and put it into the function call.
-            // TODO: compare argument types with function definition, and throw
-            // out errors if types do not match.
-            vector<Expression*>* l = $3;
-            for (int i = 0; i < (int)l->size(); i++){
-                t += (*l)[i]->as_const()->value();
-                args.push_back((*l)[i]->as_const()->type());
-                if (i != (int)l->size()-1)
-                    t += ", ";
-                delete (*l)[i];
-            }
-            // TODO: throw out error if function is defined with parameters but no arguments are given.
-            t += ")";
-        }
-        //Function_declaration::declarations.push_back(new Function_declaration(line_count, *$1, args));
-        //auto fd = Function_definition::get_function_definition(*$1, args);
-        PRSE_type pt = PRSE_type::T_VOID;
-        //if (fd != nullptr){
-        //    pt = fd->get_type();
-        //}
-        Constant* c = new Constant(pt, t);
-        $$ = c;
+        // Function calls are processed at the final_definition_list production,
+        // since we will then have a definitive list of all defined functions in this program
+        $$ = new Function_call(line_count, *$1, *$3);
         delete $1; delete $3;
     }
     /*| error { yyerrorok; }*/
@@ -982,9 +826,7 @@ function_call:
 
 return_statement:
     RETURN expression {
-        string* t = new string("return ");
-        *t += $2->as_const()->value();
-        $$ = t;
+        $$ = new Return_statement(line_count, $2);
     }
     /*| error { yyerrorok; }*/
     ;
@@ -992,7 +834,7 @@ return_statement:
 argument_list:
     expression COMMA argument_list {
         // Expression vector pointer for $$'s value.
-        vector<Expression*>* l = new vector<Expression*>();
+        vector<const Expression*>* l = new vector<const Expression*>;
         if ($1 != nullptr)
             l->push_back($1);
         append_list(l, $3);
@@ -1001,7 +843,7 @@ argument_list:
         delete $3;
     }
     | expression {
-        vector<Expression*>* l = new vector<Expression*>();
+        vector<const Expression*>* l = new vector<const Expression*>;
         if ($1 != nullptr)
             l->push_back($1);
         $$ = l;
@@ -1018,14 +860,14 @@ parameter_list_or_empty:
 
 parameter_list:
     parameter COMMA parameter_list {
-        vector<Expression*>* l = new vector<Expression*>();
+        vector<const Symbol*>* l = new vector<const Symbol*>;
         l->push_back($1);
         append_list(l, $3);
         delete $3;
         $$ = l;
     }
     | parameter {
-        vector<Expression*>* l = new vector<Expression*>();
+        vector<const Symbol*>* l = new vector<const Symbol*>;
         l->push_back($1);
         $$ = l;
     }
@@ -1034,42 +876,47 @@ parameter_list:
 
 parameter:
 	ID COLON variable_type {
-        cout << "Parameter: " << *$1 << ": " << *$3 << endl;
-        $$ = new Constant(prse_type_from_string(*$3), *$1);
+        $$ = new Symbol(*$1, $3);
         delete $1;
-        delete $3;
 	}
+    | ID COLON variable_type L_SQUARE_BRACKET R_SQUARE_BRACKET {
+        int size = 1;
+        $$ = new Symbol(*$1, $3, size);
+    }
     /*| error { yyerrorok; }*/
 	;
 
 primary_expression:
-    L_PAREN expression R_PAREN { $$ = $2; /*cout << "lprp exp" << endl;*/ }
-    | variable { $$ = ($1 != nullptr ? $1 : nullptr); /*cout << "Expression: " << $1->value() << endl;*/ }
+    L_PAREN expression R_PAREN { $$ = new Parentheses(line_count, $2); /*cout << "lprp exp" << endl;*/ }
+    | variable { 
+        $$ = ($1 != nullptr ? $1 : nullptr); /*cout << "Expression: " << $1->value() << endl;*/ 
+    }
     | constant { $$ = $1; /*cout << "Expression: " << $1->value() << endl;*/ }
     /*| error { yyerrorok; }*/
     ;
 
+array:
+    ID {
+        $$ = new Array(line_count, *$1);
+        delete $1;
+    }
+    ;
+
 variable:
     ID {
-        Table_handler& th = Table_handler::instance();
-        cout << "Checking if variable " << *$1 << " on line " << line_count << " is defined in this scope" << endl;
-        if (th.defined_in_current_scope(*$1)){
-            cout << "It is!" << endl;
-            $$ = th.lookup(*$1)->as_const();
-            delete $1;
-            break;
-        } else {
-            cout << "It is not :(" << endl;
-            Error::error(Error::VARIABLE_NOT_DEFINED_IN_SCOPE, *$1);
-            $$ = nullptr;
-            delete $1;
-        }
+        $$ = new Variable(line_count, *$1);
+        delete $1;
+    }
+    | ID L_SQUARE_BRACKET expression R_SQUARE_BRACKET {
+        $$ = new Array_element(line_count, *$1, $3);
+        delete $1;
     }
     /*| error { yyerrorok; }*/
     ;
 
 constant:
-    BOOL_CONST            { $$ = ($1 == true) ? new Constant(PRSE_type::T_BOOL, "true") : new Constant(PRSE_type::T_BOOL, "false"); }
+    LOGIC_TRUE            { $$ = new Constant(PRSE_type::T_BOOL, "true"); }
+    | LOGIC_FALSE         { $$ = new Constant(PRSE_type::T_BOOL, "false"); }
     | INT_CONST           { $$ = new Constant(PRSE_type::T_INT, to_string($1)); }
     | CHAR_CONST          { $$ = new Constant(PRSE_type::T_CHAR, *$1); delete $1; }
     | DOUBLE_CONST 	      { $$ = new Constant(PRSE_type::T_DOUBLE, to_string($1)); }
@@ -1167,19 +1014,15 @@ variable_type:
     ;
 
 basic_type:
-    BOOL { $$ = new std::string("bool"); }
-    | INT { $$ = new std::string("int"); }
-    | CHAR { $$ = new std::string("char"); }
-    | DOUBLE { $$ = new std::string("double"); }
-    | STRING { $$ = new std::string("string"); }
-    | VOID { $$ = new std::string("void"); }
-    /*| error { yyerrorok; }*/
-    ;
-
-cxxblock:
-    CXXMODE {
-        $$ = $1;
+    BOOL        { $$ = PRSE_type::T_BOOL;   }
+    | INT       { $$ = PRSE_type::T_INT;    }
+    | CHAR      { $$ = PRSE_type::T_CHAR;   }
+    | DOUBLE    { $$ = PRSE_type::T_DOUBLE; }
+    | STRING    {
+        Library::instance().lib_required["string"] = true;
+        $$ = PRSE_type::T_STRING;
     }
+    | VOID      { $$ = PRSE_type::T_VOID;   }
     /*| error { yyerrorok; }*/
     ;
 

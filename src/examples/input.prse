@@ -1,0 +1,7 @@
+use "io"
+
+func main(){
+    let thing: string = "";
+    get_input(thing);
+    println("Hello ", thing, "!");
+}

@@ -1,0 +1,30 @@
+// A full PRSE program, with all the bells and whistles
+
+use "io", "math"
+
+class MyClass {
+    private {
+        num: int;
+        str: string;
+    }
+    public {
+        MyClass(a: int, t: string){
+            num = a;
+            str = t;
+        }
+        function get_num(): int {
+            return num;
+        }
+        function get_str(): string {
+            return str;
+        }
+    }
+}
+
+function main() {
+    let obj: MyClass = MyClass(52, "batman");
+    print($"{obj.get_num()}, {obj.get_str()}\n");
+    let arr: int[20] = {0};
+    arr = range(0, 100, 100/20); // returns a range from 0 to 100 (exclusive) to fill each idx of arr
+    println($"{arr}"); // iterates over all values of arr
+}

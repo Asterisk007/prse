@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
 <svg
    xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
    xmlns:dc="http://purl.org/dc/elements/1.1/"
@@ -15,7 +13,7 @@
    viewBox="0 0 52.916665 52.916668"
    version="1.1"
    id="svg8"
-   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
    sodipodi:docname="logo.svg"
    inkscape:export-filename="D:\Users\spyki\Documents\_College\CSCI 490\prse\misc\logo.png"
    inkscape:export-xdpi="96"
@@ -66,7 +64,8 @@
      inkscape:snap-midpoints="true"
      inkscape:snap-object-midpoints="true"
      inkscape:snap-center="true"
-     showguides="false" />
+     showguides="false"
+     inkscape:document-rotation="0" />
   <metadata
      id="metadata5">
     <rdf:RDF>
@@ -102,15 +101,10 @@
        y="244.08331" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
        x="6.614583"
        y="255.89508"
-       id="text6004"><tspan
-         sodipodi:role="line"
-         id="tspan6002"
-         x="6.614583"
-         y="265.25885"
-         style="stroke-width:0.26458332" /></text>
+       id="text6004" />
   </g>
   <g
      inkscape:groupmode="layer"
@@ -118,21 +112,21 @@
      inkscape:label="text">
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:22.57777786px;line-height:1.25;font-family:'3270 Condensed';-inkscape-font-specification:'3270 Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:22.5778px;line-height:1.25;font-family:'3270 Condensed';-inkscape-font-specification:'3270 Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.264583"
        x="1.4427108"
-       y="17.859375"
+       y="0"
        id="text6009"><tspan
          sodipodi:role="line"
          x="0"
          y="0"
-         style="font-size:22.57777786px;line-height:26.63560486px;text-align:start;letter-spacing:0px;text-anchor:start;fill:#ffffff;stroke-width:0.26458332"
+         style="font-size:22.5778px;line-height:26.6356px;text-align:start;letter-spacing:0px;text-anchor:start;fill:#ffffff;stroke-width:0.264583"
          dx="0"
          id="tspan6015"><tspan
            id="tspan6017"
-           style="font-size:22.57777786px;line-height:26.63560486px;text-align:start;letter-spacing:0px;text-anchor:start;fill:#ffffff;stroke-width:0.26458332" /></tspan></text>
+           style="font-size:22.5778px;line-height:26.6356px;text-align:start;letter-spacing:0px;text-anchor:start;fill:#ffffff;stroke-width:0.264583" /></tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:61.47301102px;line-height:1.25;font-family:'3270 Condensed';-inkscape-font-specification:'3270 Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.32017192"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:61.473px;line-height:1.25;font-family:'3270Medium Nerd Font';-inkscape-font-specification:'3270Medium Nerd Font';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.320172"
        x="38.868004"
        y="42.402847"
        id="text6025"
@@ -141,22 +135,22 @@
          id="tspan6023"
          x="38.868004"
          y="42.402847"
-         style="font-size:61.47301102px;fill:#ffffff;stroke-width:0.32017192">}</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:61.473px;font-family:'3270Medium Nerd Font Mono';-inkscape-font-specification:'3270Medium Nerd Font Mono';fill:#ffffff;stroke-width:0.320172">}</tspan></text>
     <text
        transform="scale(-0.82637887,1.2100987)"
        id="text6029"
        y="42.402847"
        x="-25.089403"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:61.47301102px;line-height:1.25;font-family:'3270 Condensed';-inkscape-font-specification:'3270 Condensed, ';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.32017192"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:61.473px;line-height:1.25;font-family:'3270Medium Nerd Font';-inkscape-font-specification:'3270Medium Nerd Font';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.320172;"
        xml:space="preserve"><tspan
-         style="font-size:61.47301102px;fill:#ffffff;stroke-width:0.32017192"
+         style="font-size:61.473px;fill:#ffffff;stroke-width:0.320172;-inkscape-font-specification:'3270Medium Nerd Font';font-family:'3270Medium Nerd Font';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;"
          y="42.402847"
          x="-25.089403"
          id="tspan6027"
          sodipodi:role="line">}</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25.39999962px;line-height:0.63999999;font-family:'3270 Condensed';-inkscape-font-specification:'3270 Condensed, ';letter-spacing:0.79375px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25.4px;line-height:0.64;font-family:'3270 Condensed';-inkscape-font-specification:'3270 Condensed, ';letter-spacing:0.79375px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.264583"
        x="12.92344"
        y="26.394821"
        id="text6033"><tspan
@@ -164,11 +158,11 @@
          id="tspan6031"
          x="12.92344"
          y="26.394821"
-         style="font-size:25.39999962px;line-height:0.63999999;letter-spacing:0.79375px;fill:#ffffff;stroke-width:0.26458332;">PR</tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25.4px;line-height:0.64;font-family:'3270Medium Nerd Font';-inkscape-font-specification:'3270Medium Nerd Font';letter-spacing:0.79375px;fill:#ffffff;stroke-width:0.264583">PR</tspan><tspan
          sodipodi:role="line"
          x="12.92344"
-         y="42.650822"
-         style="font-size:25.39999962px;line-height:0.63999999;letter-spacing:0.79375px;fill:#ffffff;stroke-width:0.26458332;"
+         y="43.672775"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25.4px;line-height:0.64;font-family:'3270Medium Nerd Font';-inkscape-font-specification:'3270Medium Nerd Font';letter-spacing:0.79375px;fill:#ffffff;stroke-width:0.264583"
          id="tspan6035">SE</tspan></text>
   </g>
 </svg>

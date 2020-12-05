@@ -1,0 +1,19 @@
+// Basic program with one variable declared
+// Demonstration of the ability to define a function
+// anywhere in the program and use it all the same
+
+func main(): int {
+    let a: int = foo(1);
+    let t: int[] = { 0, foo() };
+    //nonexistent_function();
+    a = foo(2)+2;
+    return a;
+}
+
+func foo(x: int): int {
+    return x+bar();
+}
+
+func bar(): int {
+    return 2;
+}

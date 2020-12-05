@@ -5,6 +5,7 @@ C_COMPILER += clang
 C_FLAGS += -std=c18 -g
 CPP_COMPILER += clang++
 CPP_FLAGS += -std=c++20 -g
+BISON_FLAGS = --color=auto -Wcex
 # Source file vars
 LIB_DIR := ./lib
 OBJ_DIR := ./obj
@@ -51,12 +52,12 @@ $(EXECUTABLE): prse.cpp lex.yy.cpp prse.tab.cpp $(OBJ_FILES)
 
 $(EXECUTABLE_VERBOSE): prse.cpp lex.yy.cpp prse.tab.cpp $(OBJ_FILES)
 	@echo "Building compiler..."
-	@$(CPP_COMPILER) $(CPP_FLAGS) -v -o $(EXECUTABLE) $^
+	$(CPP_COMPILER) $(CPP_FLAGS) -v -o $(EXECUTABLE) $^
 
 grammar: prse.tab.cpp lex.yy.cpp
 
 prse.tab.cpp: prse.y
-	bison --defines=prse.tab.h -Wcex --color -o prse.tab.cpp prse.y
+	bison --defines=prse.tab.h $(BISON_FLAGS) -o prse.tab.cpp prse.y
 
 lex.yy.cpp: prse.l
 	flex -o lex.yy.cpp prse.l

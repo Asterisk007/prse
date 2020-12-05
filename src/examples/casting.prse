@@ -1,0 +1,5 @@
+// Cast int to string
+let x: int = 2;
+let y: string = x$string;
+// Cast string to bool
+let e: bool = y$bool;

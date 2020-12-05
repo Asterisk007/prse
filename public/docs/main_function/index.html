@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>
+PRSE Documentation: the main function
+</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="/assets/css/toggle-bootstrap.css" />
+        <link rel="stylesheet" href="/assets/css/toggle-bootstrap-dark.css" />
+        <link rel="stylesheet" href="/assets/css/toggle-bootstrap-print.css" />
+
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+        
+    </head>
+
+    <!--<nav class="navbar sticky-top navbar-expand-lg float-left navbar-dark navbar-nav" id="navbar-main">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbar">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">
+                        Overview
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/download">
+                        How to Install
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/docs/">
+                        Documentation
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>-->
+
+    <div class="mb-auto float-right">
+        <div class="nav-link">
+            <div class="custom-control custom-switch">
+                <input type="checkbox" class="custom-control-input" id="darkSwitch" />
+                <label class="custom-control-label" for="darkSwitch">Dark Mode</label>
+            </div>
+        </div>
+    </div>
+
+    <body id="body" class="bootstrap-dark">
+            
+<nav class="navbar navbar-expand-lg navbar-themed">
+    <ul class="list-unstyled components">
+        <li>
+            <a href="/">Back to main site</a>
+        </li>
+        <li>
+            <a href="/docs">Documentation home</a>
+        </li>
+        <li>
+            <a href="/docs/installation">Installation</a>
+        </li>
+        <li>
+            <a class="dropdown-toggle" data-toggle="collapse" href="#prseFundamentals" role="button" aria-expanded="false" aria-controls="prseFundamentals">
+                PRSE Fundamentals
+            </a>
+        <li>
+            <div class="collapse" id="prseFundamentals">
+                <div class="card card-body">
+                    <a href="/docs/basic_program_syntax">Basic program syntax</a>
+                    <a href="/docs/main_function">The <code>main</code> function</a>
+                    <a href="/docs/datatypes">Available datatypes</a>
+                    <a href="/docs/variables">Variables</a>
+                </div>
+            </div>
+        </li>
+        <li>
+        </li>
+    </ul>
+</nav>
+
+
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button"
+                        data-toggle="collapse" data-target="#navbarNav"
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon"></span>
+                </button>
+
+                
+<div class="row">
+    <div class="my-5">
+        <h1>The <code>main</code> function</h1>
+        <p>As with all functions in PRSE, the main function is declared as follows:
+        <pre><code>
+        func main()
+        </code></pre>
+        There are a few rules associated with this function: first, <code>main</code> may
+        only be a <code>void</code> return type, or an <code>int</code> return type. Second,
+        the function definition cannot contain any parameters. If you wish to get arguments
+        from the command line when you run your program, refer to <a href="/docs/command_line_args">getting
+        arguments from the command line</a>.<br>
+
+        
+        </p>
+    </div>
+</div>
+
+            </div>
+            
+        <script src="/assets/js/dark-mode-switch.js"></script>
+    </body>
+</html>

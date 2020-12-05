@@ -15,4 +15,3 @@ enum PRSE_type {
 };
 
 string prse_type_to_string(PRSE_type prse_type);
-PRSE_type prse_type_from_string(const string& type);

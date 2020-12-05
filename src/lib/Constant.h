@@ -7,9 +7,10 @@ using namespace std;
 
 class Constant : public Expression {
 public:
+    Constant(const Constant* c);
     Constant(PRSE_type type, const string& value);
     virtual ~Constant();
-    virtual Constant* as_const() { return this; }
+    virtual const Constant* as_const() const { return this; }
     //virtual vector<Constant*> as_list();
     virtual string value() const { return const_value; }
     virtual PRSE_type type() const final;

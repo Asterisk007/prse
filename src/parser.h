@@ -9,6 +9,7 @@
 #include "lib/Constant.h"
 #include "lib/Table_handler.h"
 #include "lib/Declared_list.h"
+#include "lib/Command_args.h"
 
 #include <string>
 

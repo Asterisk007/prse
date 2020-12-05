@@ -9,8 +9,6 @@
 
 using namespace std;
 
-// 
-
 // Each time a function is declared in a PRSE program,
 // another function declaration object is made which contains
 // basic data about what arguments were passed.
@@ -45,6 +43,8 @@ public:
     static vector<Function_definition*> definitions; // The point in the program where functions are defined.
     static void cleanup();
 };
+
+// Class to track variable definitions
 
 /*static Class_declaration {
     int line_num;

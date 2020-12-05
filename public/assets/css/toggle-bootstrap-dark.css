@@ -142,7 +142,7 @@ body.bootstrap-dark {
   top: -.5em; }
 
 .bootstrap-dark a {
-  color: #adadad;
+  color: #ffa929;
   text-decoration: none;
   background-color: transparent; }
   .bootstrap-dark a:hover {
@@ -441,7 +441,8 @@ body.bootstrap-dark {
   display: block;
   font-size: 87.5%;
   color: #212529; }
-  .bootstrap-dark pre code {
+  .bootstrap-dark pre code,
+  .bootstrap-dark code pre {
     font-size: inherit;
     color: #d3d3d3;
     word-break: normal; }

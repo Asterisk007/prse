@@ -126,7 +126,7 @@ sup {
   top: -.5em; }
 
 a {
-  color: #adadad;
+  color: #ffa929;
   text-decoration: none;
   background-color: transparent; }
   a:hover {
@@ -428,6 +428,7 @@ pre {
   pre code {
     font-size: inherit;
     color: #d3d3d3;
+    padding: 4em;
     word-break: normal; }
 
 .pre-scrollable {

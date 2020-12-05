@@ -1,0 +1,9 @@
+// String interpolation
+use "io"
+
+function main(){
+    let a = null;
+    println("ajskldjaskljd");
+    println($"a == {a}");
+    println($"fklasdj{ "dsjfklsdfj" }lkasdfj");
+}

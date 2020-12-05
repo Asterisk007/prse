@@ -26,23 +26,13 @@ func|function           { return FUNCTION; }
 return                  { return RETURN; }
 public                  { return PUBLIC; }
 private                 { return PRIVATE; }
-\[CXXMODE\][\s]*[{][\S\s]*[}] { cout << "CXXMODE token" << endl;
-                                   /* Convert this from its current format to raw C++ */
-                                   string s = string(yytext);
-                                   s.erase(0, string("[CXXMODE]").length());
-                                   while (s.at(0) != '{') { s.erase(0, 1); }
-                                   /* Remove start and ending curlies */
-                                   s.erase(0, 1);
-                                   s.erase(s.size()-1, 1);
-                                   yylval.union_string = new string(s);
-                                   return CXXMODE;
-                            } /* Allows the programmer to use C++ syntax instead of PRSE syntax. */
 
  /* ======== Flow control ======= */
 
 if                      { return IF; }
 else                    { return ELSE; }
 for                     { return FOR; }
+while                   { return WHILE; }
 
  /* ======== Data types ======== */
 
@@ -69,6 +59,8 @@ null                    { return MYNULL; }
 
 "+="                         { return PLUS_ASSIGN; }
 "-="                         { return MINUS_ASSIGN; }
+"*="                         { return STAR_ASSIGN; }
+"/="                         { return SLASH_ASSIGN; }
 
  /* ======= Logical operators ======= */
 
@@ -100,6 +92,7 @@ false                        { yylval.union_bool = false; return LOGIC_FALSE; }
 \{                           { return L_CURLY_BRACKET; }
 \}                           { return R_CURLY_BRACKET; }
 [$]                          { return DOLLAR; }
+in                           { return IN; }
 
 \/\/.*                                  {} /* single line comment */
 [/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]     {} /* multiline comment. Thanks to this stackoverflow post: https://stackoverflow.com/a/22390133 */
@@ -119,32 +112,10 @@ false                        { yylval.union_bool = false; return LOGIC_FALSE; }
                                     yylval.union_string = new string(s);
                                     return CHAR_CONST;
                              }
-                             
-["][^\n\r"}]*[{]             {    /* interpolated string begin */
-                                    string s = string(yytext);
-                                    s.erase(0, 1); /* remove '"' character */
-                                    s.erase(s.size()-1, 1); /* remove '{' character //}*/
-                                    yylval.union_string = new string(s);
-                                    return I_STRING_BEGIN;
-                             }
-[}][^\n\r"{]*["]             {    /* interpolated string end */
-                                    string s = string(yytext);
-                                    s.erase(0, 1); /*{// remove start '}' character */
-                                    s.erase(s.size()-1, 1); /* remove end '"' character */
-                                    yylval.union_string = new string(s);
-                                    return I_STRING_END;
-                             }
-[}][^\n\r"{}]*[{]            {    /* interpolated string part */
-                                    string s = string(yytext);
-                                    s.erase(0, 1);
-                                    s.erase(s.size()-1, 1);
-                                    yylval.union_string = new string(s);
-                                    return I_STRING_PART;
-                             }
 
 [A-Za-z_][a-zA-Z0-9_]*       { yylval.union_string = new string(yytext); return ID; } /* variable */
 
-[\n\r]*                      { line_count++; } /* whitespace: \n */
+(\r\n?|\n)                   { line_count++; } /* newlines and CRLF */
 [\t\ ]                       {} /* whitespace: tabs and spaces */
 .                            { return ERROR; }
 

@@ -6,8 +6,8 @@ using namespace std;
 
 extern int yylex();
 extern int yyparse();
+extern int yylex_destroy();
 extern int line_count;
-bool verbose = false;
 
 void yyerror(const char* error){
 	fprintf(stderr, "%s on line %d\n", error, line_count);
@@ -17,33 +17,34 @@ void help_text(){
 	cout << "Usage: prsec [OPTIONS] [FILE(S)]" << endl;
 	cout << "OPTIONS: " << endl;
 	string options_list[] = {
-		"  --cpp                   Output directly to C++ instead of binary file",
-        "  -g                      Include debugging symbols in binary, for use with gdb"
-        "\n  --help                  Display this help text",
-		"  -o,                     Specify an output file name (default a.out)",
-        "  -v, --verbose           Verbose mode",
-        "  --nocodes               Do not display error codes for each error found"
+		"--cpp                   Output directly to C++ instead of binary file",
+        "-g                      Include debugging symbols in binary, for use with gdb",
+        "-h, --help              Display this help text",
+		"-o,                     Specify an output file name (default a.out)",
+        "-v, --verbose           Verbose mode",
+        "--nocodes               Do not display error codes for each error found"
 	};
 	for (int i = 0; i < (sizeof(options_list)/sizeof(options_list[0])); i++){
-		cout << options_list[i] << endl;	
+		cout << "    " << options_list[i] << endl;	
 	}
 }
 
 void version(){
-    cout << "prsec (PRSE compiler), written by Asterisk" << endl;
+    cout << "prsec (PRSE compiler), written by Daniel Ellingson" << endl;
     if (BETA) {
         cout << "Beta compiler, intended to test new features" << endl;
     }
     cout << "Version " << VERSION << "." << SUBVERSION << "." << SUBSUBVERSION << endl;
-    cout << "For help, enter prsedoc into your terminal to open PDF documentation, or use prsec -h" << endl;
+    cout << "Documentation available online at https://asterisk007.gitlab.io/prse/docs/" << endl;
 }
 
 int main(int argc, char** argv){
     string output_filename = "";
     // Create a library of available bash/command line arguments
-    map<string, bool> activated_args;
+    /*map<string, bool> activated_args;
     activated_args["--cpp"] = false;
     activated_args["-g"] = false;
+    activated_args["-h"] = false;
     activated_args["--help"] = false;
     activated_args["-o"] = false;
     activated_args["-v"] = false;
@@ -52,8 +53,9 @@ int main(int argc, char** argv){
     activated_args["--sacrifice=anyways"] = false;
     activated_args["--version"] = false;
     activated_args["--nocodes"] = false;
-    activated_args["-w"] = false;
+    activated_args["-w"] = false;*/
 
+    Command_args& cmd_args = Command_args::instance();
     // A vector of input files, which we will parse once we process
     // each argument passed to the program
     vector<string> input_files = vector<string>(); 
@@ -76,8 +78,7 @@ int main(int argc, char** argv){
         } else {
         // Otherwise, if this isn't a file, check that it exists in our library of available arguments
             string arg = string(argv[i]);
-            if (activated_args.find(arg) != activated_args.end()){
-                activated_args[arg] = true;
+            if (cmd_args.set_arg(arg) == true){
                 // Get output filename
                 if (arg == "-o" && i+1 < argc) {
                     output_filename = string(argv[i+1]);
@@ -93,26 +94,24 @@ int main(int argc, char** argv){
             }
         }
     }
+
+    bool VERBOSE = cmd_args.VERBOSE();
     
     // If --help was passed as an argument, print out the help text
     // and exit.
-    if (activated_args["--help"]) {
+    if (cmd_args.get_arg("--help") || cmd_args.get_arg("-h")) {
         help_text();
         return 0;
     }
     // Print out compiler version, if requested.
-    if (activated_args["--version"]) {
+    if (cmd_args.get_arg("--version")) {
         version();
         return 0;
     }
-    // Activate verbose mode.
-    if (activated_args["--verbose"] || activated_args["-v"]) {
-        verbose = true;
-    }
-    if (activated_args["--nocodes"]){
+    if (cmd_args.get_arg("--nocodes")){
         Error::print_error_codes = false;
     }
-    if (activated_args["-w"]){
+    if (cmd_args.get_arg("-w")){
         Warning::show_warnings = false;
     }
     extern FILE* yyin;
@@ -126,12 +125,12 @@ int main(int argc, char** argv){
 
     // Check that at least one file has been provided as input on the command line.
     if ((int)input_files.size() > 0){
-        /* if (activated_args["--sacrifice"] == true){
+        /* if (cmd_args.get_arg("--sacrifice") == true){
             cout << "The PRSE compiler accepts your humble sacrifice." << endl;
             cout << "If your code compiles, your file shall be spared." << endl;
             cout << "If not, it will be deleted forever, and you will have to start from scratch!" << endl;
             cout << "We accept take-backsies, however! Confirm that you wish to sacrifice file: " << input_files[i] << "? [Y/n]" << endl;
-        } else if (activated_args["--sacrifice=anyways"]) {
+        } else if (cmd_args.get_arg("--sacrifice=anyways")) {
             cout << "The PRSE compiler accepts your humble sacrifice." << endl;
             cout << "Your source file, " << input_files[i] << " will be deleted." << endl;
             cout << "If any errors are found, no binary will be produced." << endl;
@@ -142,7 +141,9 @@ int main(int argc, char** argv){
         }  */
         // Go through each input file and parse it
         for (int i = 0; i < (int)input_files.size(); i++){
-            cout << "Processing file " << input_files[i] << endl;
+            if (VERBOSE){
+                cout << "Processing file " << input_files[i] << endl;
+            }
             yyin = fopen(input_files[i].c_str(), "r");
             // reset the Flex buffer for the next file.
             //yyrestart(yyin);
@@ -151,6 +152,7 @@ int main(int argc, char** argv){
             } else {
                 if (yyparse() == 1){
                     Function_definition::cleanup();
+                    yylex_destroy();
                     return 1;
                 }
                 fclose(yyin);
@@ -160,6 +162,7 @@ int main(int argc, char** argv){
                     if (Error::num_errors() > 1) cout << "s";
                     cout << " found in program. No output will be produced." << endl;
                     Function_definition::cleanup();
+                    yylex_destroy();
                     return 1;
                 }
                 OutputBuffer& output = OutputBuffer::instance();
@@ -167,7 +170,9 @@ int main(int argc, char** argv){
                 ofstream outfile;
                 outfile.open(t);
                 if (outfile.is_open()){
-                    cout << "Outputting to " << t << endl;
+                    if (VERBOSE){
+                        cout << "Outputting to " << t << endl;
+                    }
                     output.output_to_file(&outfile);
                     //output.output_to_file(nullptr);
                     // TODO: Add compilation functionality (CPP to bin)
@@ -175,6 +180,7 @@ int main(int argc, char** argv){
                 } else {
                     cout << "File " << t << " could not be opened." << endl;
                     Function_definition::cleanup();
+                    yylex_destroy();
                     return 1;
                 }
             }   
@@ -189,5 +195,6 @@ int main(int argc, char** argv){
         cout << "Final output binary name: " << output_filename << endl;
     }
     Function_definition::cleanup();
+    yylex_destroy();
     return 0;
 }

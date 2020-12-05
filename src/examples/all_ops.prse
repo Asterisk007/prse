@@ -1,0 +1,12 @@
+// All ops available to use in PRSE.
+let a: int = 2;
+a++;
+a--;
+a = a+1;
+a = a-3;
+a = a*2;
+a = a/2;
+a+=a;
+a-=a;
+a*=a;
+a/=a;
