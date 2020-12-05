@@ -42,9 +42,6 @@ rebuild_verbose:
 	make all_verbose
 
 lib: $(OBJ_FILES)
-	@if [ ! -d "./lib/" ]; then \
-		mkdir -p $(OBJ_DIR); \
-	fi
 
 $(EXECUTABLE): prse.cpp lex.yy.cpp prse.tab.cpp $(OBJ_FILES)
 	@echo "Building compiler..."
@@ -62,8 +59,13 @@ prse.tab.cpp: prse.y
 lex.yy.cpp: prse.l
 	flex -o lex.yy.cpp prse.l
 
-$(OBJ_DIR)/%.o: $(LIB_DIR)/%.cpp $(LIB_DIR)/%.h
+$(OBJ_DIR)/%.o: $(LIB_DIR)/%.cpp $(LIB_DIR)/%.h | $(OBJ_DIR)
 	-$(CPP_COMPILER) $(CPP_FLAGS) -c -o $@ $<
+
+$(OBJ_DIR):
+	@if [ ! -d "./obj/" ]; then \
+		mkdir -p $(OBJ_DIR); \
+	fi
 
 clean:
 	rm -f lex.yy.* prse.tab.* obj/*.o prsec
