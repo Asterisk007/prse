@@ -11,7 +11,7 @@ before_script:
 pages:
   stage: deploy
   script:
-  - npx @11ty/eleventy --output=../public/ --pathprefix=/prse/
+  - npx @11ty/eleventy
   artifacts:
     paths:
     - public
