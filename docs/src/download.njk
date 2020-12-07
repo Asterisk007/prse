@@ -1,0 +1,91 @@
+{% extends "main.njk" %}
+
+{% set title="Download PRSE" %}
+
+{% block content %}
+<div class="justify-content-center">
+    <div class="mt-5">
+        <h1>Download & Install PRSE</h1>
+        <p>Unfortunately, PRSE does not currently have any packages available on a package manager such as <span class="text-monospace">apt</span>,
+            <span class="text-monospace">chocolatey</span>, or <span class="text-monospace">brew</span>. However, I do offer extensive build
+            instructions for multiple platforms:
+        </p>
+        <div class="accordion" id="accordionExample">
+            <div class="card">
+                <div class="card-header" data-toggle="collapse" href="#windows" role="button" aria-expanded="false" aria-controls="windows">
+                    Building and Installing on Windows 10
+                </div>
+                <div class="collapse" id="windows">
+                    <div class="card-body">
+                        Check back later.
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header" data-toggle="collapse" href="#mac" role="button" aria-expanded="false" aria-controls="mac">
+                    Building and Installing on Mac OS
+                </div>
+                <div class="collapse" id="mac">
+                    <div class="card-body">
+                        Check back later.
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header" data-toggle="collapse" href="#linux" role="button" aria-expanded="false" aria-controls="linux">
+                    Building and Installing on Linux
+                </div>
+                <div class="collapse" id="linux">
+                    <div class="card-body">
+                        <h2>Prerequisites/Dependencies:</h2>
+                        <p>PRSE requires that you have the following programs installed in order to build and run it:</p>
+                        <ul>
+                            <li><code>bison</code>: for building <code>/src/prse.y</code>, which contains the grammar rules of the language</li>
+                            <li><code>flex</code>: for building <code>/src/prse.l</code>, which lexes a given PRSE file</li>
+                            <li><code>g++</code>, <code>clang</code>, or any equivalent C++ compiler with support for the C++20 standard: for building the files in <code>/src/lib/</code>, and all other C++ files</li>
+                            <li><code>make</code>: for running the included Makefile in <code>/src/</code></li>
+                        </ul>
+                        <h2>Building and installing the PRSE compiler</h2>
+                        Open a terminal, and enter the following commands:
+                        <ol>
+                            <li><code>git clone https://gitlab.com/Asterisk007/prse.git</code><br>
+                            (alternatively, if you prefer to clone with SSH, use the command 
+                            <code>git clone git@gitlab.com:Asterisk007/prse.git</code>)</li>
+                            <li><code>cd prse/src/</code></li>
+                            <li><code>make</code></li>
+                            <li><code>make install</code><br>
+                            Note: you may need to run this using <code>sudo</code></li>
+                            <!--<li><code></code></li>-->
+                        </ol>
+                        Finally, verify that the PRSE compiler is installed by running<br>
+                        <style>
+                            ul.term {
+                                list-style: none;
+                                margin-left: 0;
+                                padding-left: 0;
+                            }
+
+                            ul.term li {
+                                padding-left: 1em;
+                                /*text-indent: -1em;*/
+                            }
+
+                            ul.term li:before {
+                                font-size: .9em;
+                                content: "$";
+                                padding-right: 5px;
+                            }
+                        </style>
+                        <ul class="term">
+                            <li>
+                                <code>prsec --version</code>
+                            </li>
+                        </ul>
+                        You may need to re-log into your PC, or restart it.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

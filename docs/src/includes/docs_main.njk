@@ -1,0 +1,36 @@
+{% extends "main.njk" %}
+{% set title %}
+PRSE Documentation: {{ doc_title }}
+{% endset %}
+
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-themed">
+    <ul class="list-unstyled components">
+        <li>
+            <a href="/">Back to main site</a>
+        </li>
+        <li>
+            <a href="/docs">Documentation home</a>
+        </li>
+        <li>
+            <a href="/docs/installation">Installation</a>
+        </li>
+        <li>
+            <a class="dropdown-toggle" data-toggle="collapse" href="#prseFundamentals" role="button" aria-expanded="false" aria-controls="prseFundamentals">
+                PRSE Fundamentals
+            </a>
+        <li>
+            <div class="collapse" id="prseFundamentals">
+                <div class="card card-body">
+                    <a href="/docs/basic_program_syntax">Basic program syntax</a>
+                    <a href="/docs/main_function">The <code>main</code> function</a>
+                    <a href="/docs/datatypes">Available datatypes</a>
+                    <a href="/docs/variables">Variables</a>
+                </div>
+            </div>
+        </li>
+        <li>
+        </li>
+    </ul>
+</nav>
+{% endblock %}

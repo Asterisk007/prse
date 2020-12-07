@@ -1,9 +1,17 @@
-image: alpine:latest
+image: node:8
+
+cache:
+  paths:
+  - docs/node_modules/
+
+before_script:
+  - cd docs/
+  - npm install # Install project dependencies
 
 pages:
   stage: deploy
   script:
-  - echo "Nothing to do..."
+  - npx eleventy --output=./public/ --pathprefix=/prse/
   artifacts:
     paths:
     - public
