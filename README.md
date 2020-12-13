@@ -2,6 +2,18 @@
 ### or: A Python-esque programming language for C/C++ programmers.
 ### Documentation: [click here](https://asterisk007.gitlab.io/prse/)
 
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see [https://www.gnu.org/licenses/gpl-3.0.html](https://www.gnu.org/licenses/gpl-3.0.html).
+
 Design goals:
 * Functionality inspired by:
    - Python: for loops, dictionaries, `range()`, easy conversion between data types
