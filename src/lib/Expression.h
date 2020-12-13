@@ -95,32 +95,50 @@ public:
 };
 
 class Plus : public Binary_operator {
+private:
+    int line;
 public:
-    Plus(const Expression* lhs, const Expression* rhs): Binary_operator(lhs, rhs){}
+    Plus(int line, const Expression* lhs, const Expression* rhs):line(line), Binary_operator(lhs, rhs){}
     virtual const Constant* as_const() const;
     virtual string value() const;
     virtual vector<const Constant*> as_list() const;
 };
 
 class Minus : public Binary_operator {
+private:
+    int line;
 public:
-    Minus(const Expression* lhs, const Expression* rhs): Binary_operator(lhs, rhs){}
+    Minus(int line, const Expression* lhs, const Expression* rhs):line(line), Binary_operator(lhs, rhs){}
     virtual const Constant* as_const() const;
     virtual string value() const;
     virtual vector<const Constant*> as_list() const ;
 };
 
 class Multiply : public Binary_operator {
+private:
+    int line;
 public:
-    Multiply(const Expression* lhs, const Expression* rhs): Binary_operator(lhs, rhs){}
+    Multiply(int line, const Expression* lhs, const Expression* rhs):line(line), Binary_operator(lhs, rhs){}
     virtual const Constant* as_const() const;
     virtual string value() const;
     virtual vector<const Constant*> as_list() const;
 };
 
 class Divide : public Binary_operator {
+private:
+    int line;
 public:
-    Divide(const Expression* lhs, const Expression* rhs): Binary_operator(lhs, rhs){}
+    Divide(int line, const Expression* lhs, const Expression* rhs):line(line), Binary_operator(lhs, rhs){}
+    virtual const Constant* as_const() const;
+    virtual string value() const;
+    virtual vector<const Constant*> as_list() const;
+};
+
+class Modulo : public Binary_operator {
+private:
+    int line;
+public:
+    Modulo(int line, const Expression* lhs, const Expression* rhs):line(line), Binary_operator(lhs, rhs){}
     virtual const Constant* as_const() const;
     virtual string value() const;
     virtual vector<const Constant*> as_list() const;
@@ -354,6 +372,23 @@ protected:
 public:
     Parentheses(int line, const Expression* e);
     virtual ~Parentheses(){ delete expr; }
+    virtual const Constant* as_const() const;
+    virtual string value() const;
+};
+
+class Ternary_expression : public Expression {
+protected:
+    int line;
+    const Expression* condition;
+    const Expression* is_true;
+    const Expression* is_false;
+public:
+    Ternary_expression(const int line, const Expression*, const Expression*, const Expression*);
+    virtual ~Ternary_expression(){
+        delete condition;
+        delete is_true;
+        delete is_false;
+    }
     virtual const Constant* as_const() const;
     virtual string value() const;
 };

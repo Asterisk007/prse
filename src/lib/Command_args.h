@@ -21,6 +21,7 @@ private:
         valid_args.insert(valid_args.end(),
             {
                 "--cpp",
+                "--check",
                 "-g",
                 "-h",
                 "--help",

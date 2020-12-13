@@ -35,6 +35,22 @@ Function_definition* Function_definition::get_function_definition(const Function
     return nullptr;
 }
 
+/*
+Static function to find function candidates
+In the even that a programmer calls a function, but none are found that match,
+we can call this static function to create a list of potential candidates to provide feedback to the
+programmer. This is much more useful than just spitting out a "function not defined" error.
+ */
+vector<Function_definition*> Function_definition::find_candidates(const Function_declaration& fdec){
+    vector<Function_definition*> return_list;
+    for (auto a : definitions){
+        if (a->get_id() == fdec.id) {
+            return_list.push_back(a);
+        }
+    }
+    return return_list;
+}
+
 bool Function_definition::compare_signatures(const Function_declaration& fdec){
     if (id != fdec.id){ return false; } // Function IDs should match exactly.
     if ((int)parameter_type.size() != (int)fdec.arguments.size()) { return false; } // Function parameter counts should match exactly.

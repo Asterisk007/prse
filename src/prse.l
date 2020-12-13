@@ -1,6 +1,8 @@
 /* Definitions */
 %option noyywrap
 %option nodefault
+%option never-interactive
+%option nounistd
 
 %{
     #include <iostream>
@@ -53,6 +55,7 @@ null                    { return MYNULL; }
 \*                           { return STAR; }
 \/                           { return SLASH; }
 \^                           { return CARET; }
+\%                           { return MODULO; }
 
 "++"                         { return INCREMENT; }
 "--"                         { return DECREMENT; }

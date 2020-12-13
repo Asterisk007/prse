@@ -78,6 +78,7 @@
 %token STAR 			   	"*"
 %token SLASH 			   	"/"
 %token CARET 			   	"^"
+%token MODULO               "%"
 %token INCREMENT 		   	"++"
 %token DECREMENT 		   	"--"
 %token PLUS_ASSIGN 	     	"+="
@@ -143,6 +144,7 @@
 %type <union_symbol_list>       parameter_list
 %type <union_symbol>            parameter
 %type <union_expression_list>   argument_list
+%type <union_expression>        ternary_expression
 //%type <union_expression> argument
 %type <union_expression>        function_call
 %type <union_expression>        return_statement
@@ -165,7 +167,7 @@
 
 %left LOGIC_OR
 %left LOGIC_AND
-%left LOGIC_EQ LOGIC_NE DOLLAR
+%left LOGIC_EQ LOGIC_NE DOLLAR MODULO
 %left LOGIC_GREATER LOGIC_GREATER_EQUAL LOGIC_LESS LOGIC_LESS_EQUAL
 %left I_STRING_PART PLUS MINUS STAR SLASH STAR_ASSIGN SLASH_ASSIGN
 %%
@@ -378,6 +380,15 @@ variable_definition:
         }
         delete $2;
     }
+    | LET ID COLON variable_type ASSIGN ternary_expression {
+        if ($4 != PRSE_type::T_VOID){
+            $$ = new Variable_definition(line_count, *$2, $4, $6, 0);
+        } else {
+            Error::error(Error::INVALID_TYPE_FOR_VARIABLE, prse_type_to_string($4));
+            $$ = nullptr;
+        }
+        delete $2;
+    }
     | LET ID COLON variable_type L_SQUARE_BRACKET R_SQUARE_BRACKET ASSIGN L_CURLY_BRACKET argument_list R_CURLY_BRACKET {
         // Array with specified type        
         if ($4 != PRSE_type::T_VOID){
@@ -547,53 +558,28 @@ scope_block:
 
 variable_assignment:
     variable ASSIGN expression {
-        if ($1 == nullptr){
-            delete $3;
-            $$ = nullptr;
-            break;
-        }
+        $$ = new Variable_assignment(line_count, $1, $3);
+    }
+    |
+    variable ASSIGN ternary_expression {
         $$ = new Variable_assignment(line_count, $1, $3);
     }
     | variable INCREMENT {
-        if ($1 == nullptr){
-            $$ = nullptr;
-            break;
-        }
         $$ = new Increment(line_count, $1);
     }
     | variable DECREMENT {
-        if ($1 == nullptr){
-            $$ = nullptr;
-            break;
-        }
         $$ = new Decrement(line_count, $1);
     }
     | variable PLUS_ASSIGN expression {
-        if ($1 == nullptr){
-            $$ = nullptr;
-            break;
-        }
         $$ = new Plus_assign(line_count, $1, $3);
     }
     | variable MINUS_ASSIGN expression {
-        if ($1 == nullptr){
-            $$ = nullptr;
-            break;
-        }
         $$ = new Minus_assign(line_count, $1, $3);
     }
     | variable STAR_ASSIGN expression {
-        if ($1 == nullptr){
-            $$ = nullptr;
-            break;
-        }
         $$ = new Multiply_assign(line_count, $1, $3);
     }
     | variable SLASH_ASSIGN expression {
-        if ($1 == nullptr){
-            $$ = nullptr;
-            break;
-        }
         $$ = new Divide_assign(line_count, $1, $3);
     }
     /*| error { yyerrorok; }*/
@@ -753,16 +739,19 @@ expression:
         $$ = new Cast(line_count, $1, $3);
     }
     | expression PLUS expression {
-        $$ = new Plus($1, $3);
+        $$ = new Plus(line_count, $1, $3);
     }
     | expression MINUS expression {
-        $$ = new Minus($1, $3);
+        $$ = new Minus(line_count, $1, $3);
     }
     | expression STAR expression {
-        $$ = new Multiply($1, $3);
+        $$ = new Multiply(line_count, $1, $3);
     }
     | expression SLASH expression {
-        $$ = new Divide($1, $3);
+        $$ = new Divide(line_count, $1, $3);
+    }
+    | expression MODULO expression {
+        $$ = new Modulo(line_count, $1, $3);
     }
     | expression LOGIC_EQ expression {
         // Check that PRSE types can be compared
@@ -812,6 +801,13 @@ optional_public_or_private:
     | PRIVATE
     | empty
     ;*/
+
+ternary_expression:
+    /* (boolean_expr){ true }{ false } */
+    L_PAREN expression R_PAREN L_CURLY_BRACKET expression R_CURLY_BRACKET L_CURLY_BRACKET expression R_CURLY_BRACKET {
+        $$ = new Ternary_expression(line_count, $2, $5, $8);
+    }
+    ;
 
 
 function_call:

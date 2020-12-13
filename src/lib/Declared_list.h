@@ -38,6 +38,7 @@ public:
     string get_id(){ return id; }
     vector<PRSE_type> get_parameters(){ return parameter_type; }
     static Function_definition* get_function_definition(const Function_declaration& fdec);
+    static vector<Function_definition*> find_candidates(const Function_declaration& fdec);
     static set<string> defined_functions; // For functions that have been defined at some point in the program
     static set<string> declared_functions; // For functions that should be defined
     static vector<Function_definition*> definitions; // The point in the program where functions are defined.

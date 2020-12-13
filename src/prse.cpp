@@ -10,23 +10,26 @@ extern int yylex_destroy();
 extern int line_count;
 
 void yyerror(const char* error){
-	fprintf(stderr, "%s on line %d\n", error, line_count);
+    fprintf(stderr, "%s on line %d\n", error, line_count);
 }
 
 void help_text(){
-	cout << "Usage: prsec [OPTIONS] [FILE(S)]" << endl;
-	cout << "OPTIONS: " << endl;
-	string options_list[] = {
-		"--cpp                   Output directly to C++ instead of binary file",
+    cout << "Usage: prsec [OPTIONS] [FILE(S)]" << endl;
+    cout << "OPTIONS: " << endl;
+    string options_list[] = {
+        "--cpp                   Output directly to C++ instead of binary file",
+        "--check                 Check whether code compiles. Runs all compilation steps except for binary compilation",
         "-g                      Include debugging symbols in binary, for use with gdb",
         "-h, --help              Display this help text",
-		"-o,                     Specify an output file name (default a.out)",
+        "-o                      Specify an output file name (default a.out)",
         "-v, --verbose           Verbose mode",
-        "--nocodes               Do not display error codes for each error found"
-	};
-	for (int i = 0; i < (sizeof(options_list)/sizeof(options_list[0])); i++){
-		cout << "    " << options_list[i] << endl;	
-	}
+        "--version               Display this program's version number",
+        "--nocodes               Do not display error codes for each error found",
+        "-w                      Do not display warnings"
+    };
+    for (int i = 0; i < (sizeof(options_list)/sizeof(options_list[0])); i++){
+        cout << "    " << options_list[i] << endl;	
+    }
 }
 
 void version(){
@@ -40,25 +43,12 @@ void version(){
 
 int main(int argc, char** argv){
     string output_filename = "";
-    // Create a library of available bash/command line arguments
-    /*map<string, bool> activated_args;
-    activated_args["--cpp"] = false;
-    activated_args["-g"] = false;
-    activated_args["-h"] = false;
-    activated_args["--help"] = false;
-    activated_args["-o"] = false;
-    activated_args["-v"] = false;
-    activated_args["--verbose"] = false;
-    activated_args["--sacrifice"] = false;
-    activated_args["--sacrifice=anyways"] = false;
-    activated_args["--version"] = false;
-    activated_args["--nocodes"] = false;
-    activated_args["-w"] = false;*/
 
     Command_args& cmd_args = Command_args::instance();
     // A vector of input files, which we will parse once we process
     // each argument passed to the program
-    vector<string> input_files = vector<string>(); 
+    vector<string> input_files = vector<string>();
+    vector<string> output_files(0);
     // Process each argument passed
     for (int i = 1; i < argc; i++){
         string file_candidate = string(argv[i]);
@@ -82,7 +72,8 @@ int main(int argc, char** argv){
                 // Get output filename
                 if (arg == "-o" && i+1 < argc) {
                     output_filename = string(argv[i+1]);
-                    i = i+2;
+                    i = i+1;
+                    continue;
                 } else if (arg == "-o" && i+1 >= argc) {
                     cout << "Please specify a filename" << endl;
                     return 1;
@@ -125,7 +116,7 @@ int main(int argc, char** argv){
 
     // Check that at least one file has been provided as input on the command line.
     if ((int)input_files.size() > 0){
-        /* if (cmd_args.get_arg("--sacrifice") == true){
+        /* if (cmd_args.get_arg("--sacrifice") == true && cmd_args.get_arg("--sacrifice=anyways") == false){
             cout << "The PRSE compiler accepts your humble sacrifice." << endl;
             cout << "If your code compiles, your file shall be spared." << endl;
             cout << "If not, it will be deleted forever, and you will have to start from scratch!" << endl;
@@ -165,23 +156,29 @@ int main(int argc, char** argv){
                     yylex_destroy();
                     return 1;
                 }
-                OutputBuffer& output = OutputBuffer::instance();
-                string t = input_files[i].substr(0, input_files[i].size()-5); t += ".cpp";
-                ofstream outfile;
-                outfile.open(t);
-                if (outfile.is_open()){
-                    if (VERBOSE){
-                        cout << "Outputting to " << t << endl;
+
+                if (!cmd_args.get_arg("--check")){
+                    OutputBuffer& output = OutputBuffer::instance();
+                    string t = input_files[i].substr(0, input_files[i].size()-5); t += ".cpp";
+                    ofstream outfile;
+                    outfile.open(t);
+                    if (outfile.is_open()){
+                        if (VERBOSE){
+                            cout << "Outputting to " << t << endl;
+                        }
+                        output.output_to_file(&outfile);
+                        output_files.push_back(t);
+                        outfile.close();
+                    } else {
+                        cout << "File " << t << " could not be opened." << endl;
+                        Function_definition::cleanup();
+                        yylex_destroy();
+                        return 1;
                     }
-                    output.output_to_file(&outfile);
-                    //output.output_to_file(nullptr);
-                    // TODO: Add compilation functionality (CPP to bin)
-                    outfile.close();
                 } else {
-                    cout << "File " << t << " could not be opened." << endl;
-                    Function_definition::cleanup();
-                    yylex_destroy();
-                    return 1;
+                    if (VERBOSE){
+                        cout << "File " << input_files[i] << " compiled successfully." << endl;
+                    }
                 }
             }   
         }
@@ -189,10 +186,28 @@ int main(int argc, char** argv){
     // If no PRSE files are provided, return an error.
     else {
         cerr << "Please enter at least one input file." << endl;
+        cerr << "For program help, type prsec -h or prsec --help" << endl;
         return 1;
     }
-    if ( output_filename != ""){
-        cout << "Final output binary name: " << output_filename << endl;
+    // If --cpp is not specified at execution time, compile all translated
+    // .cpp files into a single binary
+    if (!cmd_args.get_arg("--cpp") && !cmd_args.get_arg("--check")){
+        string files = "";
+        for (int i = 0; i < (int)output_files.size(); i++){
+            files += (output_files[i] + " ");
+        }
+
+        if (output_filename != ""){
+            string p = string("clang++ -std=c++17 -o " + output_filename + " " + files);
+            if (cmd_args.VERBOSE()) cout << p << endl;
+            system(p.c_str());
+        } else {
+            string p = string("clang++ -std=c++17 " + files);
+            if (cmd_args.VERBOSE()) cout << p << endl;
+            system(p.c_str());
+        }
+        string rm_str = "rm " + files;
+        system(rm_str.c_str());
     }
     Function_definition::cleanup();
     yylex_destroy();
