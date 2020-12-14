@@ -207,11 +207,8 @@ const Constant* Plus::as_const() const {
     if (lhs != nullptr && rhs != nullptr) {
         auto l = lhs->as_const();
         auto r = rhs->as_const();
-        if (!(l->type() & valid_math_types)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "lhs", prse_type_to_string(l->type()), "divide", line);
-        }
-        if (!(r->type() & valid_math_types)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "rhs", prse_type_to_string(l->type()), "divide", line);
+        if (l->type() != r->type()){
+            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, prse_type_to_string(l->type()), prse_type_to_string(r->type()));
         }
         string t = l->value();
         t += " + "; t += r->value();
@@ -225,11 +222,8 @@ string Plus::value() const {
     if (lhs != nullptr && rhs != nullptr) {
         auto l = lhs->as_const();
         auto r = rhs->as_const();
-        if (!(l->type() & valid_math_types)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "lhs", prse_type_to_string(l->type()), "divide", line);
-        }
-        if (!(r->type() & valid_math_types)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "rhs", prse_type_to_string(l->type()), "divide", line);
+        if (l->type() != r->type()){
+            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, prse_type_to_string(l->type()), prse_type_to_string(r->type()));
         }
         string t = l->value();
         t += " + "; t += r->value();
@@ -244,11 +238,8 @@ vector<const Constant*> Plus::as_list() const {
     if (lhs != nullptr && rhs != nullptr) {
         auto l = lhs->as_const();
         auto r = rhs->as_const();
-        if (!(l->type() & valid_math_types)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "lhs", prse_type_to_string(l->type()), "divide", line);
-        }
-        if (!(r->type() & valid_math_types)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "rhs", prse_type_to_string(l->type()), "divide", line);
+        if (l->type() != r->type()){
+            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, prse_type_to_string(l->type()), prse_type_to_string(r->type()));
         }
         string t = l->value();
         t += " + "; t += r->value();
