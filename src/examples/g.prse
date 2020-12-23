@@ -1,5 +1,5 @@
 // Recursive functions
-//use "io"
+use "io"
 
 
 function main(){

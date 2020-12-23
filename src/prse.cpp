@@ -38,7 +38,7 @@ void version(){
         cout << "Beta compiler, intended to test new features" << endl;
     }
     cout << "Version " << VERSION << "." << SUBVERSION << "." << SUBSUBVERSION << endl;
-    cout << "Documentation available online at https://asterisk007.gitlab.io/prse/docs/" << endl;
+    cout << "Documentation available online at https://gitlab.com/Asterisk007/prse/-/wikis/docs/home" << endl;
 }
 
 int main(int argc, char** argv){
