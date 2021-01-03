@@ -1,6 +1,6 @@
 ![PRSE](misc/logo-slogan-text-as-paths.svg)
 ### or: A Python-esque programming language for C/C++ programmers.
-### Documentation: [click here](https://asterisk007.gitlab.io/prse/)
+### Documentation: [click here](https://github.com/Asterisk007/prse/wiki)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
