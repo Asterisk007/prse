@@ -23,6 +23,7 @@ use                     { return USE; }
  /* ======== Basic keywords ====== */
 
 let                     { return LET; }
+set                     { return SET; }
 class                   { return CLASS; }
 func|function           { return FUNCTION; }
 return                  { return RETURN; }
@@ -46,9 +47,13 @@ string                  { return STRING; }
 void                    { return VOID; }
 null                    { return MYNULL; }
 
+ /* ======== Modifier keywords ====== */
+
+length|len|size         { return LENGTH; }
+
  /* ======== Arithmetic ======== */
 
-\=                               { return ASSIGN; }
+\=                           { return ASSIGN; }
 
 \+                           { return PLUS; }
 \-                           { return MINUS; }
@@ -94,12 +99,13 @@ false                        { yylval.union_bool = false; return LOGIC_FALSE; }
 \]                           { return R_SQUARE_BRACKET; }
 \{                           { return L_CURLY_BRACKET; }
 \}                           { return R_CURLY_BRACKET; }
-[$]                          { return DOLLAR; }
+[$]                          { return DOLLAR; } /* casting token. For instance, int$string */
+[@]                          { return MODIFIER; } /* modifier token. Used for actions like array length (array@length) */
 in                           { return IN; }
 
 \/\/.*                                  {} /* single line comment */
 [/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]     {} /* multiline comment. Thanks to this stackoverflow post: https://stackoverflow.com/a/22390133 */
-                            
+
 [0-9]+                       { yylval.union_int = std::stoi(yytext); return INT_CONST; } /* integer constant */
 [0-9]*\.[0-9]*               { yylval.union_double = std::stod(yytext); return DOUBLE_CONST; } /* integer constant */
 
@@ -120,6 +126,6 @@ in                           { return IN; }
 
 (\r\n?|\n)                   { line_count++; } /* newlines and CRLF */
 [\t\ ]                       {} /* whitespace: tabs and spaces */
-.                            { return ERROR; }
+.                            { return MY_ERROR; }
 
 %%

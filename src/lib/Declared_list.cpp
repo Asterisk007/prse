@@ -18,7 +18,7 @@ Function_definition::Function_definition()
 :return_type(NO_TYPE), parameter_type(vector<PRSE_type>(0)), id(""){}
 
 Function_definition::Function_definition(int line, const string& name, PRSE_type return_type, const vector<PRSE_type>& parameter_type)
-:id(name), return_type(return_type), parameter_type(parameter_type){}
+:return_type(return_type), parameter_type(parameter_type), id(name){}
 
 void Function_definition::cleanup(){
     for (int i = 0; i < (int)definitions.size(); i++){

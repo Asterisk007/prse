@@ -2,17 +2,17 @@
 ### or: A Python-esque programming language for C/C++ programmers.
 ### Documentation: [click here](https://github.com/Asterisk007/prse/wiki)
 
-This program is free software: you can redistribute it and/or modify
+The PRSE compiler is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, version 3 of the License.
 
-This program is distributed in the hope that it will be useful,
+The aformentioned program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program. If not, see [https://www.gnu.org/licenses/gpl-3.0.html](https://www.gnu.org/licenses/gpl-3.0.html).
+along with the compiler and/or its source code. If not, see [https://www.gnu.org/licenses/gpl-3.0.html](https://www.gnu.org/licenses/gpl-3.0.html).
 
 Design goals:
 * Functionality inspired by:
@@ -34,9 +34,22 @@ Extras to be implemented later:
 - Bison 3.7.1 or newer
 - Flex 2.6.4 or newer
 - Clang++ 10.0.0 or newer
+- CMake 3.21 or newer
+
+# Building
+
+Clone this repository
+
+Run commands:
+```
+cd prse/src
+mkdir build && cd build
+cmake ..
+make
+```
 
 # About this project:
-Designed and programmed by Daniel Ellingson
+Designed and programmed by Daniel Ellingson, December 2020
 
 Tools/languages used:
 - Bison: for grammar
@@ -52,5 +65,5 @@ The PRSE language is:
 
 Note to new users:
 * Basic knowledge of Linux is necessary to use this program.
-- I recommend checking out a few tutorials for how to use a Linux shell. If you are running Windows 10, Microsoft has been developing the Windows Subsystem for Linux for quite some time now, and this virtual environment is what I have been using to develop PRSE. It gives you access to a complete Linux terminal emulator, which will allow you to build and run the PRSE compiler.
-- The PRSE compiler has thus far only been tested on Ubuntu Linux. Windows support may or may not come sometime in the future.
+- I recommend checking out a few tutorials for how to use a Linux shell. If you are running Windows 10, Microsoft has been developing the Windows Subsystem for Linux for quite some time now, and this virtual environment is what I initially used to develop PRSE. It gives you access to a complete Linux terminal emulator, which will allow you to build and run the PRSE compiler.
+- The PRSE compiler has thus far only been tested on Ubuntu and Manjaro Linux. ~~Windows support may or may not come sometime in the future.~~ Windows is not supported for the time being.

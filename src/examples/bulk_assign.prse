@@ -1,0 +1,9 @@
+// Bulk assignments on arrays: syntax
+// array_name[]<operation>
+// for instance:
+
+func main() {
+    let t: int[] = { 4, 5, 6 };
+
+    t += 2;
+}

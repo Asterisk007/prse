@@ -100,6 +100,9 @@ void Error::error(
         case UNEXPECTED_ELSE_ELSE_IF:
             cout << "unexpected else or else if. If statement should be placed before this.";
             break;
+        case OTHER: // Other error that is not covered. Eg. Critical internal error
+            cout << s1;
+            break;
     }
     error_count++;
     // Print error alias code
@@ -165,6 +168,9 @@ void Error::error(
                 break;
             case UNEXPECTED_ELSE_ELSE_IF:
                 cout << "(NOIFFOUND Error)";
+                break;
+            case OTHER:
+                cout << "(SOMETHINGELSE Error)";
                 break;
         }
     }

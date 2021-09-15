@@ -61,6 +61,7 @@
 // Key tokens
 %token USE 				   	"use"
 %token LET 				   	"let"
+%token SET              "set"
 %token FUNCTION 		   	"function"
 %token RETURN 			   	"return"
 %token CLASS			   	"class"
@@ -85,6 +86,8 @@
 %token MINUS_ASSIGN 	   	"-="
 %token STAR_ASSIGN 	     	"*="
 %token SLASH_ASSIGN 	   	"/="
+// Modifiers
+%token LENGTH               "length"
 // Logic
 %token <union_bool> LOGIC_TRUE		    "true"
 %token <union_bool> LOGIC_FALSE	    	"false"
@@ -111,6 +114,7 @@
 %token L_CURLY_BRACKET 		"{"
 %token R_CURLY_BRACKET 		"}"
 %token DOLLAR               "$"
+%token MODIFIER             "@"
 %token IN                   "in"
 // Variable identification
 %token <union_string> ID 	"identifier"
@@ -125,6 +129,7 @@
 %type <union_expression>        definition
 %type <union_expression>        variable_definition
 %type <union_expression>        variable_assignment
+//%type <union_expression>        bulk_array_assignment
 %type <union_prse_type>         variable_type
 %type <union_prse_type>         basic_type
 %type <union_expression>        constant
@@ -132,10 +137,10 @@
 %type <union_expression>        variable
 %type <union_expression>        array
 //%type <union_string_list> class_definition
-//%type <union_symbol> variable
 %type <union_expression_list>   code_block
 %type <union_expression>        code_line
 %type <union_expression>        scope_block
+%type <union_expression>        non_empty_expression
 %type <union_expression>        expression
 %type <union_expression>        function_definition
 %type <union_expression>        function_header
@@ -163,13 +168,15 @@
 //%type <union_expression_list> i_string_segment_list
 //%type <union_expression_list> i_string_middle
 
-%token ERROR "error"
+%token MY_ERROR "error"
 
 %left LOGIC_OR
 %left LOGIC_AND
 %left LOGIC_EQ LOGIC_NE DOLLAR MODULO
+%right L_SQUARE_BRACKET R_SQUARE_BRACKET
 %left LOGIC_GREATER LOGIC_GREATER_EQUAL LOGIC_LESS LOGIC_LESS_EQUAL
-%left I_STRING_PART PLUS MINUS STAR SLASH STAR_ASSIGN SLASH_ASSIGN
+//%left I_STRING_PART
+%left PLUS MINUS STAR SLASH STAR_ASSIGN SLASH_ASSIGN INCREMENT DECREMENT
 %%
 
 program:
@@ -234,7 +241,7 @@ program:
 
         delete $1; delete $2;
     }
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
 	;
 
 import_list:
@@ -246,7 +253,7 @@ import_list:
         $$ = l;
     }
 	| empty { $$ = nullptr; }
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
 	;
 
 import_statement:
@@ -273,10 +280,16 @@ import_statement:
         delete $2;
         $$ = t;
 	}
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
 	;
 
 libraries_list:
+    /*
+        Much like several other languages, the programmer
+        may opt to include libraries in their program for functionality
+        such as printing to the console or performing mathematical
+        operations beyond basic arithmetic.
+    */
 	STRING_CONST COMMA libraries_list {
         vector<string>* ll = new vector<string>(0);
         ll->push_back(*$1);
@@ -292,7 +305,7 @@ libraries_list:
         delete $1;
         $$ = ll;
 	}
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
 	;
 
 final_definition_list:
@@ -355,7 +368,7 @@ definition_list:
         $$ = l;
     } */
     | empty { $$ = nullptr; }
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
 	;
 
 definition:
@@ -364,9 +377,12 @@ definition:
     }
     | variable_assignment SEMICOLON {
         $$ = new Singleton($1);
-    };
+    }
+    /*| bulk_array_assignment SEMICOLON {
+        $$ = new Singleton($1);
+    }*/
     /*| object_definition { $$ = $1; } */
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
     ;
 
 variable_definition:
@@ -407,7 +423,7 @@ variable_definition:
         Error::error(Error::VARIABLE_DECLARED_BUT_NOT_SET, *$2);
         delete $2;
     }
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
     ;
 
 flow_control_block:
@@ -424,7 +440,7 @@ flow_control_block:
 
 if_block:
     if_chain { $$ = $1; }
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
     ;
 
 if_chain:
@@ -444,7 +460,7 @@ if_chain:
         Error::error(Error::UNEXPECTED_ELSE_ELSE_IF);
         $$ = nullptr;
     }*/
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
     ;
 
 optional_else_or_else_if:
@@ -466,21 +482,21 @@ optional_else_or_else_if:
         $$ = new Else_block(line_count, line);
     }
     | empty { $$ = nullptr; }
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
     ;
 
 if_header:
     IF L_PAREN expression R_PAREN {
         $$ = $3;
     }
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
     ;
 
 else_if_header:
     ELSE IF L_PAREN expression R_PAREN {
         $$ = $4;
     }
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
     ;
 
 for_loop:
@@ -553,15 +569,14 @@ scope_block:
         $$ = new Scope_block(line_count, *$2);
         delete $2;
     }
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
     ;
 
 variable_assignment:
     variable ASSIGN expression {
         $$ = new Variable_assignment(line_count, $1, $3);
     }
-    |
-    variable ASSIGN ternary_expression {
+    | variable ASSIGN ternary_expression {
         $$ = new Variable_assignment(line_count, $1, $3);
     }
     | variable INCREMENT {
@@ -582,8 +597,34 @@ variable_assignment:
     | variable SLASH_ASSIGN expression {
         $$ = new Divide_assign(line_count, $1, $3);
     }
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
     ;
+
+/*
+bulk_array_assignment:
+    array L_SQUARE_BRACKET R_SQUARE_BRACKET ASSIGN non_empty_expression {
+        $$ = new Bulk_assign(line_count, Bulk_assign_type::BULK_ASSIGN, $1, $5);
+    }
+    | array L_SQUARE_BRACKET R_SQUARE_BRACKET INCREMENT {
+        $$ = new Bulk_assign(line_count, Bulk_assign_type::BULK_INCREMENT, $1, nullptr);
+    }
+    | array L_SQUARE_BRACKET R_SQUARE_BRACKET DECREMENT {
+        $$ = new Bulk_assign(line_count, Bulk_assign_type::BULK_DECREMENT, $1, nullptr);
+    }
+    | array L_SQUARE_BRACKET R_SQUARE_BRACKET PLUS_ASSIGN non_empty_expression {
+        $$ = new Bulk_assign(line_count, Bulk_assign_type::BULK_PLUS_ASSIGN, $1, $5);
+    }
+    | array L_SQUARE_BRACKET R_SQUARE_BRACKET MINUS_ASSIGN non_empty_expression {
+        $$ = new Bulk_assign(line_count, Bulk_assign_type::BULK_MINUS_ASSIGN, $1, $5);
+    }
+    | array L_SQUARE_BRACKET R_SQUARE_BRACKET STAR_ASSIGN non_empty_expression {
+        $$ = new Bulk_assign(line_count, Bulk_assign_type::BULK_MULTIPLY_ASSIGN, $1, $5);
+    }
+    | array L_SQUARE_BRACKET R_SQUARE_BRACKET SLASH_ASSIGN non_empty_expression {
+        $$ = new Bulk_assign(line_count, Bulk_assign_type::BULK_DIVIDE_ASSIGN, $1, $5);
+    }
+    ;
+*/
 
 // Function definitions can consist of zero or many parameters, and can have a declared return type (default void)
 function_definition:
@@ -591,7 +632,7 @@ function_definition:
         $$ = new Function_definition_expr($1, *$3);
         delete $3;
     }
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
     ;
 
 function_header:
@@ -648,7 +689,7 @@ function_header:
         }
         delete $2; delete $4;
     }
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
     ;
 
 function_return_type_or_empty:
@@ -670,6 +711,14 @@ code_block:
         delete $1;
         $$ = l;
     }
+/*  | code_block bulk_array_assignment SEMICOLON {
+        vector<const Expression*>* l = new vector<const Expression*>;
+        append_list(l, $1);
+        l->push_back($2);
+        delete $1;
+        $$ = l;
+    }
+*/
     | code_block expression SEMICOLON {
         vector<const Expression*>* l = new vector<const Expression*>;
         append_list(l, $1);
@@ -708,7 +757,7 @@ code_block:
 	| empty {
         $$ = nullptr;
     }
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
 	;
 
 code_line:
@@ -723,20 +772,28 @@ code_line:
     | variable_assignment SEMICOLON {
         $$ = $1;
     }
+    /*| bulk_array_assignment SEMICOLON {
+        $$ = $1;
+    }*/
     | function_call SEMICOLON {
         $$ = new Singleton($1);
     }
     | return_statement SEMICOLON {
         $$ = $1;
     }
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
     ;
 
-expression:
+non_empty_expression:
     primary_expression { $$ = $1; }
     | function_call { $$ = $1; }
     | expression DOLLAR basic_type {
         $$ = new Cast(line_count, $1, $3);
+    }
+    | expression DOLLAR LENGTH {
+        //$$; $1; $3;
+        $$ = nullptr;
+        printf("TODO on line %d\n", __LINE__);
     }
     | expression PLUS expression {
         $$ = new Plus(line_count, $1, $3);
@@ -754,7 +811,6 @@ expression:
         $$ = new Modulo(line_count, $1, $3);
     }
     | expression LOGIC_EQ expression {
-        // Check that PRSE types can be compared
         $$ = new Logic_Eq($1, $3);
     }
     | expression LOGIC_NE expression {
@@ -778,8 +834,12 @@ expression:
     | expression LOGIC_OR expression {
         $$ = new Logic_Or($1, $3);
     }
+    ;
+
+expression:
+    non_empty_expression { $$ = $1; }
     | empty { $$ = nullptr; }
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
 	;
 
 /*class_function_list_or_empty:
@@ -817,41 +877,51 @@ function_call:
         $$ = new Function_call(line_count, *$1, *$3);
         delete $1; delete $3;
     }
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
     ;
 
 return_statement:
     RETURN expression {
         $$ = new Return_statement(line_count, $2);
     }
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
     ;
 
 argument_list:
     expression COMMA argument_list {
         // Expression vector pointer for $$'s value.
         vector<const Expression*>* l = new vector<const Expression*>;
-        if ($1 != nullptr)
+        if ($1 != nullptr) {
             l->push_back($1);
-        append_list(l, $3);
-        $$ = l;
+            append_list(l, $3);
+            $$ = l;
+        } else {
+            #ifdef DEBUG
+                printf("Expression on line %d was set to nullptr.\n", line_count);
+            #endif
+        }
         //delete $1;
         delete $3;
     }
     | expression {
         vector<const Expression*>* l = new vector<const Expression*>;
-        if ($1 != nullptr)
+        if ($1 != nullptr) {
             l->push_back($1);
-        $$ = l;
+            $$ = l;
+        } else {
+            #ifdef DEBUG
+                printf("Expression on line %d was set to nullptr.\n", line_count);
+            #endif
+        }
         // delete $1;
     }
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
     ;
 
 parameter_list_or_empty:
     parameter_list { $$ = $1; }
     | empty { $$ = nullptr; }
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
     ;
 
 parameter_list:
@@ -867,7 +937,7 @@ parameter_list:
         l->push_back($1);
         $$ = l;
     }
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
     ;
 
 parameter:
@@ -879,7 +949,7 @@ parameter:
         int size = 1;
         $$ = new Symbol(*$1, $3, size);
     }
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
 	;
 
 primary_expression:
@@ -888,7 +958,7 @@ primary_expression:
         $$ = ($1 != nullptr ? $1 : nullptr); /*cout << "Expression: " << $1->value() << endl;*/ 
     }
     | constant { $$ = $1; /*cout << "Expression: " << $1->value() << endl;*/ }
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
     ;
 
 array:
@@ -903,11 +973,11 @@ variable:
         $$ = new Variable(line_count, *$1);
         delete $1;
     }
-    | ID L_SQUARE_BRACKET expression R_SQUARE_BRACKET {
+    | ID L_SQUARE_BRACKET non_empty_expression R_SQUARE_BRACKET {
         $$ = new Array_element(line_count, *$1, $3);
         delete $1;
     }
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
     ;
 
 constant:
@@ -923,7 +993,7 @@ constant:
         delete $1;
     }
     | MYNULL              { $$ = new Constant(PRSE_type::NO_TYPE, "null"); } /* null is acceptable for variable initialization, nothing else. */
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
     ;
 
 /*interpolated_string:
@@ -1006,7 +1076,7 @@ variable_type:
     basic_type {
         $$ = $1;
     }
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
     ;
 
 basic_type:
@@ -1019,10 +1089,10 @@ basic_type:
         $$ = PRSE_type::T_STRING;
     }
     | VOID      { $$ = PRSE_type::T_VOID;   }
-    /*| error { yyerrorok; }*/
+    /*| error { yyerrok; }*/
     ;
 
-empty:
+empty: %empty
 	;
 
 %%

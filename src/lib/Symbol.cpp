@@ -1,5 +1,5 @@
 #include "Symbol.h"
-#include "Constant.h"
+#include "expressions/Constant.h"
 
 Symbol::Symbol(const Symbol& s)
 :name(s.get_name()), type(s.get_type()), size(s.get_size()){}

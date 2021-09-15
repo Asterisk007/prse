@@ -28,7 +28,8 @@ public:
         RETURN_VALUE_FOR_FUNCTION_DOES_NOT_MATCH,
         CONDITION_CANNOT_BE_EMPTY,
         CONDITION_MUST_BE_BOOLEAN_EXPRESSION,
-        UNEXPECTED_ELSE_ELSE_IF
+        UNEXPECTED_ELSE_ELSE_IF,
+        OTHER
     };
     static void error(
         Error_type error_type,

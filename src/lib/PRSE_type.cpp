@@ -18,4 +18,5 @@ string prse_type_to_string(PRSE_type prse_type){
         case T_I_STRING:
             return "std::string";
     }
+    return "";
 }

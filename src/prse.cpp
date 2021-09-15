@@ -1,6 +1,7 @@
 #include "parser.h"
 #include <iostream>
 #include <map>
+#include "lib/Command_args.h"
 
 using namespace std;
 
@@ -14,34 +15,27 @@ void yyerror(const char* error){
 }
 
 void help_text(){
-    cout << "Usage: prsec [OPTIONS] [FILE(S)]" << endl;
-    cout << "OPTIONS: " << endl;
-    string options_list[] = {
-        "--cpp                   Output directly to C++ instead of binary file",
-        "--check                 Check whether code compiles. Runs all compilation steps except for binary compilation",
-        "-g                      Include debugging symbols in binary, for use with gdb",
-        "-h, --help              Display this help text",
-        "-o                      Specify an output file name (default a.out)",
-        "-v, --verbose           Verbose mode",
-        "--version               Display this program's version number",
-        "--nocodes               Do not display error codes for each error found",
-        "-w                      Do not display warnings"
-    };
-    for (int i = 0; i < (sizeof(options_list)/sizeof(options_list[0])); i++){
-        cout << "    " << options_list[i] << endl;	
-    }
+    printf( "Usage: prsec [OPTIONS] [FILE(S)]\n"
+            "OPTIONS: \n" );
+    Command_args::instance().print_help_text();
 }
 
 void version(){
-    cout << "prsec (PRSE compiler), written by Daniel Ellingson" << endl;
+    printf("prsec (PRSE compiler)\n");
     if (BETA) {
-        cout << "Beta compiler, intended to test new features" << endl;
+        printf("Beta compiler, intended to test new features\n");
     }
-    cout << "Version " << VERSION << "." << SUBVERSION << "." << SUBSUBVERSION << endl;
-    cout << "Documentation available online at https://gitlab.com/Asterisk007/prse/-/wikis/docs/home" << endl;
+    printf( "Version %s.%s.%s\n", VERSION, SUBVERSION, SUBSUBVERSION);
+            //"Documentation available online at https://gitlab.com/Asterisk007/prse/-/wikis/docs/home\n", VERSION, SUBVERSION, SUBSUBVERSION);
 }
 
 int main(int argc, char** argv){
+    #ifdef DEBUG
+        printf( "DEBUG BUILD HAS BEEN ENABLED. ENSURE YOU DISABLE IT FOR RELEASE.\n"
+                "> use cmake -DCMAKE_BUILD_TYPE=Release .. <\n"
+                "(If you are seeing this message from a public build, let me know: https://github.com/asterisk007)\n");
+    #endif
+    
     string output_filename = "";
 
     Command_args& cmd_args = Command_args::instance();
@@ -58,7 +52,7 @@ int main(int argc, char** argv){
         if (file_candidate.length() > filetype.length() && !file_candidate.compare(file_candidate.length() - filetype.length(), filetype.length(), filetype)){
             FILE* file = fopen(file_candidate.c_str(), "r");
             if (!file){
-                cerr << "Could not open file \"" << file_candidate << "\"" << endl;
+                fprintf(stderr, "Could not open file \"%s\"\n", file_candidate.c_str());
                 return 1;
             } else {
                 // Add this file to the list of files
@@ -75,13 +69,13 @@ int main(int argc, char** argv){
                     i = i+1;
                     continue;
                 } else if (arg == "-o" && i+1 >= argc) {
-                    cout << "Please specify a filename" << endl;
+                    printf("Please specify a filename\n");
                     return 1;
                 }
             } else {
                 // Finally, if this is not a valid input file nor a recognized argument,
                 // output an error and continue.
-                cout << "Unrecognized argument '" << arg << "'" << endl;
+                printf("Unrecognized argument '%s'", arg.c_str());
             }
         }
     }

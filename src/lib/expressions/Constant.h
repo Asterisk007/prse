@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PRSE_type.h"
+#include "../PRSE_type.h"
 #include "Expression.h"
 
 using namespace std;

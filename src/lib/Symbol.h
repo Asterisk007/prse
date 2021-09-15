@@ -10,8 +10,8 @@ class Constant;
 class Symbol {
 private:
     std::string name;
-    int size;
     PRSE_type type;
+    int size;
 public:
     // Constructor from existing symbol
     Symbol(const Symbol& s);

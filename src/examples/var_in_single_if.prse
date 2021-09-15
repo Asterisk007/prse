@@ -1,0 +1,7 @@
+func main(){
+    let x: int = 2;
+    if (x == 1)
+        let y: char = 'a';
+    else
+        let p: int = x - 3;
+}
