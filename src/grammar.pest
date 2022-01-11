@@ -1,0 +1,11 @@
+number = { ASCII_DIGIT+ }
+alpha_any = { ASCII_ALPHA_LOWER|ASCII_ALPHA_UPPER }
+identifier = { "_"? ~ [ASCII_DIGIT|alpha_any]+ ~ ["_"|ASCII_DIGIT|alpha_any]* }
+assignment = _{ "=" }
+
+valid_input = {
+    ASCII_DIGIT|
+    identifier ~ assignment ~ [number|identifier]|
+    
+}
+input = _{ SOI ~  ~ EOI }
