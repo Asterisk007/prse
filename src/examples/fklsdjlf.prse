@@ -1,5 +1,0 @@
-func main(){
-	let y: int = 2;
-	let p: int = 3;
-	let x: int = y+p;
-}

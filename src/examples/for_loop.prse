@@ -1,6 +1,0 @@
-function main(){
-    let a: int = 0;
-    for (i: int = 0; i < 3; i++){
-        a += i;
-    }
-}
