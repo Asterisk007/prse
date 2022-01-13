@@ -1,11 +1,39 @@
 number = { ASCII_DIGIT+ }
-alpha_any = { ASCII_ALPHA_LOWER|ASCII_ALPHA_UPPER }
-identifier = { "_"? ~ [ASCII_DIGIT|alpha_any]+ ~ ["_"|ASCII_DIGIT|alpha_any]* }
+alpha_any = @{ ASCII_ALPHA_LOWER|ASCII_ALPHA_UPPER }
+str = @{ "\"" ~ alpha_any* ~ "\"" }
+identifier = @{ "_"* ~ (ASCII_DIGIT|alpha_any)+ ~ ("_"|ASCII_DIGIT|alpha_any)* }
 assignment = _{ "=" }
 
-valid_input = {
-    ASCII_DIGIT|
-    identifier ~ assignment ~ [number|identifier]|
-    
+// Math operations
+math_op = {
+    "+"
+    | "-"
+    | "*"
+    | "/"
 }
-input = _{ SOI ~  ~ EOI }
+
+term = {
+    number | identifier
+}
+
+// Math expressions
+math_expr = {
+    term ~ math_op ~ expr
+}
+
+// Valid expressions
+expr = {
+    math_expr
+    | identifier ~ assignment ~ expr
+    | number
+    | str
+    | "(" ~ expr ~ ")"
+    | identifier
+}
+
+valid_input = {
+    expr
+}
+
+input = _{ SOI ~ ((valid_input)* ~ NEWLINE)* ~ EOI }
+WHITESPACE = _{ " " | "\t" }
