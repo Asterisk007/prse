@@ -96,50 +96,42 @@ Function_call::Function_call(const int line, const string& id, vector<const Expr
 :line(line), id(id), params(params){}
 
 const Constant* Function_call::as_const() const {
-    // Check whether this is a standard library function
+    // Check if function call is a terminal IO function
     if (id == "print" || id == "println") {
-        if (Library::instance().using_library("io")){
-            string ret_s = "std::cout << ";
-            for (int i = 0; i < (int)params.size(); i++){
-                ret_s += params[i]->as_const()->value();
-                if (i < (int)params.size()-1)
-                    ret_s += " << ";
-            }
-            if (id == "println")
-                ret_s += " << std::endl";
-            return ret(new Constant(PRSE_type::T_VOID, ret_s));
-        } else {
-            // Toss out an error for not adding a `use "io"`
-            Error::error(Error::UNDEFINED_FUNCTION, id, "", "", line);
-            return ret(new Constant(PRSE_type::NO_TYPE, ""));
+        Library::instance().lib_required["io"] = true;
+        string ret_s = "std::cout << ";
+        for (int i = 0; i < (int)params.size(); i++){
+            ret_s += params[i]->as_const()->value();
+            if (i < (int)params.size()-1)
+                ret_s += " << ";
         }
+        if (id == "println")
+            ret_s += " << std::endl";
+        return ret(new Constant(PRSE_type::T_VOID, ret_s));
     } else if (id == "get_input"){
-        if (Library::instance().using_library("io")){
-            if ((int)params.size() == 0){
-                Error::error(Error::UNDEFINED_FUNCTION, id, "", "", line);
-                return ret(new Constant(PRSE_type::NO_TYPE, ""));
-            } else {
-                Table_handler& th = Table_handler::instance();
-                bool all_clear = true;
-                for (auto a : params){
-                    if (th.lookup(a->as_const()->value()) == nullptr){
-                        Error::error(Error::VARIABLE_NOT_DEFINED_IN_SCOPE, id, "", "", line);
-                        all_clear = false;
-                    }
-                }
-                if (all_clear){
-                    string ret_s = "std::cin >> ";
-                    for (int i = 0; i < (int)params.size(); i++){
-                        ret_s += params[i]->as_const()->value();
-                        if (i < (int)params.size()-1)
-                            ret_s += " >> ";
-                    }
-                    return ret(new Constant(PRSE_type::T_VOID, ret_s));
+        Library::instance().lib_required["io"] = true;
+        if ((int)params.size() == 0){
+            Error::error(Error::UNDEFINED_FUNCTION, id, "", "", line);
+            cout << "Note - line " << line << ": get_input requires at least one parameter, but zero were provided." << endl;
+            return ret(new Constant(PRSE_type::NO_TYPE, ""));
+        } else {
+            Table_handler& th = Table_handler::instance();
+            bool all_clear = true;
+            for (auto a : params){
+                if (th.lookup(a->as_const()->value()) == nullptr){
+                    Error::error(Error::VARIABLE_NOT_DEFINED_IN_SCOPE, id, "", "", line);
+                    all_clear = false;
                 }
             }
-        } else {
-            // Toss out an error for not adding a `use "io"`
-            Error::error(Error::UNDEFINED_FUNCTION, id, "", "", line);
+            if (all_clear){
+                string ret_s = "std::cin >> ";
+                for (int i = 0; i < (int)params.size(); i++){
+                    ret_s += params[i]->as_const()->value();
+                    if (i < (int)params.size()-1)
+                        ret_s += " >> ";
+                }
+                return ret(new Constant(PRSE_type::T_VOID, ret_s));
+            }
             return ret(new Constant(PRSE_type::NO_TYPE, ""));
         }
     }
@@ -162,7 +154,13 @@ const Constant* Function_call::as_const() const {
         if (candidates.size() > 0){
             for (int i = 0; i < (int)candidates.size(); i++){
                 cout << "Note - line " << candidates[i]->get_line_num() << ": function '" << candidates[i]->get_id()
-                << "' requires " << candidates[i]->get_parameters().size() << " parameters, but " << params.size() << " were provided." << endl;
+                << "' requires ";
+                if (candidates[i]->is_variadic)
+                    cout << "at least ";
+                cout << candidates[i]->get_parameters().size() << " parameter";
+                if (candidates[i]->get_parameters().size() > 1)
+                    cout << "s";
+                cout <<", but " << params.size() << " were provided." << endl;
             }
         }
         return ret(new Constant(PRSE_type::NO_TYPE, ""));

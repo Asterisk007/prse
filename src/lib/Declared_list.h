@@ -31,17 +31,20 @@ private:
     string id;
 public:
     Function_definition();
-    Function_definition(int line, const string& name, PRSE_type return_type, const vector<PRSE_type>& parameter_type);
+    Function_definition(int line, const string& name, PRSE_type return_type, const vector<PRSE_type>& parameter_type, const bool is_variadic=false);
     bool compare_signatures(const Function_declaration&); // Compares the use of of a given function call with this
     PRSE_type get_type(){ return return_type; }
     int get_line_num(){ return line_num; }
     string get_id(){ return id; }
     vector<PRSE_type> get_parameters(){ return parameter_type; }
+    bool is_variadic;
     static Function_definition* get_function_definition(const Function_declaration& fdec);
     static vector<Function_definition*> find_candidates(const Function_declaration& fdec);
     static set<string> defined_functions; // For functions that have been defined at some point in the program
     static set<string> declared_functions; // For functions that should be defined
     static vector<Function_definition*> definitions; // The point in the program where functions are defined.
+    static vector<Function_definition*> definitions_in_current_file; // Functions defined in this file
+    static bool main_in_current_file;
     static void cleanup();
 };
 

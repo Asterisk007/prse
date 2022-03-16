@@ -3,7 +3,7 @@ set(CMAKE_CXX_COMPILER "/usr/bin/g++")
 add_compile_options(
     -Wall
     -g
-    -Wno-unused-function -Wno-unneeded-internal-declaration
+    -Wno-unused-function
 )
 
 if(CMAKE_BUILD_TYPE EQUAL Release)

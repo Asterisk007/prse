@@ -20,25 +20,25 @@ private:
         args = map<string, bool>();
         // Add valid arguments to the list.
         valid_args.insert(valid_args.end(),
-            {
-                "--cpp",
-                "--check",
-                "-g",
-                "-h",
-                "--help",
-                "-o",
-                "-v",
-                "--verbose",
-                "--sacrifice",
-                "--sacrifice=anyways",
-                "--version",
-                "-V",
-                "--nocodes",
-                "-N",
-                "-w",
-                "-Wall",
-                "-Werr"
-            });
+        {
+            "--cpp",
+            "--check",
+            "-g",
+            "-h",
+            "--help",
+            "-o",
+            "-v",
+            "--verbose",
+            "--sacrifice",
+            "--sacrifice=anyways",
+            "--version",
+            "-V",
+            "--nocodes",
+            "-N",
+            "-w",
+            "-Wall",
+            "-Werr"
+        });
         
         /*--cpp*/
         arg_help["--cpp"] = "Only output equivalent C++ files";
@@ -47,7 +47,7 @@ private:
         /*-g*/
         arg_help["-g"] = "Enable debugging flags for use with gdb";
         /*-h, --help*/
-        arg_help["-h, --help"] = "Prints help text";
+        arg_help["-h, --help"] = "Prints this help text";
         /*-o*/
         arg_help["-o"] = "Specify output file name";
         /*-v,--verbose*/

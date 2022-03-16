@@ -6,7 +6,7 @@
 using namespace std;
 // A map of all available standard libraries
 // PRSE's standard library includes:
-/* - io
+/* - io (No longer necessary, built-in functions for printing and getting input)
    - math
    - algorithm
    - vector
@@ -28,4 +28,5 @@ public:
     bool lib_exists(const string& s);
     string get_lib(string s);
     void list_libs();
+    void add_lib(const string& lib);
 };

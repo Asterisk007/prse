@@ -21,7 +21,7 @@ void help_text(){
 }
 
 void version(){
-    printf("prsec (PRSE compiler)\n");
+    printf("prsec -- official PRSE compiler\n");
     if (BETA) {
         printf("Beta compiler, intended to test new features\n");
     }
@@ -126,6 +126,7 @@ int main(int argc, char** argv){
         }  */
         // Go through each input file and parse it
         for (int i = 0; i < (int)input_files.size(); i++){
+            Function_definition::main_in_current_file = false;
             if (VERBOSE){
                 cout << "Processing file " << input_files[i] << endl;
             }
@@ -169,12 +170,49 @@ int main(int argc, char** argv){
                         yylex_destroy();
                         return 1;
                     }
+                    // If current file does not have a main function, create a header file with
+                    // Function and class declarations
+                    if (!Function_definition::main_in_current_file){
+                        ofstream header;
+                        size_t prse_ext = input_files[i].find(".prse");
+                        string header_name = input_files[i].substr(0, prse_ext) + ".h";
+                        cout << "Opening " << header_name << " as header file";
+                        header.open(header_name, fstream::out);
+                        if (!header){
+                            cout << "Error: Could not open " << header_name << " to create C++ declarations." << endl;
+                        } else {
+                            header << "#pragma once";
+
+                            /*
+                            For each PRSE function definition, create a C++ equivalent.
+                            Format is `<return type> <name>(<params>);`
+                            */
+                            for (int k = 0; k < (int)Function_definition::definitions_in_current_file.size(); k++){
+                                Function_definition fd = *(Function_definition::definitions_in_current_file[k]);
+
+                                PRSE_type func_return_type = fd.get_type();
+                                string func_name = fd.get_id();
+                                vector<PRSE_type> func_params = fd.get_parameters();
+
+                                header << prse_type_to_string(func_return_type) << " " << func_name << "(";
+                                for (int param_it = 0; param_it < (int)func_params.size(); param_it++){
+                                    header << func_params[param_it];
+                                    if (param_it < (int)func_params.size()-1)
+                                        header << ", ";
+                                }
+                                header << ");\n";
+                            }
+                            header.close();
+                        }
+                    }
                 } else {
                     if (VERBOSE){
                         cout << "File " << input_files[i] << " compiled successfully." << endl;
                     }
                 }
-            }   
+            }
+            // Clear function definitions in current file.
+            Function_definition::definitions_in_current_file.resize(0);
         }
     }
     // If no PRSE files are provided, return an error.

@@ -270,11 +270,12 @@ import_statement:
 
                 // I have to do this nonsense because format() isn't a thing in clang yet,
                 // and I don't much feel like implementing it myself.
-                *t += "#include <"; *t += lib.get_lib(s); *t += ">\n";
-            } else {
-                // Otherwise, ignore it
-                // IMPLEMENT! error for unknown library
-                cerr << "Line " << line_count << ": unknown library \"" << s << "\"" << endl;
+                *t += "#include <" + lib.get_lib(s) + ">\n";
+            }
+            // Otherwise, if no library is available,
+            // assume it is a file in the current directory.
+            else {
+                *t += "#include <" + s + ".h" + ">\n";
             }
         }
         delete $2;
@@ -645,6 +646,7 @@ function_header:
             if ( !($6 & (PRSE_type::T_INT | PRSE_type::T_VOID)) ){
                 Error::error(Error::INVALID_RETURN_TYPE_FOR_MAIN);
             }
+            Function_definition::main_in_current_file = true;
         }
         vector<PRSE_type> params;
         vector<shared_ptr<Symbol>> syms;
@@ -684,7 +686,9 @@ function_header:
             Error::error(Error::FUNCTION_WITH_RETURN_TYPE_ALREADY_DEFINED, *$2, h);
         } else {
             //cerr << "Function " << *$2 << " has return type " << prse_type_to_string($6) << endl;
-            Function_definition::definitions.push_back(new Function_definition(line_count, *$2, $6, params));
+            Function_definition* this_function = new Function_definition(line_count, *$2, $6, params);
+            Function_definition::definitions.push_back(this_function);
+            Function_definition::definitions_in_current_file.push_back(this_function);
             $$ = new Function_header(line_count, *$2, $6, syms);
         }
         delete $2; delete $4;
@@ -790,11 +794,11 @@ non_empty_expression:
     | expression DOLLAR basic_type {
         $$ = new Cast(line_count, $1, $3);
     }
-    | expression DOLLAR LENGTH {
+    /*| expression DOLLAR LENGTH {
         //$$; $1; $3;
         $$ = nullptr;
         printf("TODO on line %d\n", __LINE__);
-    }
+    }*/
     | expression PLUS expression {
         $$ = new Plus(line_count, $1, $3);
     }
