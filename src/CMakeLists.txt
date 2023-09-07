@@ -22,6 +22,8 @@ project(prsec VERSION 0.0.3)
 # Bison and Flex files
 find_package(BISON 3.7.1)
 find_package(FLEX 2.6.4)
+# fmt library
+find_package(fmt)
 
 bison_target(prse_parser ${CMAKE_CURRENT_SOURCE_DIR}/prse.y ${CMAKE_CURRENT_SOURCE_DIR}/prse.tab.cpp
     COMPILE_FLAGS "${BISON_ARGS} -Wcounterexamples"
@@ -31,6 +33,7 @@ flex_target(prse_scanner ${CMAKE_CURRENT_SOURCE_DIR}/prse.l ${CMAKE_CURRENT_SOUR
 add_flex_bison_dependency(prse_scanner prse_parser)
 
 add_executable(${PROJECT_NAME} prse.cpp ${BISON_prse_parser_OUTPUTS} ${FLEX_prse_scanner_OUTPUTS})
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 
 file(GLOB_RECURSE lib_sources ./lib/*.cpp)
 #file(GLOB expr_sources ./lib/expressions/*.cpp)

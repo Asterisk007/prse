@@ -8,7 +8,7 @@
     #include <map>
     #include <regex>
     #include <stdexcept>
-    //#include <format> //TODO: format is coming in C++2020. Wait for clang to support it. https://wg21.link/P0645R10
+    #include <fmt/core.h>
     #include "parser.h"
 
     using namespace std;
@@ -61,7 +61,7 @@
 // Key tokens
 %token USE 				   	"use"
 %token LET 				   	"let"
-%token SET              "set"
+%token SET                  "set"
 %token FUNCTION 		   	"function"
 %token RETURN 			   	"return"
 %token CLASS			   	"class"
@@ -267,15 +267,12 @@ import_statement:
             if (lib.lib_exists(s)) {
                 lib.lib_used[s] = true;
                 // If so, add it to the output buffer
-
-                // I have to do this nonsense because format() isn't a thing in clang yet,
-                // and I don't much feel like implementing it myself.
-                *t += "#include <" + lib.get_lib(s) + ">\n";
+                *t += fmt::format("#include <{}>\n", lib.get_lib(s));
             }
             // Otherwise, if no library is available,
             // assume it is a file in the current directory.
             else {
-                *t += "#include <" + s + ".h" + ">\n";
+                *t += fmt::format("#include <{}>\n", s + ".h");;
             }
         }
         delete $2;
