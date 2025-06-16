@@ -26,6 +26,9 @@ private:
             "-g",
             "-h",
             "--help",
+            "--explain",
+            "--docs",
+            "--prsedoc",
             "-o",
             "-v",
             "--verbose",
@@ -48,6 +51,8 @@ private:
         arg_help["-g"] = "Enable debugging flags for use with gdb";
         /*-h, --help*/
         arg_help["-h, --help"] = "Prints this help text";
+        /* --explain, --docs, --prsedoc */
+        arg_help["--explain, --docs, --prsedoc"] = "Outputs some information related to an error or warning you had.";
         /*-o*/
         arg_help["-o"] = "Specify output file name";
         /*-v,--verbose*/

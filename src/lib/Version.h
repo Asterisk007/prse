@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 // The primary compiler verson
-#define VERSION "0"
-#define SUBVERSION "0"
-#define SUBSUBVERSION "3"
+#define MAJOR "0"
+#define MINOR "0"
+#define PATCH "3"
 #define BETA false

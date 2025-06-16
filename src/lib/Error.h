@@ -9,6 +9,7 @@ using namespace std;
 class Error {
 public:
     enum Error_type {
+        INVALID_USE_FILE_SPECIFIED,
         VARIABLE_DECLARED_BUT_NOT_SET,
         VARIABLE_NOT_DEFINED_IN_SCOPE,
         VARIABLE_ALREADY_DECLARED,
@@ -64,4 +65,12 @@ public:
     static bool show_warnings;
 protected:
     static int warning_count;
+};
+
+class PrseDoc {
+public:
+    static void explain(
+        Error::Error_type error_type,
+        Warning::Warning_type warning_type
+    );
 };

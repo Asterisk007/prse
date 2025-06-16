@@ -173,10 +173,9 @@
 %left LOGIC_OR
 %left LOGIC_AND
 %left LOGIC_EQ LOGIC_NE DOLLAR MODULO
-%right L_SQUARE_BRACKET R_SQUARE_BRACKET
 %left LOGIC_GREATER LOGIC_GREATER_EQUAL LOGIC_LESS LOGIC_LESS_EQUAL
 //%left I_STRING_PART
-%left PLUS MINUS STAR SLASH STAR_ASSIGN SLASH_ASSIGN INCREMENT DECREMENT
+%left PLUS MINUS STAR SLASH
 %%
 
 program:
@@ -184,6 +183,7 @@ program:
         OutputBuffer& output = OutputBuffer::instance();
         // Output import list
         bool need_space = false;
+        
         if ($1 != nullptr){
             need_space = true;
             for (auto a : *$1){
@@ -192,9 +192,9 @@ program:
         }
         // Also output any additional libraries needed from their use in the program
         Library& li = Library::instance();
-        for (auto it = li.lib_required.begin(); it != li.lib_required.end(); it++){
-            if (it->second == true){
-                string t = "#include <"; t += it->first; t += ">\n";
+        for (auto library = li.lib_required.begin(); library != li.lib_required.end(); library++){
+            if (library->second == true){
+                string t = "#include <" + li.get_lib(library->first) + ">\n";
                 output.add_line(t);
                 need_space = true;
             }
@@ -229,9 +229,11 @@ program:
                 def_strings.push_back(t);
             }
         }
-        for (int i = 0; i < (int)def_strings.size(); i++)
+        
+        for (int i = 0; i < (int)def_strings.size(); i++) {
             output.add_line(def_strings[i]);
-
+        }
+        
         // Output function/class/global variable definitions
         if ($2 != nullptr){
             for (auto a : *$2){
@@ -260,23 +262,30 @@ import_statement:
 	USE libraries_list {
         Library& lib = Library::instance();
         // Iterate over a given list of libraries
-        vector<string>* l = $2;
-        string* t = new string("");
-        for (auto s : *l) {
+        vector<string>* library_list = $2;
+        string* return_string = nullptr;
+        for (auto library_str : *library_list) {
             // Check if provided library is available
-            if (lib.lib_exists(s)) {
-                lib.lib_used[s] = true;
+            if (lib.lib_exists(library_str)) {
+                lib.lib_used[library_str] = true;
                 // If so, add it to the output buffer
-                *t += fmt::format("#include <{}>\n", lib.get_lib(s));
+                return_string = new string(fmt::format("#include <{}>\n", lib.get_lib(library_str)));
             }
             // Otherwise, if no library is available,
             // assume it is a file in the current directory.
             else {
-                *t += fmt::format("#include <{}>\n", s + ".h");;
+                // Format this as "X.h", where X =  "Y.prse"
+                int prse_ext_position = library_str.find(".prse");
+                if (!(prse_ext_position > 0)) {
+                    Error::error(Error::INVALID_USE_FILE_SPECIFIED);
+                    $$ = nullptr;
+                }
+                string formatted_str = string(library_str).substr(0, prse_ext_position);
+                return_string = new string(fmt::format("#include \"{}\"\n", formatted_str + ".hpp"));
             }
         }
         delete $2;
-        $$ = t;
+        $$ = return_string;
 	}
     /*| error { yyerrok; }*/
 	;

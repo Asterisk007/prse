@@ -6,7 +6,7 @@ add_compile_options(
     -Wno-unused-function
 )
 
-if(CMAKE_BUILD_TYPE EQUAL Release)
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
 # Compiler should NOT produce errors for release build
 add_compile_options(-Werror)
 set(BISON_ARGS "-Wall -Werror")
@@ -23,7 +23,13 @@ project(prsec VERSION 0.0.3)
 find_package(BISON 3.7.1)
 find_package(FLEX 2.6.4)
 # fmt library
-find_package(fmt)
+include(FetchContent)
+
+FetchContent_Declare(
+  fmt
+  GIT_REPOSITORY https://github.com/fmtlib/fmt
+  GIT_TAG        b50e685db996c167e6c831dcef582aba6e14276a) # 11.0.1
+FetchContent_MakeAvailable(fmt)
 
 bison_target(prse_parser ${CMAKE_CURRENT_SOURCE_DIR}/prse.y ${CMAKE_CURRENT_SOURCE_DIR}/prse.tab.cpp
     COMPILE_FLAGS "${BISON_ARGS} -Wcounterexamples"
@@ -40,7 +46,7 @@ file(GLOB_RECURSE lib_sources ./lib/*.cpp)
 add_library(lib ${lib_sources})
 #add_library(expressions ${expr_sources})
 
-target_link_libraries(prsec PUBLIC lib)
+target_link_libraries(prsec PUBLIC lib fmt::fmt)
 
 set(CMAKE_CXX_STANDARD 2a)
 set(CMAKE_CXX_STANDARD_REQUIRED True)

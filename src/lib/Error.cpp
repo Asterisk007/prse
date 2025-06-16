@@ -6,7 +6,6 @@
 
 #include <iostream>
 
-// TODO: work out new error code names
 /* Error codes:
     DERBY: variable declared but not set
     NOHAT: variable used but not declared
@@ -35,9 +34,12 @@ void Error::error(
     const string& s2,
     const string& s3,
     const int line_override
-    ){
+){
     cout << "PRSERR: Line " << line_override << ": ";
     switch (error_type){
+        case INVALID_USE_FILE_SPECIFIED:
+            cout << "'use' statement must include '.prse' extension if it is not in the stdlib";
+            break;
         case VARIABLE_DECLARED_BUT_NOT_SET:
             cout << "variable '" << s1 << "' was declared, but not set";
             break;
@@ -172,6 +174,9 @@ void Error::error(
             case OTHER:
                 cout << "(SOMETHINGELSE Error)";
                 break;
+            default:
+                cout << "(No error code for this. Enum value is " << error_type << ")";
+                break;
         }
     }
     cout << endl;
@@ -187,7 +192,7 @@ void Warning::warning(
         const string& s2,
         const string& s3,
         const int line_override
-    ){
+){
     if (show_warnings == false) { return; }
 
     cout << "PRSEWARN: Line " << line_override << ": ";
@@ -205,4 +210,31 @@ void Warning::warning(
     }
     cout << endl;
     warning_count++;
+}
+
+void PrseDoc::explain(
+    Error::Error_type error_type,
+    Warning::Warning_type warning_type
+) {
+    if (error_type != -1 && warning_type == -1) {
+        switch (error_type) {
+            case Error::INVALID_USE_FILE_SPECIFIED:
+                cout << "'use' statements expect both the name of the file and the .prse extension, like so:" << endl;
+                cout << "use \"foo.prse\"" << endl;
+                break;
+            default:
+                cout << "Nothing here yet." << endl;
+                break;
+        }
+    }
+    else if (warning_type != -1 && error_type == -1) {
+        switch (warning_type) {
+            default:
+                cout << "No documentation available for Warning_type " << warning_type << endl;
+                break;
+        }
+    }
+    else {
+        cout << "How did you get here? I checked things beforehand, didn't I?" << endl;
+    }
 }

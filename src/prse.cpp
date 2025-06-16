@@ -8,6 +8,7 @@ using namespace std;
 extern int yylex();
 extern int yyparse();
 extern int yylex_destroy();
+extern void yyrestart( FILE *new_file );
 extern int line_count;
 
 void yyerror(const char* error){
@@ -25,15 +26,19 @@ void version(){
     if (BETA) {
         printf("Beta compiler, intended to test new features\n");
     }
-    printf( "Version %s.%s.%s\n", VERSION, SUBVERSION, SUBSUBVERSION);
-            //"Documentation available online at https://gitlab.com/Asterisk007/prse/-/wikis/docs/home\n", VERSION, SUBVERSION, SUBSUBVERSION);
+    printf( "Version %s.%s.%s\n", MAJOR, MINOR, PATCH);
+            //"Documentation available online at https://gitlab.com/Asterisk007/prse/-/wikis/docs/home\n", MAJOR, MINOR, PATCH);
 }
 
 int main(int argc, char** argv){
     #ifdef DEBUG
-        printf( "DEBUG BUILD HAS BEEN ENABLED. ENSURE YOU DISABLE IT FOR RELEASE.\n"
-                "> use cmake -DCMAKE_BUILD_TYPE=Release .. <\n"
-                "(If you are seeing this message from a public build, let me know: https://github.com/asterisk007)\n");
+        printf(
+            "================================================================\n"
+            "DEBUG BUILD HAS BEEN ENABLED. ENSURE YOU DISABLE IT FOR RELEASE.\n"
+            "use: $ cmake -DCMAKE_BUILD_TYPE=Release ..\n"
+            "(If you are seeing this message from a public build, let me know: https://github.com/asterisk007)\n"
+            "================================================================\n\n"
+        );
     #endif
     
     string output_filename = "";
@@ -48,8 +53,11 @@ int main(int argc, char** argv){
         string file_candidate = string(argv[i]);
         string filetype = ".prse";
         // If string is a file, check that we can open it.
-        // '!' is necessary to reverse the logical FALSE return value, which means it matches.
-        if (file_candidate.length() > filetype.length() && !file_candidate.compare(file_candidate.length() - filetype.length(), filetype.length(), filetype)){
+        if (
+            file_candidate.length() > filetype.length()
+            // '!' is necessary to reverse the logical FALSE return value, which means it matches.
+            && !file_candidate.compare(file_candidate.length() - filetype.length(), filetype.length(), filetype)
+        ){
             FILE* file = fopen(file_candidate.c_str(), "r");
             if (!file){
                 fprintf(stderr, "Could not open file \"%s\"\n", file_candidate.c_str());
@@ -99,6 +107,9 @@ int main(int argc, char** argv){
     if (cmd_args.get_arg("-w")){
         Warning::show_warnings = false;
     }
+    if (cmd_args.get_arg("--explain") || cmd_args.get_arg("--docs") || cmd_args.get_arg("--prsedoc")) {
+        cout << "Haven't implemented this yet." << endl;
+    }
     extern FILE* yyin;
 
     // Initialize the standard PRSE library, which contains
@@ -110,21 +121,7 @@ int main(int argc, char** argv){
 
     // Check that at least one file has been provided as input on the command line.
     if ((int)input_files.size() > 0){
-        /* if (cmd_args.get_arg("--sacrifice") == true && cmd_args.get_arg("--sacrifice=anyways") == false){
-            cout << "The PRSE compiler accepts your humble sacrifice." << endl;
-            cout << "If your code compiles, your file shall be spared." << endl;
-            cout << "If not, it will be deleted forever, and you will have to start from scratch!" << endl;
-            cout << "We accept take-backsies, however! Confirm that you wish to sacrifice file: " << input_files[i] << "? [Y/n]" << endl;
-        } else if (cmd_args.get_arg("--sacrifice=anyways")) {
-            cout << "The PRSE compiler accepts your humble sacrifice." << endl;
-            cout << "Your source file, " << input_files[i] << " will be deleted." << endl;
-            cout << "If any errors are found, no binary will be produced." << endl;
-            cout << "If no errors are found, you will be left with only your binary." << endl;
-            cout << "Since you set --sacrifice to 'anyways', we will not ask for confirmation." << endl;
-            cout << "Hold your breath!" << endl;
-            // TODO: Delay by X seconds.
-        }  */
-        // Go through each input file and parse it
+        // Go through each input file and PRSE it
         for (int i = 0; i < (int)input_files.size(); i++){
             Function_definition::main_in_current_file = false;
             if (VERBOSE){
@@ -132,7 +129,7 @@ int main(int argc, char** argv){
             }
             yyin = fopen(input_files[i].c_str(), "r");
             // reset the Flex buffer for the next file.
-            //yyrestart(yyin);
+            yyrestart(yyin);
             if (!yyin) {
                 cerr << "Could not open " << input_files[i] << endl;
             } else {
@@ -144,9 +141,7 @@ int main(int argc, char** argv){
                 fclose(yyin);
                 if (Error::num_errors() > 0) {
                     // return 1;
-                    cout << Error::num_errors() << " error";
-                    if (Error::num_errors() > 1) cout << "s";
-                    cout << " found in program. No output will be produced." << endl;
+                    printf("%d error%s found in program. No output will be produced.\n", Error::num_errors(), (Error::num_errors() > 1 ? "s" : ""));
                     Function_definition::cleanup();
                     yylex_destroy();
                     return 1;
@@ -175,13 +170,17 @@ int main(int argc, char** argv){
                     if (!Function_definition::main_in_current_file){
                         ofstream header;
                         size_t prse_ext = input_files[i].find(".prse");
-                        string header_name = input_files[i].substr(0, prse_ext) + ".h";
-                        cout << "Opening " << header_name << " as header file";
+                        string header_name = input_files[i].substr(0, prse_ext) + ".hpp";
+                        
+                        if (VERBOSE) {
+                            cout << "Opening " << header_name << " as header file" << endl;
+                        }
+                        
                         header.open(header_name, fstream::out);
                         if (!header){
                             cout << "Error: Could not open " << header_name << " to create C++ declarations." << endl;
                         } else {
-                            header << "#pragma once";
+                            header << "#pragma once" << endl;
 
                             /*
                             For each PRSE function definition, create a C++ equivalent.
@@ -193,18 +192,30 @@ int main(int argc, char** argv){
                                 PRSE_type func_return_type = fd.get_type();
                                 string func_name = fd.get_id();
                                 vector<PRSE_type> func_params = fd.get_parameters();
-
-                                header << prse_type_to_string(func_return_type) << " " << func_name << "(";
+                                
+                                string line = prse_type_to_string(func_return_type) + " " + func_name + "(";
+                                    
                                 for (int param_it = 0; param_it < (int)func_params.size(); param_it++){
-                                    header << func_params[param_it];
-                                    if (param_it < (int)func_params.size()-1)
-                                        header << ", ";
+                                    line += prse_type_to_string(func_params[param_it]);
+                                    
+                                    if (param_it < (int)func_params.size()-1) {
+                                        line += ", ";
+                                    }
                                 }
-                                header << ");\n";
+                                
+                                line += ");\n";
+                                
+                                header << line;
+                                
+                                if (VERBOSE) {
+                                    cout << line;
+                                }
                             }
-                            header.close();
                         }
+                        header.close();
+                        output_files.push_back(header_name);
                     }
+                    output.clear_buffer();
                 } else {
                     if (VERBOSE){
                         cout << "File " << input_files[i] << " compiled successfully." << endl;
@@ -225,16 +236,22 @@ int main(int argc, char** argv){
     // .cpp files into a single binary
     if (!cmd_args.get_arg("--cpp") && !cmd_args.get_arg("--check")){
         string files = "";
+        string compilation_files = "";
         for (int i = 0; i < (int)output_files.size(); i++){
+            // Prevent created .hpp files from being included in compilation.
+            if (output_files[i].find(".hpp") == string::npos) {
+                compilation_files += (output_files[i] + " ");
+            }
+            
             files += (output_files[i] + " ");
         }
 
         if (output_filename != ""){
-            string p = string("clang++ -std=c++17 -o " + output_filename + " " + files);
+            string p = string("clang++ -std=c++17 -o " + output_filename + " " + compilation_files);
             if (cmd_args.VERBOSE()) cout << p << endl;
             system(p.c_str());
         } else {
-            string p = string("clang++ -std=c++17 " + files);
+            string p = string("clang++ -std=c++17 " + compilation_files);
             if (cmd_args.VERBOSE()) cout << p << endl;
             system(p.c_str());
         }
