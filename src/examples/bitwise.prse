@@ -4,6 +4,8 @@ func main(){
     let a : int = 15;
     let b : int = 16;
     let c : int = a ^ b;
+    let d : int = 15 ^ 16;
     println("hello world");
     println(c);
+    println(d);
 }
