@@ -1,0 +1,9 @@
+use "io"
+
+func main(){
+    let a : int = 15;
+    let b : int = 16;
+    let c : int = a ^ b;
+    println("hello world");
+    println(c);
+}
