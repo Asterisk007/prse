@@ -59,7 +59,7 @@ length|len|size         { return LENGTH; }
 \-                           { return MINUS; }
 \*                           { return STAR; }
 \/                           { return SLASH; }
-\^                           { return CARET; }
+\^                           { return XOR; }
 \%                           { return MODULO; }
 
 "++"                         { return INCREMENT; }

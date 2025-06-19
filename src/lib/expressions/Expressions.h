@@ -14,3 +14,4 @@
 #include "Program_expression.h"
 #include "Singleton.h"
 #include "Variable.h"
+#include "Bitwise.h"

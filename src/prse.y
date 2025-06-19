@@ -78,7 +78,7 @@
 %token MINUS 			   	"-"
 %token STAR 			   	"*"
 %token SLASH 			   	"/"
-%token CARET 			   	"^"
+%token XOR                  "^"
 %token MODULO               "%"
 %token INCREMENT 		   	"++"
 %token DECREMENT 		   	"--"
@@ -175,7 +175,7 @@
 %left LOGIC_EQ LOGIC_NE DOLLAR MODULO
 %left LOGIC_GREATER LOGIC_GREATER_EQUAL LOGIC_LESS LOGIC_LESS_EQUAL
 //%left I_STRING_PART
-%left PLUS MINUS STAR SLASH
+%left PLUS MINUS STAR SLASH XOR
 %%
 
 program:
@@ -843,6 +843,9 @@ non_empty_expression:
     }
     | expression LOGIC_OR expression {
         $$ = new Logic_Or($1, $3);
+    }
+    | expression XOR expression {
+        $$ = new Xor(line_count, $1, $3);
     }
     ;
 
