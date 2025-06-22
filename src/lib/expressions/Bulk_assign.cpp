@@ -30,7 +30,7 @@ const Constant* Bulk_assign::as_const() const {
             #ifdef DEBUG
                 printf("Bulk assign type has no case in switch in Bulk_assign.cpp");
             #endif
-            Error::error(Error::OTHER, "CRITICAL ERROR: No case in switch statement for bulk assign type " + op_type);
+            Error::error(Error::OTHER, {"CRITICAL ERROR: No case in switch statement for bulk assign type " + std::to_string(op_type)});
     }
 
     if (lhs != nullptr && rhs != nullptr && assign_type != "") {
@@ -38,10 +38,10 @@ const Constant* Bulk_assign::as_const() const {
         auto l = lhs->as_const();
         auto r = rhs->as_const();
         if (!(l->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "lhs", prse_type_to_string(l->type()), "bulk assign", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, {"lhs", prse_type_to_string(l->type()), "bulk assign", std::to_string(line)});
         }
         if (!(r->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "rhs", prse_type_to_string(l->type()), "bulk assign", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, {"rhs", prse_type_to_string(r->type()), "bulk assign", std::to_string(line)});
         }
         string it_name = l->value() + "_iterator";
         string t = "for (int " + it_name + " = 0; i < " + it_name + ".size(); " + it_name + "++";
@@ -51,7 +51,7 @@ const Constant* Bulk_assign::as_const() const {
     // Return string for ++, --
         auto l = lhs->as_const();
         if (!(l->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "lhs", prse_type_to_string(l->type()), "bulk assign", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, {"lhs", prse_type_to_string(l->type()), "bulk assign", std::to_string(line)});
         }
         string it_name = l->value() + "_iterator";
         string t = "for (int " + it_name + " = 0; i < " + it_name + ".size(); " + it_name + "++";

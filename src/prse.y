@@ -172,10 +172,11 @@
 
 %left LOGIC_OR
 %left LOGIC_AND
-%left LOGIC_EQ LOGIC_NE DOLLAR MODULO
+%left LOGIC_EQ LOGIC_NE MODULO
 %left LOGIC_GREATER LOGIC_GREATER_EQUAL LOGIC_LESS LOGIC_LESS_EQUAL
 //%left I_STRING_PART
 %left PLUS MINUS STAR SLASH
+%precedence DOLLAR
 %%
 
 program:
@@ -398,7 +399,7 @@ variable_definition:
         if ($4 != PRSE_type::T_VOID){
             $$ = new Variable_definition(line_count, *$2, $4, $6, 0);
         } else {
-            Error::error(Error::INVALID_TYPE_FOR_VARIABLE, prse_type_to_string($4));
+            Error::error(Error::INVALID_TYPE_FOR_VARIABLE, { prse_type_to_string($4) });
             $$ = nullptr;
         }
         delete $2;
@@ -407,7 +408,7 @@ variable_definition:
         if ($4 != PRSE_type::T_VOID){
             $$ = new Variable_definition(line_count, *$2, $4, $6, 0);
         } else {
-            Error::error(Error::INVALID_TYPE_FOR_VARIABLE, prse_type_to_string($4));
+            Error::error(Error::INVALID_TYPE_FOR_VARIABLE, { prse_type_to_string($4) });
             $$ = nullptr;
         }
         delete $2;
@@ -420,14 +421,14 @@ variable_definition:
             int size = 1;
             $$ = new Variable_definition(line_count, *$2, $4, *$9, size);
         } else {
-            Error::error(Error::INVALID_TYPE_FOR_VARIABLE, prse_type_to_string($4));
+            Error::error(Error::INVALID_TYPE_FOR_VARIABLE, { prse_type_to_string($4) });
             $$ = nullptr;
         }
         delete $2; delete $9;
     }
     | LET ID COLON variable_type {
         $$ = nullptr;
-        Error::error(Error::VARIABLE_DECLARED_BUT_NOT_SET, *$2);
+        Error::error(Error::VARIABLE_DECLARED_BUT_NOT_SET, { *$2 });
         delete $2;
     }
     /*| error { yyerrok; }*/
@@ -664,7 +665,7 @@ function_header:
             // iterate through.
             if (*$2 == "main"){
                 if ((int)$4->size() > 0){
-                    Error::error(Error::INCORRECT_NUMBER_OF_PARAMETERS_FOR_MAIN, to_string((int)$4->size()));
+                    Error::error(Error::INCORRECT_NUMBER_OF_PARAMETERS_FOR_MAIN, { to_string((int)$4->size()) });
                 }
             } else {
                 for (int i = 0; i < (int)$4->size(); i++) {
@@ -689,12 +690,13 @@ function_header:
                 if (i < (int)params.size()-1)
                     h += ", ";
             }
-            Error::error(Error::FUNCTION_WITH_RETURN_TYPE_ALREADY_DEFINED, *$2, h);
-        } else {
-            //cerr << "Function " << *$2 << " has return type " << prse_type_to_string($6) << endl;
+            Error::error(Error::FUNCTION_WITH_RETURN_TYPE_ALREADY_DEFINED, { *$2, h });
+        } else { 
             Function_definition* this_function = new Function_definition(line_count, *$2, $6, params);
             Function_definition::definitions.push_back(this_function);
-            Function_definition::definitions_in_current_file.push_back(this_function);
+            
+            Function_definition* in_this_file = new Function_definition(line_count, *$2, $6, params);
+            Function_definition::definitions_in_current_file.push_back(in_this_file);
             $$ = new Function_header(line_count, *$2, $6, syms);
         }
         delete $2; delete $4;
@@ -1006,7 +1008,8 @@ constant:
     /*| error { yyerrok; }*/
     ;
 
-/*interpolated_string:
+/*
+interpolated_string:
     DOLLAR i_string_segment_list {
         $$ = $2;
     }
@@ -1080,7 +1083,8 @@ i_string_middle:
         delete $1;
         $$ = l;
     }
-    ;*/
+    ;
+*/
 
 variable_type:
     basic_type {

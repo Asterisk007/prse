@@ -30,9 +30,7 @@ bool Warning::show_warnings = true;
 
 void Error::error(
     const Error_type error_type,
-    const string& s1,
-    const string& s2,
-    const string& s3,
+    const vector<string>& details,
     const int line_override
 ){
     cout << "PRSERR: Line " << line_override << ": ";
@@ -41,16 +39,16 @@ void Error::error(
             cout << "'use' statement must include '.prse' extension if it is not in the stdlib";
             break;
         case VARIABLE_DECLARED_BUT_NOT_SET:
-            cout << "variable '" << s1 << "' was declared, but not set";
+            cout << "variable '" << details[0] << "' was declared, but not set";
             break;
         case VARIABLE_NOT_DEFINED_IN_SCOPE:
-            cout << "variable '" << s1 << "' is not defined in this scope";
+            cout << "variable '" << details[0] << "' is not defined in this scope";
             break;
         case VARIABLE_ALREADY_DECLARED:
-            cout << "variable '" << s1 << "' was already declared";
+            cout << "variable '" << details[0] << "' was already declared";
             break;
         case VARIABLE_IS_NOT_AN_ARRAY:
-            cout << "variable '" << s1 << "' is not an array, but is being used as if it was.";
+            cout << "variable '" << details[0] << "' is not an array, but is being used as if it was.";
             break;
         case ARRAY_SUBSCRIPT_MUST_BE_AN_INTEGER_VALUE:
             cout << "array elements must only be accessed with integers";
@@ -59,51 +57,52 @@ void Error::error(
             cout << "implicitly typed variables must be assigned a non-null value";
             break;
         case INVALID_TYPE_FOR_VARIABLE:
-            cout << "data type '" << s1 << "' is not a valid variable type" << endl;
+            cout << "data type '" << details[0] << "' is not a valid variable type" << endl;
             cout << "Available types are: bool, int, double, character, string (incl. interpolated string)";
             break;
         case INVALID_EXPRESSION_TYPE_FOR_OPERATION:
-            cout << s1 << " expression type " << s2 << " is invalid for operation '" << s3 << "'";
+            cout << details[0] << " expression type " << details[1] << " is invalid for operation '" << details[2] << "'";
             break;
         case INVALID_EXPRESSION_TYPE_FOR_ARRAY_SIZE:
-            cout << "expression type '" << s1 << "' is not a valid type for array size" << endl;
+            cout << "expression type '" << details[0] << "' is not a valid type for array size" << endl;
             cout << "Valid types are: int";
             break;
         case MISMATCHED_TYPE_FOR_ASSIGNMENT:
-            cout << "expression type (" << s1 << ") does not match variable's type (" << s2 << ")";
+            cout << "expression type (" << details[0] << ") does not match variable's type (" << details[1] << ")";
             break;
         case EXPRESSION_TYPES_DO_NOT_MATCH:
-            cout << "expression type " << s1 << " does not match expression type " << s2;
+            cout << details[2] << " of type " << details[3] << " does not match " << details[0] << " of type " << details[1] << endl;
+            cout << "Hint: Try casting " << details[2] << " to " << details[1] << " using (" << details[2] << ")$" << details[1];
             break;
         case UNDEFINED_FUNCTION:
-            cout << "function call for '" << s1 << "(" << s2  << ")' does not match any defined function";
+            cout << "function call for '" << details[0] << "(" << details[1]  << ")' does not match any defined function";
             break;
         case FUNCTION_WITH_RETURN_TYPE_ALREADY_DEFINED:
-            cout << "function '" << s1 << "' with parameters (" << s2 << ") is already defined";
+            cout << "function '" << details[0] << "' with parameters (" << details[1] << ") is already defined";
             break;
         case NULL_CANNOT_BE_USED_IN_OPERATION:
             cout << "null cannot be used in >, <, >=, <= comparisons";
             break;
         case INCORRECT_NUMBER_OF_PARAMETERS_FOR_MAIN:
-            cout << "function 'main' cannot have any parameters listed (" << s1 << " were added)";
+            cout << "function 'main' cannot have any parameters listed (" << details[0] << " were added)";
             break;
         case INVALID_RETURN_TYPE_FOR_MAIN:
             cout << "function main() can only be of type int or void";
             break;
         case RETURN_VALUE_FOR_FUNCTION_DOES_NOT_MATCH:
-            cout << "expression in return statement has type: " << s1 << ", which does not match the function's return type: " << s2;
+            cout << "expression in return statement has type: " << details[0] << ", which does not match the function's return type: " << details[1];
             break;
         case CONDITION_CANNOT_BE_EMPTY:
             cout << "if and else if conditions cannot be empty";
             break;
         case CONDITION_MUST_BE_BOOLEAN_EXPRESSION:
-            cout << "conditions must be a boolean expression (expression is of type " << s1 << ")";
+            cout << "conditions must be a boolean expression (expression is of type " << details[0] << ")";
             break;
         case UNEXPECTED_ELSE_ELSE_IF:
             cout << "unexpected else or else if. If statement should be placed before this.";
             break;
         case OTHER: // Other error that is not covered. Eg. Critical internal error
-            cout << s1;
+            cout << details[0];
             break;
     }
     error_count++;

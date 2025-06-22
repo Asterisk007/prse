@@ -39,7 +39,7 @@ const Constant* Cast::as_const() const {
                 ret_s += ")";
                 break;
             case T_STRING:
-                ret_s = "string(";
+                ret_s = "std::to_string(";
                 ret_s += lhs->as_const()->value();
                 ret_s += ")";
                 break;

@@ -9,13 +9,13 @@ const Constant* Plus_assign::as_const() const {
         auto r = rhs->as_const();
         bool is_array = (Table_handler::instance().lookup(l->value())->get_size() > 0);
         if (l->type() != r->type()){
-            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, prse_type_to_string(l->type()), prse_type_to_string(r->type()));
+            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, {prse_type_to_string(l->type()), prse_type_to_string(r->type())});
         }
         if (!(l->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "lhs", prse_type_to_string(l->type()), "plus assign", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, {"lhs", prse_type_to_string(l->type()), "plus assign", std::to_string(line)});
         }
         if (!(r->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "rhs", prse_type_to_string(l->type()), "plus assign", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, {"rhs", prse_type_to_string(r->type()), "plus assign", std::to_string(line)});
         }
 
         string t = "";
@@ -40,13 +40,13 @@ string Plus_assign::value() const {
         auto r = rhs->as_const();
         bool is_array = (Table_handler::instance().lookup(l->value())->get_size() > 0);
         if (l->type() != r->type()){
-            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, prse_type_to_string(l->type()), prse_type_to_string(r->type()));
+            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, {prse_type_to_string(l->type()), prse_type_to_string(r->type())});
         }
         if (!(l->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "lhs", prse_type_to_string(l->type()), "plus assign", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, {"lhs", prse_type_to_string(l->type()), "plus assign", std::to_string(line)});
         }
         if (!(r->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "rhs", prse_type_to_string(l->type()), "plus assign", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, {"rhs", prse_type_to_string(r->type()), "plus assign", std::to_string(line)});
         }
 
         string t = "";
@@ -71,13 +71,13 @@ vector<const Constant*> Plus_assign::as_list() const {
         auto l = lhs->as_const();
         auto r = rhs->as_const();
         if ( l->type() == (PRSE_type::T_CHAR | PRSE_type::T_VOID) ){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "lhs", prse_type_to_string(l->type()), "+=", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, {"lhs", prse_type_to_string(l->type()), "+=", std::to_string(line)});
         }
         if ( r->type() == (PRSE_type::T_CHAR | PRSE_type::T_VOID) ){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "rhs", prse_type_to_string(r->type()), "+=", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, {"rhs", prse_type_to_string(r->type()), "+=", std::to_string(line)});
         }
         if (l->type() != r->type()){
-            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, prse_type_to_string(l->type()), prse_type_to_string(r->type()));
+            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, {prse_type_to_string(l->type()), prse_type_to_string(r->type())});
         }
         string t = l->value();
         t += " += "; t += r->value(); t += ";\n";
@@ -93,7 +93,7 @@ const Constant* Minus_assign::as_const() const {
         auto l = lhs->as_const();
         auto r = rhs->as_const();
         if (l->type() != r->type()){
-            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, prse_type_to_string(l->type()), prse_type_to_string(r->type()));
+            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, {prse_type_to_string(l->type()), prse_type_to_string(r->type())});
         }
         string t = l->value();
         t += " -= "; t += r->value(); t += ";\n";
@@ -108,7 +108,7 @@ string Minus_assign::value() const {
         auto l = lhs->as_const();
         auto r = rhs->as_const();
         if (l->type() != r->type()){
-            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, prse_type_to_string(l->type()), prse_type_to_string(r->type()));
+            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, {prse_type_to_string(l->type()), prse_type_to_string(r->type())});
         }
         string t = l->value();
         t += " -= "; t += r->value(); t += ";\n";
@@ -124,7 +124,7 @@ vector<const Constant*> Minus_assign::as_list() const {
         auto l = lhs->as_const();
         auto r = rhs->as_const();
         if (l->type() != r->type()){
-            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, prse_type_to_string(l->type()), prse_type_to_string(r->type()));
+            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, {prse_type_to_string(l->type()), prse_type_to_string(r->type())});
         }
         string t = l->value();
         t += " -= "; t += r->value(); t += ";\n";
@@ -140,7 +140,7 @@ const Constant* Multiply_assign::as_const() const {
         auto l = lhs->as_const();
         auto r = rhs->as_const();
         if (l->type() != r->type()){
-            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, prse_type_to_string(l->type()), prse_type_to_string(r->type()));
+            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, {prse_type_to_string(l->type()), prse_type_to_string(r->type())});
         }
         string t = l->value();
         t += " *= "; t += r->value(); t += ";\n";
@@ -155,7 +155,7 @@ string Multiply_assign::value() const {
         auto l = lhs->as_const();
         auto r = rhs->as_const();
         if (l->type() != r->type()){
-            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, prse_type_to_string(l->type()), prse_type_to_string(r->type()));
+            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, {prse_type_to_string(l->type()), prse_type_to_string(r->type())});
         }
         string t = l->value();
         t += " *= "; t += r->value(); t += ";\n";
@@ -171,7 +171,7 @@ vector<const Constant*> Multiply_assign::as_list() const {
         auto l = lhs->as_const();
         auto r = rhs->as_const();
         if (l->type() != r->type()){
-            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, prse_type_to_string(l->type()), prse_type_to_string(r->type()));
+            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, {prse_type_to_string(l->type()), prse_type_to_string(r->type())});
         }
         string t = l->value();
         t += " *= "; t += r->value(); t += ";\n";
@@ -187,7 +187,7 @@ const Constant* Divide_assign::as_const() const {
         auto l = lhs->as_const();
         auto r = rhs->as_const();
         if (l->type() != r->type()){
-            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, prse_type_to_string(l->type()), prse_type_to_string(r->type()));
+            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, {prse_type_to_string(l->type()), prse_type_to_string(r->type())});
         }
         string t = l->value();
         t += " /= "; t += r->value(); t += ";\n";
@@ -202,7 +202,7 @@ string Divide_assign::value() const{
         auto l = lhs->as_const();
         auto r = rhs->as_const();
         if (l->type() != r->type()){
-            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, prse_type_to_string(l->type()), prse_type_to_string(r->type()));
+            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, {prse_type_to_string(l->type()), prse_type_to_string(r->type())});
         }
         string t = l->value();
         t += " /= "; t += r->value(); t += ";\n";
@@ -218,7 +218,7 @@ vector<const Constant*> Divide_assign::as_list() const {
         auto l = lhs->as_const();
         auto r = rhs->as_const();
         if (l->type() != r->type()){
-            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, prse_type_to_string(l->type()), prse_type_to_string(r->type()));
+            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, {prse_type_to_string(l->type()), prse_type_to_string(r->type())});
         }
         string t = l->value();
         t += " /= "; t += r->value(); t += ";\n";

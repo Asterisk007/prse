@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <vector>
 
 extern int line_count;
 
@@ -34,9 +35,7 @@ public:
     };
     static void error(
         Error_type error_type,
-        const string& s1 = "",
-        const string& s2 = "",
-        const string& s3 = "",
+        const vector<string>& details = {},
         const int line_override = line_count
     );
     static int num_errors();

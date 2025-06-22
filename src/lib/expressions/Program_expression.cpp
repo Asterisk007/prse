@@ -111,7 +111,7 @@ const Constant* Function_call::as_const() const {
     } else if (id == "get_input"){
         Library::instance().lib_required["io"] = true;
         if ((int)params.size() == 0){
-            Error::error(Error::UNDEFINED_FUNCTION, id, "", "", line);
+            Error::error(Error::UNDEFINED_FUNCTION, {id, "", "", std::to_string(line)});
             cout << "Note - line " << line << ": get_input requires at least one parameter, but zero were provided." << endl;
             return ret(new Constant(PRSE_type::NO_TYPE, ""));
         } else {
@@ -119,7 +119,7 @@ const Constant* Function_call::as_const() const {
             bool all_clear = true;
             for (auto a : params){
                 if (th.lookup(a->as_const()->value()) == nullptr){
-                    Error::error(Error::VARIABLE_NOT_DEFINED_IN_SCOPE, id, "", "", line);
+                    Error::error(Error::VARIABLE_NOT_DEFINED_IN_SCOPE, {id, "", "", std::to_string(line)});
                     all_clear = false;
                 }
             }
@@ -149,7 +149,7 @@ const Constant* Function_call::as_const() const {
             if (i < (int)ptl.size()-1)
                 t += ", ";
         }
-        Error::error(Error::UNDEFINED_FUNCTION, id, t, "", line);
+        Error::error(Error::UNDEFINED_FUNCTION, {id, t, "", std::to_string(line)});
         vector<Function_definition*> candidates = Function_definition::find_candidates(Function_declaration(line, id, ptl));
         if (candidates.size() > 0){
             for (int i = 0; i < (int)candidates.size(); i++){
@@ -194,14 +194,14 @@ const Constant* Variable_definition::as_const() const {
     string ret_s = "";
     PRSE_type ret_t = PRSE_type::NO_TYPE;
     if (th.lookup(lhs->as_const()->value()) != nullptr){
-        Error::error(Error::VARIABLE_ALREADY_DECLARED, lhs->as_const()->value(), "", "", line);
+        Error::error(Error::VARIABLE_ALREADY_DECLARED, {lhs->as_const()->value(), "", "", std::to_string(line)});
         return ret(new Constant(ret_t, ret_s));
     }
     // Check that the right hand size expression is not a nullptr,
     // otherwise return an empty value.
     if ( (size > 0 && rhs_list.size() <= 0)
     ||   (size <= 0 && rhs == nullptr)){
-        Error::error(Error::VARIABLE_DECLARED_BUT_NOT_SET, lhs->as_const()->value());
+        Error::error(Error::VARIABLE_DECLARED_BUT_NOT_SET, {lhs->as_const()->value()});
         return ret(new Constant(ret_t, ret_s));
     }
     // Variable type and expression types must match.
@@ -212,7 +212,7 @@ const Constant* Variable_definition::as_const() const {
         // Type is dictated by the first item in the list assigned to the array
         PRSE_type rhs_t = rhs_list[0]->as_const()->type();
         if (lhs_t != rhs_t){
-            Error::error(Error::MISMATCHED_TYPE_FOR_ASSIGNMENT, prse_type_to_string(rhs_t), prse_type_to_string(lhs_t), "", line);
+            Error::error(Error::MISMATCHED_TYPE_FOR_ASSIGNMENT, {prse_type_to_string(rhs_t), prse_type_to_string(lhs_t), "", std::to_string(line)});
             ret_t = PRSE_type::NO_TYPE;
         } else {
             ret_s = "std::vector<";
@@ -224,7 +224,7 @@ const Constant* Variable_definition::as_const() const {
                 for (int i = 0; i < (int)rhs_list.size(); i++){
                     auto cur_t = rhs_list[i]->as_const()->type();
                     if (cur_t != rhs_t){
-                        Error::error(Error::MISMATCHED_TYPE_FOR_ASSIGNMENT, prse_type_to_string(rhs_t), prse_type_to_string(cur_t), "", line);
+                        Error::error(Error::MISMATCHED_TYPE_FOR_ASSIGNMENT, {prse_type_to_string(rhs_t), prse_type_to_string(cur_t), "", std::to_string(line)});
                     }
                     ret_s += rhs_list[i]->as_const()->value();
                     if (i < (int)rhs_list.size()-1)
@@ -243,7 +243,7 @@ const Constant* Variable_definition::as_const() const {
     } else {
         PRSE_type rhs_t = rhs->as_const()->type();
         if (lhs_t != rhs_t){
-            Error::error(Error::MISMATCHED_TYPE_FOR_ASSIGNMENT, prse_type_to_string(rhs_t), prse_type_to_string(lhs_t), "", line);
+            Error::error(Error::MISMATCHED_TYPE_FOR_ASSIGNMENT, {prse_type_to_string(rhs_t), prse_type_to_string(lhs_t), "", std::to_string(line)});
             ret_t = PRSE_type::NO_TYPE;
         } else {
             ret_s = prse_type_to_string(lhs_t);
@@ -276,7 +276,7 @@ const Constant* Variable_assignment::as_const() const {
     string ret_s = "";
     if (lhs_t != rhs_t){
         if ( lhs_t == PRSE_type::T_DOUBLE && !(rhs_t & (PRSE_type::T_INT | PRSE_type::T_DOUBLE)) ){
-            Error::error(Error::MISMATCHED_TYPE_FOR_ASSIGNMENT, prse_type_to_string(rhs_t), prse_type_to_string(lhs_t), "", line);
+            Error::error(Error::MISMATCHED_TYPE_FOR_ASSIGNMENT, {prse_type_to_string(rhs_t), prse_type_to_string(lhs_t), "", std::to_string(line)});
             ret_t = PRSE_type::NO_TYPE;
         } else {
             ret_t = lhs_t;
@@ -301,10 +301,10 @@ Array_element::Array_element(int line, const string nid, const Expression* nsub)
 const Constant* Array_element::as_const() const {
     Table_handler& th = Table_handler::instance();
     if (th.lookup(id) == nullptr){
-        Error::error(Error::VARIABLE_NOT_DEFINED_IN_SCOPE, id, "", "", line);
+        Error::error(Error::VARIABLE_NOT_DEFINED_IN_SCOPE, {id, "", "", std::to_string(line)});
         return ret(new Constant(PRSE_type::NO_TYPE, ""));
     } else if (th.lookup(id)->get_size() <= 0){
-        Error::error(Error::VARIABLE_IS_NOT_AN_ARRAY, id, "", "", line);
+        Error::error(Error::VARIABLE_IS_NOT_AN_ARRAY, {id, "", "", std::to_string(line)});
         return ret(new Constant(PRSE_type::NO_TYPE, ""));
     }
     auto sym = th.lookup(id);
@@ -312,7 +312,7 @@ const Constant* Array_element::as_const() const {
     PRSE_type ret_t = sym->get_type();
     string ret_s = "";
     if (subscript->as_const()->type() != PRSE_type::T_INT){
-        Error::error(Error::ARRAY_SUBSCRIPT_MUST_BE_AN_INTEGER_VALUE, "", "", "", line);
+        Error::error(Error::ARRAY_SUBSCRIPT_MUST_BE_AN_INTEGER_VALUE, {"", "", "", std::to_string(line)});
     }
     ret_s += sym->get_name();
     ret_s += "[";
@@ -348,11 +348,11 @@ const Constant* Ternary_expression::as_const() const {
     string ret_s = "";
     if (condition != nullptr && is_true != nullptr && is_false != nullptr){
         if (condition->as_const()->type() != PRSE_type::T_BOOL){
-            Error::error(Error::CONDITION_MUST_BE_BOOLEAN_EXPRESSION, prse_type_to_string(condition->as_const()->type()), "", "", line);
+            Error::error(Error::CONDITION_MUST_BE_BOOLEAN_EXPRESSION, {prse_type_to_string(condition->as_const()->type()), "", "", std::to_string(line)});
             return ret(new Constant(PRSE_type::NO_TYPE, ""));
         }
         if (is_true->as_const()->type() != is_false->as_const()->type()){
-            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, prse_type_to_string(is_true->as_const()->type()), prse_type_to_string(is_false->as_const()->type()), "", line);
+            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, {prse_type_to_string(is_true->as_const()->type()), prse_type_to_string(is_false->as_const()->type()), "", std::to_string(line)});
             cout << "==> Expressions in ternary assignments must match each other's types." << endl;
             return ret(new Constant(PRSE_type::NO_TYPE, ""));
         } else {
@@ -389,7 +389,7 @@ const Constant* Return_statement::as_const() const {
         rhs_t = rhs->as_const()->type();
     if (rhs_t != Function_definition_expr::current_return_type){
         Error::error(Error::RETURN_VALUE_FOR_FUNCTION_DOES_NOT_MATCH,
-        prse_type_to_string(rhs_t), prse_type_to_string(Function_definition_expr::current_return_type), "", line);
+        {prse_type_to_string(rhs_t), prse_type_to_string(Function_definition_expr::current_return_type), "", std::to_string(line)});
     }
     string ret_s = "return";
     if (rhs != nullptr){
@@ -420,7 +420,7 @@ const Constant* If_block::as_const() const {
         auto cond_const = condition->as_const();
         auto cond_type = cond_const->type();
         if (cond_type != PRSE_type::T_BOOL){
-            Error::error(Error::CONDITION_MUST_BE_BOOLEAN_EXPRESSION, prse_type_to_string(cond_type), "", "", line);
+            Error::error(Error::CONDITION_MUST_BE_BOOLEAN_EXPRESSION, {prse_type_to_string(cond_type), "", "", std::to_string(line)});
         } else {
             ret_s += "if (";
             ret_s += cond_const->value();
@@ -449,7 +449,7 @@ const Constant* If_block::as_const() const {
             } else ret_s += "\n";
         }
     } else {
-        Error::error(Error::CONDITION_CANNOT_BE_EMPTY, "", "", "", line);
+        Error::error(Error::CONDITION_CANNOT_BE_EMPTY, {"", "", "", std::to_string(line)});
     }
     return ret(new Constant(ret_t, ret_s));
 }
@@ -470,7 +470,7 @@ const Constant* Else_if_block::as_const() const {
         auto cond_const = condition->as_const();
         auto cond_type = cond_const->type();
         if (cond_type != PRSE_type::T_BOOL){
-            Error::error(Error::CONDITION_MUST_BE_BOOLEAN_EXPRESSION, prse_type_to_string(cond_type), "", "", line);
+            Error::error(Error::CONDITION_MUST_BE_BOOLEAN_EXPRESSION, {prse_type_to_string(cond_type), "", "", std::to_string(line)});
         } else {
             Table_handler& th = Table_handler::instance();
             th.push_table();
@@ -497,7 +497,7 @@ const Constant* Else_if_block::as_const() const {
             } else ret_s += "\n";
         }
     } else {
-        Error::error(Error::CONDITION_CANNOT_BE_EMPTY, "", "", "", line);
+        Error::error(Error::CONDITION_CANNOT_BE_EMPTY, {"", "", "", std::to_string(line)});
     }
     return ret(new Constant(ret_t, ret_s));
 }
@@ -628,7 +628,7 @@ const Constant* While_loop::as_const() const{
     PRSE_type ret_t = PRSE_type::NO_TYPE;
     if (condition != nullptr){
         if (condition->as_const()->type() != PRSE_type::T_BOOL){
-            Error::error(Error::CONDITION_MUST_BE_BOOLEAN_EXPRESSION, prse_type_to_string(condition->as_const()->type()), "", "", line);
+            Error::error(Error::CONDITION_MUST_BE_BOOLEAN_EXPRESSION, {prse_type_to_string(condition->as_const()->type()), "", "", std::to_string(line)});
             return ret(new Constant(PRSE_type::NO_TYPE, ""));
         }
         else ret_s += condition->as_const()->value();

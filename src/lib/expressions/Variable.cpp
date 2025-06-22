@@ -12,7 +12,7 @@ const Constant* Variable::as_const() const {
     if (sym != nullptr){
         return ret(new Constant(sym->get_type(), sym->get_name()));
     } else {
-        Error::error(Error::VARIABLE_NOT_DEFINED_IN_SCOPE, symbol, "", "", line);
+        Error::error(Error::VARIABLE_NOT_DEFINED_IN_SCOPE, {symbol, "", "", std::to_string(line)});
     }
     return ret(new Constant(PRSE_type::NO_TYPE, ""));
 }
@@ -26,11 +26,11 @@ const Constant* Array::as_const() const {
     auto sym = th.lookup(symbol);
     if (sym != nullptr){
         if (sym->get_size() == 0) {
-            Error::error(Error::VARIABLE_IS_NOT_AN_ARRAY, symbol, "", "", line);
+            Error::error(Error::VARIABLE_IS_NOT_AN_ARRAY, {symbol, "", "", std::to_string(line)});
         }
         else return ret(new Constant(sym->get_type(), sym->get_name()));
     } else {
-        Error::error(Error::VARIABLE_NOT_DEFINED_IN_SCOPE, symbol, "", "", line);
+        Error::error(Error::VARIABLE_NOT_DEFINED_IN_SCOPE, {symbol, "", "", std::to_string(line)});
     }
     return ret(new Constant(PRSE_type::NO_TYPE, ""));
 }

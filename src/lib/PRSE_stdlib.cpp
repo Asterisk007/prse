@@ -7,6 +7,7 @@ Library::Library(){
     library["io"] = "iostream";
     library["math"] = "math";
     library["algorithm"] = "algorithm";
+    library["string"] = "string";
     for (auto it = library.begin(); it != library.end(); it++)
         lib_used[it->first] = false;
     lib_required["vector"] = false;

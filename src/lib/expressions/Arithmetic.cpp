@@ -10,7 +10,7 @@ const Constant* Decrement::as_const() const {
     if (lhs != nullptr){
         auto l = lhs->as_const();
         if (!(l->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "lhs", prse_type_to_string(l->type()), "divide", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, { "lhs", prse_type_to_string(l->type()), "divide" }, line);
         }
         string ret_s = l->value();
         ret_s += "--";
@@ -24,7 +24,7 @@ string Decrement::value() const {
     if (lhs != nullptr){
         auto l = lhs->as_const();
         if (!(l->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "lhs", prse_type_to_string(l->type()), "divide", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, { "lhs", prse_type_to_string(l->type()), "divide" }, line);
         }
         string ret_s = l->value();
         ret_s += "--";
@@ -39,7 +39,7 @@ vector<const Constant*> Decrement::as_list() const {
     if (lhs != nullptr){
         auto l = lhs->as_const();
         if (!(l->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "lhs", prse_type_to_string(l->type()), "divide", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, { "lhs", prse_type_to_string(l->type()), "divide" }, line);
         }
         string t = l->value();
         t += "--";
@@ -54,10 +54,10 @@ const Constant* Divide::as_const() const {
         auto l = lhs->as_const();
         auto r = rhs->as_const();
         if (!(l->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "lhs", prse_type_to_string(l->type()), "divide", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, { "lhs", prse_type_to_string(l->type()), "divide" }, line);
         }
         if (!(r->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "rhs", prse_type_to_string(l->type()), "divide", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, { "rhs", prse_type_to_string(l->type()), "divide" }, line);
         }
         string t = l->value();
         t += " / "; t += r->value();
@@ -72,10 +72,10 @@ string Divide::value() const {
         auto l = lhs->as_const();
         auto r = rhs->as_const();
         if (!(l->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "lhs", prse_type_to_string(l->type()), "divide", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, { "lhs", prse_type_to_string(l->type()), "divide" }, line);
         }
         if (!(r->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "rhs", prse_type_to_string(l->type()), "divide", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, { "rhs", prse_type_to_string(l->type()), "divide" }, line);
         }
         string t = l->value();
         t += " / "; t += r->value();
@@ -91,10 +91,10 @@ vector<const Constant*> Divide::as_list() const {
         auto l = lhs->as_const();
         auto r = rhs->as_const();
         if (!(l->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "lhs", prse_type_to_string(l->type()), "divide", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, { "lhs", prse_type_to_string(l->type()), "divide" }, line);
         }
         if (!(r->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "rhs", prse_type_to_string(l->type()), "divide", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, { "rhs", prse_type_to_string(l->type()), "divide" }, line);
         }
         string t = l->value();
         t += " / "; t += r->value();
@@ -112,7 +112,7 @@ const Constant* Increment::as_const() const {
     if (lhs != nullptr){
         auto l = lhs->as_const();
         if (!(l->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "lhs", prse_type_to_string(l->type()), "divide", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, { "lhs", prse_type_to_string(l->type()), "divide" }, line);
         }
         string ret_s = l->value();
         ret_s += "++";
@@ -126,7 +126,7 @@ string Increment::value() const {
     if (lhs != nullptr){
         auto l = lhs->as_const();
         if (!(l->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "lhs", prse_type_to_string(l->type()), "divide", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, { "lhs", prse_type_to_string(l->type()), "divide" }, line);
         }
         string ret_s = l->value();
         ret_s += "++";
@@ -141,7 +141,7 @@ vector<const Constant*> Increment::as_list() const {
     if (lhs != nullptr){
         auto l = lhs->as_const();
         if (!(l->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "lhs", prse_type_to_string(l->type()), "divide", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, { "lhs", prse_type_to_string(l->type()), "divide" }, line);
         }
         string t = l->value();
         t += "++";
@@ -156,10 +156,10 @@ const Constant* Minus::as_const() const {
         auto l = lhs->as_const();
         auto r = rhs->as_const();
         if (!(l->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "lhs", prse_type_to_string(l->type()), "divide", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, { "lhs", prse_type_to_string(l->type()), "divide" }, line);
         }
         if (!(r->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "rhs", prse_type_to_string(l->type()), "divide", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, { "rhs", prse_type_to_string(l->type()), "divide" }, line);
         }
         string t = l->value();
         t += " - "; t += r->value();
@@ -174,10 +174,10 @@ string Minus::value() const{
         auto l = lhs->as_const();
         auto r = rhs->as_const();
         if (!(l->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "lhs", prse_type_to_string(l->type()), "divide", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, { "lhs", prse_type_to_string(l->type()), "divide" }, line);
         }
         if (!(r->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "rhs", prse_type_to_string(l->type()), "divide", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, { "rhs", prse_type_to_string(l->type()), "divide" }, line);
         }
         string t = l->value();
         t += " - "; t += r->value();
@@ -193,10 +193,10 @@ vector<const Constant*> Minus::as_list() const {
         auto l = lhs->as_const();
         auto r = rhs->as_const();
         if (!(l->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "lhs", prse_type_to_string(l->type()), "divide", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, { "lhs", prse_type_to_string(l->type()), "divide" }, line);
         }
         if (!(r->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "rhs", prse_type_to_string(l->type()), "divide", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, { "rhs", prse_type_to_string(l->type()), "divide" }, line);
         }
         string t = l->value();
         t += " - "; t += r->value();
@@ -212,10 +212,10 @@ const Constant* Modulo::as_const() const {
         auto l = lhs->as_const();
         auto r = rhs->as_const();
         if (!(l->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "lhs", prse_type_to_string(l->type()), "divide", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, { "lhs", prse_type_to_string(l->type()), "divide" }, line);
         }
         if (!(r->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "rhs", prse_type_to_string(l->type()), "divide", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, { "rhs", prse_type_to_string(l->type()), "divide" }, line);
         }
         string t = l->value();
         t += " % "; t += r->value();
@@ -240,10 +240,10 @@ const Constant* Multiply::as_const() const {
         auto l = lhs->as_const();
         auto r = rhs->as_const();
         if (!(l->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "lhs", prse_type_to_string(l->type()), "divide", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, { "lhs", prse_type_to_string(l->type()), "divide" }, line);
         }
         if (!(r->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "rhs", prse_type_to_string(l->type()), "divide", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, { "rhs", prse_type_to_string(l->type()), "divide" }, line);
         }
         string t = l->value();
         t += " * "; t += r->value();
@@ -258,10 +258,10 @@ string Multiply::value() const{
         auto l = lhs->as_const();
         auto r = rhs->as_const();
         if (!(l->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "lhs", prse_type_to_string(l->type()), "divide", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, { "lhs", prse_type_to_string(l->type()), "divide" }, line);
         }
         if (!(r->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "rhs", prse_type_to_string(l->type()), "divide", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, { "rhs", prse_type_to_string(l->type()), "divide" }, line);
         }
         string t = l->value();
         t += " * "; t += r->value();
@@ -277,10 +277,10 @@ vector<const Constant*> Multiply::as_list() const {
         auto l = lhs->as_const();
         auto r = rhs->as_const();
         if (!(l->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "lhs", prse_type_to_string(l->type()), "divide", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, { "lhs", prse_type_to_string(l->type()), "divide" }, line);
         }
         if (!(r->type() & VALID_MATH_TYPES)){
-            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, "rhs", prse_type_to_string(l->type()), "divide", line);
+            Error::error(Error::INVALID_EXPRESSION_TYPE_FOR_OPERATION, { "rhs", prse_type_to_string(l->type()), "divide" }, line);
         }
         string t = l->value();
         t += " * "; t += r->value();
@@ -297,7 +297,7 @@ const Constant* Plus::as_const() const {
         auto r = rhs->as_const();
         if (l->type() != r->type()){
             // TODO: might need changing
-            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, prse_type_to_string(l->type()), prse_type_to_string(r->type()), "", line);
+            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, { l->value(), prse_type_as_string(l->type()), r->value(), prse_type_as_string(r->type()) }, line);
         }
         string t = l->value();
         t += " + "; t += r->value();
@@ -313,7 +313,7 @@ string Plus::value() const {
         auto r = rhs->as_const();
         if (l->type() != r->type()){
             // TODO: might need changing
-            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, prse_type_to_string(l->type()), prse_type_to_string(r->type()), "", line);
+            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, { l->value(), prse_type_as_string(l->type()), r->value(), prse_type_as_string(r->type()) }, line);
         }
         string t = l->value();
         t += " + "; t += r->value();
@@ -329,7 +329,7 @@ vector<const Constant*> Plus::as_list() const {
         auto l = lhs->as_const();
         auto r = rhs->as_const();
         if (l->type() != r->type()){
-            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, prse_type_to_string(l->type()), prse_type_to_string(r->type()));
+            Error::error(Error::EXPRESSION_TYPES_DO_NOT_MATCH, { l->value(), prse_type_as_string(l->type()), r->value(), prse_type_as_string(r->type()) }, line);
         }
         string t = l->value();
         t += " + "; t += r->value();
