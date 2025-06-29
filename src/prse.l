@@ -123,7 +123,7 @@ in                           { return IN; }
                              }
 
 [A-Za-z_][a-zA-Z0-9_]*       { yylval.union_string = new string(yytext); return ID; } /* variable */
-
+\$\"     { return INTERPOLATION_START; }
 (\r\n?|\n)                   { line_count++; } /* newlines and CRLF */
 [\t\ ]                       {} /* whitespace: tabs and spaces */
 .                            { return MY_ERROR; }

@@ -1,0 +1,2 @@
+let a: int = 5;
+println($"The value of a is {a}, and this is the rest of the string");

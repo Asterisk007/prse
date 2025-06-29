@@ -118,6 +118,7 @@
 %token IN                   "in"
 // Variable identification
 %token <union_string> ID 	"identifier"
+%token INTERPOLATION_START
 
 // Production types
 %type <union_string_list>       import_list
@@ -164,9 +165,9 @@
 %type <union_expression>        if_header
 %type <union_expression>        else_if_header
 %type <union_expression>        optional_else_or_else_if
-//%type <union_expression_list> interpolated_string
+%type <union_expression_list> interpolated_string
 //%type <union_expression_list> i_string_segment_list
-//%type <union_expression_list> i_string_middle
+%type <union_expression_list> i_string_middle
 
 %token MY_ERROR "error"
 
@@ -971,6 +972,11 @@ primary_expression:
     }
     | constant { $$ = $1; /*cout << "Expression: " << $1->value() << endl;*/ }
     /*| error { yyerrok; }*/
+    | interpolated_string {
+        vector<const Expression*>* l = $1;
+        $$ = new Interpolated_string(line_count, *l);
+        delete l;
+    }
     ;
 
 array:
@@ -1008,14 +1014,37 @@ constant:
     /*| error { yyerrok; }*/
     ;
 
-/*
+
 interpolated_string:
-    DOLLAR i_string_segment_list {
-        $$ = $2;
+    INTERPOLATION_START I_STRING_BEGIN i_string_middle I_STRING_END {
+      vector<const Expression*>* l = new vector<const Expression*>();
+
+        // Convert string prefix to a Constant expression
+        if ($2 && !$2->empty()) {
+            string t = *$2;
+            t.insert(0, 1, '"');
+            t.insert(t.size(), 1, '"');
+            l->push_back(new Constant(PRSE_type::T_STRING, t));
+        }
+
+        append_list(l, $3);  // now both sides are vector<const Expression*>*
+
+        // Convert string suffix to a Constant expression
+        if ($4 && !$4->empty()) {
+            string p = *$4;
+            p.insert(0, 1, '"');
+            p.insert(p.size(), 1, '"');
+            l->push_back(new Constant(PRSE_type::T_STRING, p));
+        }
+
+        delete $2;
+        delete $3;
+        delete $4;
+        $$ = l;
     }
     ;
 
-i_string_segment_list:
+/*i_string_segment_list:
     I_STRING_BEGIN i_string_middle I_STRING_END { // $"string {format segment} string {or multiple format segments} string"
         vector<string>* l = new vector<string>(0);
         // This is a special case where the strings *have* to have
@@ -1045,46 +1074,45 @@ i_string_segment_list:
         $$ = l;
     }
     ;
-
+*/
 i_string_middle:
     expression I_STRING_PART i_string_middle { // expression | } string part { | <any three of what i_string_middle can take on>
-        vector<string>* l = new vector<string>(0);
+        vector<const Expression*>* l = new vector<const Expression*>();
+
         if ($1 != nullptr) {
-            vector<string>* temp = new vector<string>($1->get_list());
-            append_list(l, temp);
-            delete temp;
+            l->push_back($1);
         } else {
-            // Warn the programmer against empty string interpolation sections.
-            // Can be disabled, just need to decide how.
             cerr << "Line " << line_count << ": warning - interpolated section is empty. Consider removing it." << endl;
         }
-        delete $1;
-        string t = *$2;
-        if (t.size() > 0) {
-            t.insert(0, 1, '"'); t.insert(t.size(), 1, '"');
-            l->push_back(t);
+
+        // Create a Constant for the raw string part
+        string* str = $2;
+        if (!str->empty()) {
+            str->insert(0, 1, '"');
+            str->insert(str->size(), 1, '"');
+            Constant* c = new Constant(PRSE_type::T_STRING, *str);
+            l->push_back(c);
         }
-        delete $2;
+        delete str;
+
         append_list(l, $3);
         delete $3;
+
         $$ = l;
     }
     | expression {
-        vector<string>* l = new vector<string>(0);
+        vector<const Expression*>* l = new vector<const Expression*>(0);
         if ($1 != nullptr) {
-            vector<string>* temp = new vector<string>($1->get_list());
-            append_list(l, temp);
-            delete temp;
+            l->push_back($1);
         } else {
             // Warn the programmer against empty string interpolation sections.
             // Can be disabled, just need to decide how.
             cerr << "Line " << line_count << ": warning - interpolated section is empty. Consider removing it." << endl;
         }
-        delete $1;
         $$ = l;
     }
     ;
-*/
+
 
 variable_type:
     basic_type {
