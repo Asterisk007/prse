@@ -3,19 +3,18 @@
 
 class Interpolated_string : public Expression {
 protected:
+    int line;
     vector<const Expression*> list;
 public:
-    Interpolated_string(const Expression* expr){
-        list = vector<const Expression*>(0);
-        list.push_back(expr);
-    }
-    Interpolated_string(vector<const Expression*>& expr_list): list(expr_list){}
+    Interpolated_string(int line, const Expression* expr);
+    Interpolated_string(int line, vector<const Expression*>& expr_list): line(line), list(expr_list){}
     virtual ~Interpolated_string(){
         for (auto a : list){
             delete a;
         }
     }
     vector<const Expression*> as_list(){ return list; }
+    virtual const Constant* as_const() const;
     virtual string value() const;
 };
 

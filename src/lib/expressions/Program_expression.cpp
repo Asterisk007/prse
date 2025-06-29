@@ -1,5 +1,7 @@
 #include "Program_expression.h"
+#include "Expression.h"
 #include "Expression_core.h"
+#include <vector>
 
 PRSE_type Function_definition_expr::current_return_type = PRSE_type::NO_TYPE;
 bool Function_definition_expr::is_main = false;
@@ -184,6 +186,28 @@ const Constant* Function_call::as_const() const {
 string Function_call::value() const {
     return "";
 }
+
+// String interpolation
+Interpolated_string::Interpolated_string(int line, const Expression* expr) : line(line) {
+    list = vector<const Expression*>(0);
+    list.push_back(expr);
+}
+
+const Constant* Interpolated_string::as_const() const {
+    string out = "std::string(";
+    for (int i = 0; i < (int)list.size(); i++) {
+        out += list[i]->value();
+        if (i < (int)list.size() - 1) {
+            out += " + ";
+        }
+    }
+    return new Constant(PRSE_type::T_STRING, out);
+}
+
+string Interpolated_string::value() const {
+    return "";
+}
+
 
 // Variable defintions
 Variable_definition::Variable_definition(const int line, const string& id, const PRSE_type prse_type, const Expression* rhs, int size)
